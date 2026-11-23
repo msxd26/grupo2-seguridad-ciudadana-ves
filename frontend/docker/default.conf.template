@@ -1,10 +1,20 @@
 # Tu Vecino · Nginx: sirve la app compilada y redirige /api al backend.
-# Escucha en HTTP (80) y HTTPS (443). HTTPS es necesario para el GPS y las
-# notificaciones en celulares de la red local (el certificado es autofirmado).
+# Plantilla: la imagen oficial reemplaza ${SITIO_SEGURO} y ${REDIRIGIR_HTTPS} al iniciar
+# (ver 05-sitio-seguro.envsh). Las variables de Nginx ($host, $scheme…) no se tocan.
+#
+# HTTPS es obligatorio para las notificaciones y el GPS en el navegador. Con SITIO_SEGURO
+# (ej. 34-176-116-202.sslip.io) se usa un certificado válido de Let's Encrypt; sin él,
+# uno autofirmado (red local).
+
+# http → https solo para la web y solo si ya hay certificado válido (REDIRIGIR_HTTPS=1).
+map $scheme $redirigir_https {
+    http    ${REDIRIGIR_HTTPS};
+    default 0;
+}
 
 server {
-    listen 80;
-    listen 443 ssl;
+    listen 80 default_server;
+    listen 443 ssl default_server;
     http2 on;
     server_name _;
 
@@ -21,7 +31,14 @@ server {
 
     client_max_body_size 32k;
 
-    # Tiempo real (WebSocket): actualiza la conexión HTTP a WS y la mantiene abierta
+    # Validación de Let's Encrypt (siempre por http, nunca se redirige)
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type text/plain;
+    }
+
+    # Tiempo real (WebSocket): actualiza la conexión HTTP a WS y la mantiene abierta.
+    # No se redirige: la app Android se conecta por http a la IP.
     location = /api/ws {
         proxy_pass http://backend:3000;
         proxy_http_version 1.1;
@@ -35,7 +52,7 @@ server {
         proxy_send_timeout 1h;
     }
 
-    # API REST
+    # API REST (tampoco se redirige, por la app Android)
     location /api/ {
         proxy_pass http://backend:3000;
         proxy_http_version 1.1;
@@ -46,13 +63,16 @@ server {
 
     # Archivos con hash en el nombre: caché larga
     location /assets/ {
+        if ($redirigir_https) { return 301 https://${SITIO_SEGURO}$request_uri; }
         expires 1y;
         add_header Cache-Control "public, immutable";
         try_files $uri =404;
     }
 
-    # SPA: cualquier ruta de React devuelve index.html (sin caché)
+    # SPA: cualquier ruta de React devuelve index.html (sin caché).
+    # Quien entra por http (o por la IP) va a la dirección segura.
     location / {
+        if ($redirigir_https) { return 301 https://${SITIO_SEGURO}$request_uri; }
         add_header Cache-Control "no-cache";
         try_files $uri $uri/ /index.html;
     }

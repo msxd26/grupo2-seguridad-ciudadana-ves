@@ -17,6 +17,30 @@ export default function ControlNotificaciones({ compacto = false }) {
   const id = useId()
   if (!n.soportado) return null
 
+  // Sin HTTPS el navegador bloquea las notificaciones automáticamente (no es un ajuste de la persona).
+  if (!window.isSecureContext) {
+    return (
+      <div className={compacto ? 'notif notif--compacto' : 'notif'}>
+        <p className="notif__aviso" role="note">
+          <strong>🔒 Avisos no disponibles en esta dirección.</strong> El navegador solo permite notificaciones en sitios seguros
+          (https). Usa la app Tu Vecino o abre la versión segura del sitio cuando esté disponible.
+        </p>
+      </div>
+    )
+  }
+
+  // La persona bloqueó el permiso: solo se puede revertir desde el navegador.
+  if (Notification.permission === 'denied') {
+    return (
+      <div className={compacto ? 'notif notif--compacto' : 'notif'}>
+        <p className="notif__aviso" role="note">
+          <strong>🔕 Bloqueaste los avisos de este sitio.</strong> Para activarlos: toca el candado junto a la dirección →
+          Configuración del sitio → Notificaciones → Permitir, y recarga la página.
+        </p>
+      </div>
+    )
+  }
+
   const abrir = () => { setBorrador(n.config ?? { ...CONFIG_INICIAL, radio: 1000 }); setAbierto(true) }
   const alternarTipo = (t) =>
     setBorrador((b) => ({ ...b, tipos: b.tipos.includes(t) ? b.tipos.filter((x) => x !== t) : [...b.tipos, t] }))
