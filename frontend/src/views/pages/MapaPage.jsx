@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { CircleMarker } from 'react-leaflet'
 import { useAsync } from '../../controllers/useAsync'
 import { useEventos } from '../../context/EventosContext'
-import { fetchMapa } from '../../services/seguridadService'
+import { fetchMapa, fetchBrecha } from '../../services/seguridadService'
 import { PERIODOS } from '../../models/mapa'
 import { encuadreDe, resumenTipos } from '../../models/avisos'
 import { TIPOS } from '../../models/tipos'
@@ -11,6 +11,9 @@ import { IconoAtencion, IconoCalor, IconoDesplegar, IconoPeligro, IconoPin, Icon
 import MapaBase from '../components/mapa/MapaBase'
 import CapaCalor from '../components/mapa/CapaCalor'
 import { CapaComisarias, CapaReportes, CapaZonas } from '../components/mapa/capas'
+import CapaBrecha from '../components/mapa/CapaBrecha'
+import SelectorFuente from '../components/mapa/SelectorFuente'
+import ResumenBrecha from '../components/mapa/ResumenBrecha'
 import PanelEnVivo from '../components/mapa/PanelEnVivo'
 import LeyendaMapa from '../components/mapa/LeyendaMapa'
 import '../../assets/styles/mapa.css'
@@ -33,6 +36,7 @@ export default function MapaPage() {
   const { suscribir } = useEventos()
   const [dias, setDias] = useState(7)
   const [tipo, setTipo] = useState('')
+  const [fuente, setFuente] = useState('vecinal') // 'vecinal' | 'oficial' | 'brecha'
   const [visibles, setVisibles] = useState({ calor: true, reportes: true, zonas: false, comisarias: true })
   const [destino, setDestino] = useState(() => {
     // ?encuadre=s,o,n,e llega desde un aviso de ráfaga: se encuadran todos los reportes.
@@ -60,6 +64,10 @@ export default function MapaPage() {
 
   const tipos = useMemo(() => (tipo ? [tipo] : []), [tipo])
   const { data, error, cargando } = useAsync((signal) => fetchMapa({ dias, tipos }, signal), [dias, tipo])
+  const { data: dataBrecha, cargando: cargandoBrecha } = useAsync(
+    (signal) => fuente === 'brecha' ? fetchBrecha({ dias, tipo }, signal) : Promise.resolve(null),
+    [fuente, dias, tipo],
+  )
 
   // Al recargar los datos, los reportes en vivo ya vienen incluidos.
   useEffect(() => setEnVivo([]), [data])
@@ -153,6 +161,23 @@ export default function MapaPage() {
             <h1 className="mapa-panel__title">Mapa de incidentes</h1>
             <p className="mapa-panel__desc">Lo que reportan los vecinos de Villa El Salvador, en tiempo real.</p>
           </div>
+
+          <section className="mapa-panel__seccion" aria-labelledby="sec-fuente">
+            <h2 id="sec-fuente" className="mapa-panel__seccion-titulo">Fuente de datos</h2>
+            <SelectorFuente fuente={fuente} onChange={(f) => { setFuente(f); if (f !== 'vecinal') setVisibles((v) => ({ ...v, calor: false })) }} />
+          </section>
+
+          {fuente === 'brecha' ? (
+            <ResumenBrecha resumen={dataBrecha?.resumen} cargando={cargandoBrecha} />
+          ) : null}
+
+          {fuente === 'oficial' ? (
+            <div className="aviso-fuente-oficial" role="note">
+              <p><strong>🏛️ Datos oficiales (SIDPOL)</strong></p>
+              <p>Las denuncias policiales están disponibles por distrito, sin coordenadas exactas. Usa <strong>Comparar</strong> para ver la diferencia de visibilidad sobre el mapa.</p>
+              <Link to="/dashboard" className="aviso-fuente-oficial__link">Ver estadísticas en el panel →</Link>
+            </div>
+          ) : null}
 
           <section className="mapa-panel__seccion" aria-labelledby="sec-filtros">
             <h2 id="sec-filtros" className="mapa-panel__seccion-titulo">Filtros</h2>
@@ -250,9 +275,13 @@ export default function MapaPage() {
           <IconoCalor size={18} aria-hidden="true" /> Calor
         </button>
         <MapaBase limite={data?.limite} destino={destino} className="mapa">
-          {visibles.calor ? <CapaCalor puntos={puntos} /> : null}
-          {data && visibles.zonas ? <CapaZonas zonas={data.zonas} /> : null}
-          {visibles.reportes ? <CapaReportes reportes={reportes} nuevos={nuevos} onOculto={ocultar} abrirId={seleccionado} /> : null}
+          {/* Capa de brecha (modo Comparar): va debajo de los pins para no taparlos */}
+          {fuente === 'brecha' && dataBrecha?.zonas ? <CapaBrecha zonas={dataBrecha.zonas} /> : null}
+          {/* Modo Oficial: datos SIDPOL son por distrito completo, no hay pines individuales.
+              El mapa muestra solo comisarías + el resumen de brecha en el panel lateral. */}
+          {fuente !== 'brecha' && fuente !== 'oficial' && visibles.calor ? <CapaCalor puntos={puntos} /> : null}
+          {data && visibles.zonas && fuente === 'vecinal' ? <CapaZonas zonas={data.zonas} /> : null}
+          {(fuente === 'vecinal' || fuente === 'brecha') && visibles.reportes ? <CapaReportes reportes={reportes} nuevos={nuevos} onOculto={ocultar} abrirId={seleccionado} /> : null}
           {data && visibles.comisarias ? <CapaComisarias comisarias={data.comisarias} /> : null}
           {miPosicion ? <CircleMarker center={[miPosicion.lat, miPosicion.lng]} radius={8} pathOptions={{ color: '#fff', weight: 3, fillColor: '#1D4ED8', fillOpacity: 1 }} /> : null}
           {destino?.lat ? <CircleMarker center={[destino.lat, destino.lng]} radius={22} pathOptions={{ color: '#1E3A8A', weight: 2, fill: false, dashArray: '4 4' }} /> : null}
@@ -260,7 +289,7 @@ export default function MapaPage() {
         <button type="button" className="boton-ubicacion" onClick={irAMiUbicacion} disabled={ubicando} aria-label="Centrar el mapa en mi ubicación" title="Mi ubicación">
           {ubicando ? <span className="spinner" aria-hidden="true" /> : <IconoUbicacion size={22} aria-hidden="true" />}
         </button>
-        <LeyendaMapa />
+        <LeyendaMapa modoBrecha={fuente === 'brecha'} />
         <PanelEnVivo
           reportes={reportes}
           nuevos={nuevos}

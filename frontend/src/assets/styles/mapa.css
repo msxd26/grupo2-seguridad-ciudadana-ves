@@ -270,3 +270,147 @@
   .mapa-page { height: calc(100dvh - 71px - 64px - env(safe-area-inset-bottom)); }
 }
 @media (prefers-reduced-motion: reduce) { .mapa-panel { transition: none; } }
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPARACIÓN BRECHA OFICIAL vs VECINAL
+   Tesis: "lo oficial no cuenta toda la historia"
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Selector de fuente: Vecinos | Oficial | Comparar ─────────── */
+.selector-fuente {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem;
+}
+.selector-fuente__btn {
+  display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+  min-height: 56px; padding: 0.5rem 0.3rem; border-radius: var(--radius-md);
+  border: 2px solid var(--color-border); background: var(--color-surface-0);
+  cursor: pointer; font: inherit; transition: border-color var(--duration-base), background var(--duration-base);
+  color: var(--color-ink-700);
+}
+.selector-fuente__btn:hover { border-color: var(--color-brand); }
+.selector-fuente__btn--activo {
+  border-color: var(--color-brand); background: var(--color-brand-light); color: var(--color-brand-dark);
+}
+.selector-fuente__icono { font-size: 1.3rem; line-height: 1; }
+.selector-fuente__label { font-size: 0.82rem; font-weight: 700; }
+.selector-fuente__desc { font-size: 0.68rem; color: var(--color-ink-500); text-align: center; line-height: 1.3; }
+
+/* ── Resumen de brecha: banner en el panel ────────────────────── */
+.resumen-brecha {
+  display: grid; gap: 0.4rem; padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md); background: var(--color-surface-2);
+  border: 1px solid var(--color-border); font-size: 0.85rem;
+}
+.resumen-brecha--alerta {
+  background: #FEF2F2; border-color: #FECACA;
+}
+.resumen-brecha--cargando {
+  display: flex; align-items: center; gap: 0.5rem; color: var(--color-ink-500);
+}
+.resumen-brecha__titular { display: flex; align-items: flex-start; gap: 0.4rem; font-size: 0.875rem; color: var(--color-ink-900); }
+.resumen-brecha__titular strong { flex: 1; line-height: 1.4; }
+.resumen-brecha__icono { flex-shrink: 0; }
+.resumen-brecha__detalle { margin: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; font-size: 0.8rem; color: var(--color-ink-700); }
+.resumen-brecha__badge {
+  display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+  background: #FEE2E2; color: #991B1B; font-weight: 700; font-size: 0.75rem;
+}
+.resumen-brecha__nota { margin: 0; }
+.resumen-brecha__nota summary {
+  font-size: 0.78rem; color: var(--color-brand); font-weight: 600; cursor: pointer;
+  list-style: none;
+}
+.resumen-brecha__nota summary::-webkit-details-marker { display: none; }
+.resumen-brecha__nota p {
+  margin: 0.4rem 0 0; font-size: 0.8rem; color: var(--color-ink-700); line-height: 1.5;
+  padding: 0.5rem 0.6rem; background: var(--color-surface-0); border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+/* ── Tarjeta de brecha (tooltip en zona del mapa) ─────────────── */
+/* Leaflet Tooltip hereda .leaflet-tooltip; extendemos sin romper */
+.tooltip-brecha.leaflet-tooltip {
+  padding: 0; border: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-modal);
+  background: transparent; white-space: normal; max-width: 240px;
+}
+.tooltip-brecha.leaflet-tooltip::before { display: none; } /* quita flecha nativa */
+
+.tarjeta-brecha {
+  background: var(--color-surface-0); border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border); overflow: hidden; min-width: 200px; max-width: 240px;
+}
+.tarjeta-brecha__cabecera {
+  padding: 0.5rem 0.75rem; background: var(--color-surface-2); border-bottom: 1px solid var(--color-border);
+}
+.tarjeta-brecha__nivel {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 0.03em;
+}
+.tarjeta-brecha__nivel--alta        { color: #991B1B; }
+.tarjeta-brecha__nivel--media       { color: #78350F; }
+.tarjeta-brecha__nivel--similar     { color: var(--color-ink-500); }
+.tarjeta-brecha__nivel--mas_oficial { color: var(--color-brand-dark); }
+.tarjeta-brecha__nivel--sin_equivalente { color: #6D28D9; }
+
+.tarjeta-brecha__filas { padding: 0.6rem 0.75rem; display: grid; gap: 0.35rem; }
+.tarjeta-brecha__fila {
+  display: grid; grid-template-columns: auto 1fr; gap: 0.1rem 0.5rem; align-items: baseline;
+  padding: 0.4rem 0.5rem; border-radius: 6px;
+}
+.tarjeta-brecha__fila--vecinal { background: #F0FDF4; }
+.tarjeta-brecha__fila--oficial { background: #EFF6FF; }
+.tarjeta-brecha__fuente-label { grid-column: 1 / -1; font-size: 0.72rem; font-weight: 700; color: var(--color-ink-500); margin-bottom: 0.1rem; }
+.tarjeta-brecha__cifra { font-size: 1.3rem; font-weight: 800; color: var(--color-ink-900); }
+.tarjeta-brecha__tipo { font-size: 0.78rem; color: var(--color-ink-700); }
+
+.tarjeta-brecha__explicacion {
+  margin: 0; padding: 0.5rem 0.75rem; font-size: 0.82rem; color: var(--color-ink-700);
+  font-style: italic; line-height: 1.45; border-top: 1px solid var(--color-border);
+}
+.tarjeta-brecha__aviso {
+  margin: 0; padding: 0.4rem 0.75rem; font-size: 0.72rem; color: var(--color-ink-500);
+  background: var(--color-surface-2); border-top: 1px solid var(--color-border);
+  line-height: 1.4;
+}
+
+/* ── Leyenda adicional para modo brecha (se añade a LeyendaMapa) ─ */
+.leyenda-brecha {
+  margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--color-border);
+  display: grid; gap: 0.3rem;
+}
+.leyenda-brecha__titulo {
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--color-ink-500);
+}
+.leyenda-brecha__item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--color-ink-900); }
+.leyenda-brecha__punto {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 3px; border: 2px solid currentColor;
+  font-size: 0.65rem; font-weight: 800; flex-shrink: 0;
+}
+.leyenda-brecha__punto--alta        { color: #DC2626; background: #FEE2E2; }
+.leyenda-brecha__punto--media       { color: #C2410C; background: #FEF3C7; }
+.leyenda-brecha__punto--similar     { color: #94A3B8; background: #F1F5F9; }
+.leyenda-brecha__punto--sin_equiv   { color: #7C3AED; background: #EDE9FE; }
+
+/* Aviso de datos estimados en modo brecha */
+.aviso-brecha-estimado {
+  margin: 0; padding: 0.5rem 0.6rem; border-radius: 6px; font-size: 0.75rem; line-height: 1.5;
+  background: #FFFBEB; color: #78350F; border: 1px solid #FDE68A;
+}
+
+/* Nota bajo la leyenda */
+.leyenda-mapa__nota { margin: 0.4rem 0.8rem 0.6rem; font-size: 0.72rem; color: var(--color-ink-500); line-height: 1.4; font-style: italic; }
+
+/* Info panel cuando fuente=oficial (datos SIDPOL sin coordenadas) */
+.aviso-fuente-oficial {
+  display: grid; gap: 0.35rem; padding: 0.75rem 0.9rem; border-radius: var(--radius-md);
+  background: #EFF6FF; border: 1px solid #BFDBFE; font-size: 0.85rem;
+}
+.aviso-fuente-oficial p { margin: 0; color: var(--color-ink-700); line-height: 1.45; }
+.aviso-fuente-oficial p strong { color: var(--color-brand-dark); }
+.aviso-fuente-oficial__link { font-weight: 700; color: var(--color-brand); font-size: 0.82rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .selector-fuente__btn { transition: none; }
+}

@@ -24,3 +24,6 @@ export const fetchPanelCiudadano = ({ dias }, signal) => getJson(`/panel-ciudada
 // Predicción por zona y plan de acción (panel municipal)
 export const fetchPredicciones = (signal) => getJson('/predicciones', signal)
 export const fetchPlanAccion = (zonas, signal) => getJson(`/predicciones/plan${toQuery({ zonas: zonas?.join(',') })}`, signal)
+
+// Comparación brecha oficial vs vecinal
+export const fetchBrecha = ({ dias, tipo } = {}, signal) => getJson(`/mapa/brecha${toQuery({ dias, tipo })}`, signal)
