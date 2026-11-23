@@ -8,6 +8,7 @@ import { fetchAlertas } from '../../services/seguridadService'
 import { CONSEJOS, ESTADOS_REPORTE, PASOS, pasoActual, saludo } from '../../models/reportes'
 import { MODOS, tipoDe } from '../../models/tipos'
 import { EMERGENCY_NUMBERS } from '../../models/navigation'
+import FondoVes from '../components/FondoVes'
 import '../../assets/styles/cuenta.css'
 
 const fecha = new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -79,7 +80,8 @@ export default function MiCuentaPage() {
 
   return (
     <div className="cuenta">
-      <section className="cuenta__hero">
+      <section className="cuenta__hero con-fondo-ves">
+        <FondoVes variante="teal" extra="fondo-ves--cuenta" costa={false} />
         <div className="container cuenta__hero-inner">
           <div>
             <p className="cuenta__saludo">{s.texto} <span aria-hidden="true">{s.icono}</span></p>

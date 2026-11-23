@@ -6,11 +6,13 @@ import { useEventos } from '../../../context/EventosContext'
 import { fetchPanelCiudadano } from '../../../services/seguridadService'
 import { formatNumero, formatVariacion } from '../../../models/estadisticas'
 import { MODOS, colorTipo } from '../../../models/tipos'
-import { NIVELES_ZONA } from '../../../models/mapa'
+// Nivel de la zona en texto (acompaña al color).
+const NIVEL_TEXTO = { alto: 'Prioridad alta', medio: 'Prioridad media', bajo: 'Vigilar' }
 import MapaBase from '../mapa/MapaBase'
 import CapaCalor from '../mapa/CapaCalor'
 import KpiCard from './KpiCard'
 import Tile from './Tile'
+import SkeletonPanel from './SkeletonPanel'
 import ColumnChart from './ColumnChart'
 import HBarList from './HBarList'
 import '../../../assets/styles/mapa.css'
@@ -80,7 +82,7 @@ export default function PanelCiudadano({ pestanas }) {
 
       <div className={cargando && data ? 'pbi__canvas pbi__canvas--cargando pbi__canvas--completo' : 'pbi__canvas pbi__canvas--completo'}>
         {error ? <div className="pbi__error" role="alert">No se pudo cargar el panel: {error}</div> : null}
-        {!data && !error ? <p>Cargando…</p> : null}
+        {!data && !error ? <SkeletonPanel /> : null}
 
         {data ? (
           <>
@@ -144,33 +146,25 @@ export default function PanelCiudadano({ pestanas }) {
 
               <Tile className="span-7" titulo="Top 5 zonas con más incidentes" subtitulo="Dónde priorizar el serenazgo">
                 {data.topZonas.length ? (
-                  <div className="priority">
-                    <table>
-                      <thead>
-                        <tr><th scope="col">Zona</th><th scope="col" className="num">Reportes</th><th scope="col">% del total</th><th scope="col">Tipo dominante</th><th scope="col">Acción sugerida</th></tr>
-                      </thead>
-                      <tbody>
-                        {data.topZonas.map((z) => (
-                          <tr key={z.id}>
-                            <th scope="row">
-                              <Link className="priority__link" to={`/mapa?lat=${z.lat}&lng=${z.lng}`}>
-                                <i className="punto-tipo" style={{ background: NIVELES_ZONA[z.nivel].color }} /> {z.referencia || 'Ver en mapa'}
-                              </Link>
-                            </th>
-                            <td className="num">{z.cantidad}</td>
-                            <td>
-                              <span className="porcentaje-zona">
-                                <span className="porcentaje-zona__barra" aria-hidden="true"><span style={{ width: `${pct(z.cantidad)}%` }} /></span>
-                                {pct(z.cantidad)}%
-                              </span>
-                            </td>
-                            <td>{z.tipoDominanteLabel}</td>
-                            <td>{z.accion}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  // Cards en lugar de tabla: la acción sugerida se lee de lejos (proyección para el funcionario).
+                  <ol className="zonas-prioridad">
+                    {data.topZonas.map((z, i) => (
+                      <li key={z.id} className={`zona-card zona-card--${z.nivel}`}>
+                        <div className="zona-card__cabecera">
+                          <span className="zona-card__rango">{i + 1}</span>
+                          <span className={`zona-card__nivel zona-card__nivel--${z.nivel}`}>{NIVEL_TEXTO[z.nivel] ?? 'Baja'}</span>
+                        </div>
+                        <strong className="zona-card__lugar">{z.referencia || 'Zona sin referencia'}</strong>
+                        <span className="zona-card__cifra">
+                          {z.cantidad} reportes · {pct(z.cantidad)}% del total
+                          <span className="porcentaje-zona__barra" aria-hidden="true"><span style={{ width: `${pct(z.cantidad)}%` }} /></span>
+                        </span>
+                        <span className="zona-card__tipo"><i className="punto-tipo" style={{ background: colorTipo(z.tipoDominante) }} aria-hidden="true" /> {z.tipoDominanteLabel}</span>
+                        <p className="zona-card__accion">{z.accion}</p>
+                        <Link className="zona-card__ir" to={`/mapa?lat=${z.lat}&lng=${z.lng}`}>Ver en el mapa →</Link>
+                      </li>
+                    ))}
+                  </ol>
                 ) : <p className="tile__nota">Sin reportes en este periodo.</p>}
               </Tile>
             </div>

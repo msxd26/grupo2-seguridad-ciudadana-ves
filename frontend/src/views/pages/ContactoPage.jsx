@@ -2,6 +2,7 @@ import { useAsync } from '../../controllers/useAsync'
 import { fetchComisarias } from '../../services/seguridadService'
 import { EMERGENCY_NUMBERS } from '../../models/navigation'
 import { enlaceOsm } from '../../models/mapa'
+import { IconoTelefono } from '../../models/iconos'
 import '../../assets/styles/paginas.css'
 
 const DISTRITO = 'Villa El Salvador'
@@ -30,13 +31,15 @@ export default function ContactoPage() {
   return (
     <section className="pagina container">
       <header className="pagina__header">
-        <h1>Contacto y emergencias</h1>
-        <p>Números de emergencia y comisarías de la Policía Nacional en Villa El Salvador y distritos vecinos.</p>
+        <h1>Emergencias y contacto</h1>
+        <p>Toca un número para llamar. Abajo están las comisarías de Villa El Salvador y distritos vecinos.</p>
       </header>
 
+      {/* La Policía (105) es el caso más frecuente: botón principal. Línea 100 a ancho completo (ODS 5). */}
       <div className="emergencias">
         {EMERGENCY_NUMBERS.map((e) => (
-          <a key={e.id} className="emergencia" href={`tel:${e.number}`}>
+          <a key={e.id} className={`emergencia emergencia--${e.id}`} href={`tel:${e.number}`} aria-label={`Llamar al ${e.number}: ${e.label}`}>
+            <IconoTelefono size={e.id === 'policia' ? 30 : 22} aria-hidden="true" className="emergencia__icono" />
             <span className="emergencia__numero">{e.number}</span>
             <span className="emergencia__label">{e.label}</span>
           </a>

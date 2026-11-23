@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { conversarIA } from '../services/seguridadService'
 import { fechaDesde, useEnviarReporte } from './useEnviarReporte'
 
-const SALUDO = { role: 'assistant', content: 'Hola, vecino/a. ¿Qué pasó? Cuéntame con tus palabras.' }
+const SALUDO = { role: 'assistant', content: 'Hola 👋 Estoy aquí para ayudarte. ¿Qué pasó? Cuéntame como quieras, en tus palabras.' }
 
 // Por debajo de este nivel de confianza la IA pregunta antes de pedir confirmación (igual que el backend).
 export const UMBRAL_CONFIANZA = 70
@@ -53,8 +53,8 @@ export function useChatReporte() {
 
   function confirmar() {
     agregar(
-      { role: 'user', content: 'Sí, correcto' },
-      { role: 'assistant', content: '¡Perfecto! ¿Dónde fue? Usa tu ubicación o toca el lugar en el mapa.' },
+      { role: 'user', content: 'Sí, así fue' },
+      { role: 'assistant', content: '¡Perfecto! Ahora dime dónde fue: usa tu ubicación o toca el lugar en el mapa de abajo.' },
     )
     setFase('ubicacion')
   }

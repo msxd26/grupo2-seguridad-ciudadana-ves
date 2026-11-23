@@ -8,10 +8,10 @@ export const TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
 export const PERIODOS = [
-  { dias: 1, label: '24 h' },
-  { dias: 7, label: '7 días' },
-  { dias: 30, label: '30 días' },
-  { dias: 90, label: '90 días' },
+  { dias: 1, label: 'Últimas 24 h' },
+  { dias: 7, label: 'Última semana' },
+  { dias: 30, label: 'Último mes' },
+  { dias: 90, label: '3 meses' },
 ]
 
 // Colores de las zonas por nivel de concentración.

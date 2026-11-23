@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useIngreso } from '../../controllers/useIngreso'
+import FondoVes from '../components/FondoVes'
 import '../../assets/styles/cuenta.css'
 
 const BENEFICIOS = [
@@ -30,7 +31,8 @@ export default function IngresarPage() {
 
   return (
     <section className="ingreso">
-      <div className="ingreso__bienvenida">
+      <div className="ingreso__bienvenida con-fondo-ves">
+        <FondoVes variante="teal" />
         <span className="ingreso__emoji" aria-hidden="true">👋</span>
         <h1>¡Hola, vecino/a!</h1>
         <p>Únete a la red de vecinos que cuidan Villa El Salvador.</p>

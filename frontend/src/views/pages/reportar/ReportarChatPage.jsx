@@ -17,18 +17,20 @@ const PASOS_PENSANDO = ['Leyendo tu mensaje…', 'Identificando el tipo de incid
 const nivelConfianza = (c) => (c >= 80 ? 'alta' : c >= 60 ? 'media' : 'baja')
 const TEXTO_NIVEL = { alta: 'Bastante seguro', media: 'Algo seguro', baja: 'Con dudas' }
 
+// Confirmación conversacional: chips con color en lugar de una tabla (mismo tono que el chat).
 function Deteccion({ deteccion }) {
   const t = tipoDe(deteccion.tipo)
   const nivel = nivelConfianza(deteccion.confianza)
   return (
-    <ul className="deteccion" aria-label="Lo que detectó la IA">
-      <li><span>Detecté</span><strong style={{ color: t.texto }}><t.Icono size={16} aria-hidden="true" /> {t.label}</strong></li>
-      {deteccion.zona ? <li><span>Zona</span><strong>📍 {deteccion.zona}</strong></li> : null}
-      <li className="deteccion__confianza">
-        <div className="deteccion__confianza-fila">
-          <span>Confianza de la IA</span>
-          <strong className={`deteccion__nivel--${nivel}`}>{deteccion.confianza}% · {TEXTO_NIVEL[nivel]}</strong>
-        </div>
+    <div className="deteccion" aria-label="Lo que detectó la IA">
+      <p className="deteccion__intro">¡Entendí! Esto es lo que detecté:</p>
+      <div className="deteccion__chips">
+        <span className="deteccion__chip deteccion__chip--tipo" style={{ '--color-tipo': t.color, color: t.texto }}>
+          <t.Icono size={18} aria-hidden="true" /> {t.guiado}
+        </span>
+        {deteccion.zona ? <span className="deteccion__chip"><span aria-hidden="true">📍</span> {deteccion.zona}</span> : null}
+      </div>
+      <div className="deteccion__confianza">
         <div
           className={`confianza confianza--${nivel}`}
           role="meter"
@@ -39,9 +41,11 @@ function Deteccion({ deteccion }) {
         >
           <span style={{ width: `${deteccion.confianza}%` }} />
         </div>
-        {deteccion.duda ? <p className="deteccion__nota">Tengo menos de {UMBRAL_CONFIANZA}% de certeza: respóndeme para estar seguros.</p> : null}
-      </li>
-    </ul>
+        <strong className={`deteccion__nivel--${nivel}`}>{deteccion.confianza}% seguro · {TEXTO_NIVEL[nivel]}</strong>
+      </div>
+      {deteccion.duda ? <p className="deteccion__nota">Tengo menos de {UMBRAL_CONFIANZA}% de certeza: respóndeme para estar seguros.</p> : null}
+      <p className="deteccion__pregunta">¿Es correcto?</p>
+    </div>
   )
 }
 
@@ -85,10 +89,16 @@ export default function ReportarChatPage() {
   const [texto, setTexto] = useState('')
   const dictado = useDictado((dicho) => setTexto((t) => (t ? `${t} ${dicho}` : dicho)))
   const finRef = useRef(null)
+  const ubicacionRef = useRef(null)
 
   useEffect(() => {
     finRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [chat.mensajes.length, chat.fase, chat.pensando])
+
+  // Al pasar al paso de ubicación, se lleva la vista al mapa.
+  useEffect(() => {
+    if (chat.fase === 'ubicacion') ubicacionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [chat.fase])
 
   const enviar = (e) => {
     e?.preventDefault()
@@ -110,23 +120,6 @@ export default function ReportarChatPage() {
         {chat.mensajes.map((m, i) => <Burbuja key={i} mensaje={m} />)}
         {chat.pensando ? <Pensando /> : null}
 
-        {chat.fase === 'confirmar' && !chat.pensando ? (
-          <div className="chat__acciones">
-            <button type="button" className="btn-chat btn-chat--si" onClick={chat.confirmar}>✅ Sí, correcto</button>
-            <button type="button" className="btn-chat" onClick={chat.corregir}>✏️ Corregir</button>
-          </div>
-        ) : null}
-
-        {chat.fase === 'ubicacion' && !enviado ? (
-          <div className="chat__ubicacion">
-            <UbicacionSelector limite={limite} valor={chat.ubicacion} onCambiar={chat.setUbicacion} altura={260} error={chat.envio.errores.ubicacion} />
-            {chat.envio.error && !chat.envio.errores.ubicacion ? <div className="form-error" role="alert">{chat.envio.error}</div> : null}
-            <button type="button" className="btn btn--alert boton-enviar" disabled={!chat.ubicacion || chat.envio.enviando} onClick={chat.enviarReporte}>
-              {chat.envio.enviando ? 'Enviando…' : chat.envio.error ? 'Reintentar envío' : 'Enviar reporte'}
-            </button>
-          </div>
-        ) : null}
-
         {enviado ? (
           <div className="chat__enviado">
             <ReporteEnviado reporte={enviado} onOtro={chat.reiniciar} dentroDeChat />
@@ -135,12 +128,32 @@ export default function ReportarChatPage() {
         <div ref={finRef} />
       </div>
 
+      {/* Las respuestas quedan fijas bajo la ventana: siempre visibles aunque el chat tenga scroll. */}
+      {chat.fase === 'confirmar' && !chat.pensando ? (
+        <div className="chat__acciones" role="group" aria-label="¿Es correcto lo que detecté?">
+          <button type="button" className="btn-chat btn-chat--si" onClick={chat.confirmar}>✅ Sí, así fue</button>
+          <button type="button" className="btn-chat" onClick={chat.corregir}>✏️ Quiero corregir</button>
+        </div>
+      ) : null}
+
+      {/* La ubicación es un paso propio fuera de las burbujas (como en el paso a paso). */}
+      {chat.fase === 'ubicacion' && !enviado ? (
+        <section ref={ubicacionRef} className="chat__ubicacion" aria-labelledby="chat-donde">
+          <h2 id="chat-donde"><span className="chat__ubicacion-paso">Paso 2</span> ¿Dónde fue?</h2>
+          <UbicacionSelector limite={limite} valor={chat.ubicacion} onCambiar={chat.setUbicacion} grande altura={320} error={chat.envio.errores.ubicacion} />
+          {chat.envio.error && !chat.envio.errores.ubicacion ? <div className="form-error" role="alert">{chat.envio.error}</div> : null}
+          <button type="button" className="boton-grande boton-grande--enviar" disabled={!chat.ubicacion || chat.envio.enviando} onClick={chat.enviarReporte}>
+            {chat.envio.enviando ? 'Enviando…' : chat.envio.error ? 'Reintentar envío' : 'Enviar reporte'}
+          </button>
+        </section>
+      ) : null}
+
       {chat.error ? <div className="form-error" role="alert">{chat.error}</div> : null}
       {dictado.error ? <div className="form-error" role="alert">{dictado.error}</div> : null}
 
+      {/* Ejemplos ENCIMA del input, en una fila desplazable: siguen visibles con el teclado abierto. */}
       {chat.fase === 'conversando' && chat.mensajes.length === 1 ? (
-        <div className="chat__ejemplos">
-          <span>Prueba con:</span>
+        <div className="chat__ejemplos" aria-label="Ejemplos para empezar">
           {EJEMPLOS.map((ej) => (
             <button key={ej} type="button" onClick={() => setTexto(ej)} aria-label={`Usar el ejemplo: ${ej}`}>“{ej}”</button>
           ))}

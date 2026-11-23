@@ -1,0 +1,62 @@
+/* Fondo temático de Villa El Salvador (FondoVes.jsx). El contenedor padre necesita
+   la clase .con-fondo-ves para posicionarlo y dejar el contenido por encima. */
+.con-fondo-ves { position: relative; isolation: isolate; overflow: hidden; }
+.con-fondo-ves > :not(.fondo-ves) { position: relative; z-index: 1; }
+
+.fondo-ves { position: absolute; inset: 0; z-index: 0; pointer-events: none; color: #fff; }
+
+/* Trama de grupos residenciales: se desvanece hacia el centro para no competir con el texto. */
+.fondo-ves__trama { position: absolute; inset: 0; }
+.fondo-ves__trama pattern rect, .fondo-ves__trama pattern circle { fill: none; stroke: currentColor; stroke-width: 1; stroke-opacity: 0.13; }
+.fondo-ves__trama .fondo-ves__parque { fill: currentColor; fill-opacity: 0.05; stroke-opacity: 0.16; }
+.fondo-ves__trama {
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 45%, transparent 0, transparent 35%, #000 80%);
+  mask-image: radial-gradient(ellipse 70% 80% at 50% 45%, transparent 0, transparent 35%, #000 80%);
+}
+
+/* Silueta del distrito */
+.fondo-ves__silueta { position: absolute; right: 4%; top: 50%; width: clamp(220px, 30%, 400px); height: auto; transform: translateY(-50%); overflow: visible; }
+.fondo-ves__distrito {
+  fill: currentColor; fill-opacity: 0.08;
+  stroke: currentColor; stroke-opacity: 0.45; stroke-width: 5; stroke-linejoin: round;
+  stroke-dasharray: 18 10;
+}
+.fondo-ves__punto circle { fill: var(--color-peligro-medio-bg, #FEF3C7); fill-opacity: 0.85; }
+.fondo-ves__onda {
+  fill: none !important; stroke: var(--color-peligro-medio-bg, #FEF3C7); stroke-width: 4;
+  transform-box: fill-box; transform-origin: center;
+  animation: fondo-ves-latido 4.2s ease-out infinite; animation-delay: var(--retraso, 0s);
+}
+@keyframes fondo-ves-latido {
+  0% { transform: scale(1); opacity: 0.8; }
+  70%, 100% { transform: scale(3.6); opacity: 0; }
+}
+
+/* Dunas del Lomo de Corvina y olas del Pacífico */
+.fondo-ves__costa { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: clamp(40px, 9vw, 90px); }
+.fondo-ves__duna { fill: #F5DEB3; fill-opacity: 0.16; }
+.fondo-ves__ola { fill: currentColor; fill-opacity: 0.1; }
+
+/* Variantes */
+.fondo-ves--teal .fondo-ves__silueta { width: 78%; right: -16%; top: 4%; transform: none; }
+.fondo-ves--cuenta .fondo-ves__silueta { width: clamp(180px, 22%, 280px); right: auto; left: 42%; top: 50%; transform: translateY(-50%); }
+.fondo-ves--oscuro .fondo-ves__trama pattern rect, .fondo-ves--oscuro .fondo-ves__trama pattern circle { stroke-opacity: 0.05; }
+.fondo-ves--oscuro .fondo-ves__trama .fondo-ves__parque { fill-opacity: 0.03; stroke-opacity: 0.1; }
+.fondo-ves--oscuro .fondo-ves__trama { -webkit-mask-image: none; mask-image: none; }
+.fondo-ves--oscuro .fondo-ves__silueta { width: clamp(200px, 22%, 300px); right: 2%; opacity: 0.45; }
+.fondo-ves--claro { color: var(--color-brand, #1D4ED8); }
+.fondo-ves--claro .fondo-ves__silueta { width: clamp(240px, 36%, 440px); right: 50%; top: 50%; transform: translate(50%, -50%); opacity: 0.5; }
+.fondo-ves--claro .fondo-ves__punto circle, .fondo-ves--claro .fondo-ves__onda { fill: var(--color-peligro-medio, #B45309); stroke: var(--color-peligro-medio, #B45309); }
+.fondo-ves--claro .fondo-ves__duna { fill: #D97706; fill-opacity: 0.12; }
+
+/* En pantallas angostas la silueta pasa a segundo plano detrás del texto. */
+@media (max-width: 760px) {
+  .fondo-ves__silueta { width: 62%; right: -14%; opacity: 0.55; }
+  .fondo-ves--teal .fondo-ves__silueta { width: 50%; right: -8%; top: 8%; }
+  .fondo-ves--cuenta .fondo-ves__silueta { width: 48%; left: auto; right: -10%; }
+  .fondo-ves--claro .fondo-ves__silueta { width: 80%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fondo-ves__onda { animation: none; opacity: 0; }
+}

@@ -212,3 +212,96 @@
    ".deteccion li" (flex) tenía más especificidad y aplastaba la barra en celulares. */
 .deteccion .deteccion__confianza { display: grid; align-items: stretch; gap: 0.35rem; }
 .deteccion .deteccion__confianza .confianza { width: 100%; }
+
+/* ---------- Selector rediseñado: 1 recomendado grande + 2 alternativas ---------- */
+.modos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.modo--principal { grid-column: 1 / -1; padding-block: 2.1rem; border-color: var(--color-brand); background: linear-gradient(135deg, #EFF6FF, #fff 65%); }
+.modo--principal .modo__icono { width: 76px; height: 76px; }
+.modo--principal .modo__texto strong { font-size: 1.45rem; }
+.modo--principal .modo__texto span { font-size: 1.05rem; }
+.modo:not(.modo--principal) { grid-template-columns: auto 1fr; }
+.modo:not(.modo--principal) .modo__flecha { display: none; }
+.modo--azul .modo__etiqueta { background: var(--color-brand); }
+.emergencia-inline { max-width: 760px; margin: 1.5rem 0 0; font-size: 0.92rem; color: var(--color-ink-700, #334155); }
+.emergencia-inline a { font-weight: 800; color: var(--color-peligro-alto-txt, #991B1B); text-decoration: underline; }
+@media (max-width: 600px) {
+  .modos { grid-template-columns: 1fr; }
+  .modo--principal { padding-block: 1.6rem; }
+  .modo--principal .modo__icono { width: 60px; height: 60px; }
+}
+
+/* Éxito: check animado (CSS, sin librerías) + frase de impacto */
+.exito__check { animation: exito-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.exito__check svg path { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: exito-trazo 0.4s 0.25s ease-out forwards; }
+@keyframes exito-pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes exito-trazo { to { stroke-dashoffset: 0; } }
+.exito__sub { margin: 0 auto; max-width: 42ch; font-size: 1.05rem; color: var(--color-ink-700, #334155) !important; }
+.exito__impacto { margin: 1.1rem auto 0; max-width: 46ch; padding: 0.75rem 1rem; border-radius: 12px; background: #F0FDF4; color: #166534 !important; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .exito__check { animation: none; }
+  .exito__check svg path { animation: none; stroke-dashoffset: 0; }
+}
+
+/* ---------- Chat rediseñado ---------- */
+/* Detección conversacional: chips con color, no tabla */
+.deteccion { gap: 0.55rem; padding: 0.75rem 0.85rem; background: #fff; border-color: #CBD5E1; }
+.deteccion p { margin: 0; }
+.deteccion__intro { font-weight: 600; color: var(--color-ink-900); }
+.deteccion__chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.deteccion .deteccion__chip {
+  display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; padding: 0.4rem 0.8rem; border-radius: 999px;
+  background: #F1F5F9; color: var(--color-ink-900); font-weight: 600; font-size: 0.95rem;
+}
+.deteccion .deteccion__chip--tipo { background: color-mix(in srgb, var(--color-tipo) 12%, #fff); border: 1px solid color-mix(in srgb, var(--color-tipo) 35%, #fff); font-size: 1.02rem; }
+.deteccion .deteccion__confianza strong { font-size: 0.88rem; }
+.deteccion__pregunta { font-weight: 700; color: var(--color-ink-900); }
+
+/* Respuestas fijas bajo la ventana: siempre visibles */
+.chat__acciones {
+  position: sticky; bottom: 0; z-index: 5; padding: 0.75rem; margin-top: 0.75rem;
+  background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-raised);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+}
+.chat__acciones .btn-chat { min-height: 56px; font-size: 1.05rem; }
+
+/* Ubicación como paso propio, fuera de las burbujas */
+.chat__ubicacion { margin: 1rem 0 0; padding: 1.25rem; border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow-card); scroll-margin-top: 80px; }
+.chat__ubicacion h2 { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 1.4rem; color: var(--color-ink-900); }
+.chat__ubicacion-paso { padding: 0.15rem 0.6rem; border-radius: 999px; background: var(--color-brand-light, #DBEAFE); color: var(--color-brand-dark); font-size: 0.8rem; font-weight: 700; }
+
+/* Ejemplos encima del input, en una fila desplazable */
+.chat__ejemplos { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+.chat__ejemplos button { flex-shrink: 0; white-space: nowrap; min-height: 40px; }
+@media (max-width: 760px) {
+  .chat__entrada { position: sticky; bottom: calc(64px + env(safe-area-inset-bottom)); background: var(--color-surface-1, #F8FAFC); padding-block: 0.4rem; z-index: 5; }
+  .chat__acciones { bottom: calc(64px + env(safe-area-inset-bottom)); }
+}
+
+/* ---------- Wizard rediseñado ---------- */
+.guiado__h1-sub { display: block; margin-top: 0.2rem; font-size: 1.1rem; font-weight: 500; color: var(--color-ink-500); }
+.grupo-tipos { margin-top: 1.25rem; padding: 1rem; border-radius: 18px; background: var(--color-surface-1, #F8FAFC); border: 1px solid var(--color-border); }
+.grupo-tipos--peligro { background: #FEF2F2; border-color: #FECACA; }
+.grupo-tipos__titulo { margin: 0 0 0.75rem; font-size: 0.95rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-ink-700, #334155); }
+.grupo-tipos--peligro .grupo-tipos__titulo { color: var(--color-peligro-alto-txt, #991B1B); }
+.boton-grande--tipo:hover:not(:disabled) { background: color-mix(in srgb, var(--color-tipo) 9%, #fff); }
+
+/* GPS como camino preferente: verde, grande, con ayuda debajo */
+.ubicacion--grande .ubicacion__gps { background: var(--color-success); min-height: 64px; }
+.ubicacion--grande .ubicacion__gps:hover { background: var(--color-success-txt); }
+.ubicacion__ayuda { text-align: center; font-size: 0.95rem; color: var(--color-ink-500); margin-top: -0.2rem; }
+.ubicacion--grande .ubicacion__o { margin-top: 0.5rem; font-size: 0.95rem; font-weight: 600; color: var(--color-ink-700, #334155); }
+
+/* Resumen con miniatura del mapa */
+.resumen-guiado .resumen-guiado__donde { display: grid; gap: 0.4rem; }
+.mini-mapa { height: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--color-border); }
+.mini-mapa .mapa--mini { height: 100%; border: 0; border-radius: 0; cursor: default; }
+
+/* Formulario en celulares: tipo → mapa → resto (el mapa ya no queda al final) */
+@media (max-width: 860px) {
+  .form-reporte { display: flex; flex-direction: column; gap: 0; background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; }
+  .form-reporte__columna { display: contents; }
+  .form-reporte__columna > * { order: 3; margin-bottom: 1rem; }
+  .form-reporte .campo--tipo { order: 1; }
+  .form-reporte__ubicacion > * { order: 2; }
+  .form-reporte__ubicacion .ubicacion { margin-bottom: 1.25rem; }
+}

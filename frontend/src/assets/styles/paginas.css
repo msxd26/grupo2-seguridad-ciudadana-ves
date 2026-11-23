@@ -26,7 +26,7 @@
 .resumen__valor.var--bueno { color: var(--bueno); }
 .resumen__label { font-size: 0.82rem; color: var(--text-2); }
 
-.modulos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; padding-block: 2.5rem 1rem; }
+.modulos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; padding-block: 1rem 1rem; }
 .modulo {
   display: flex; flex-direction: column; gap: 0.4rem; padding: 1.25rem; background: #fff; border: 1px solid var(--border);
   border-radius: var(--radius); transition: border-color 0.2s, transform 0.2s;
@@ -56,19 +56,27 @@
 .alerta--alta { border-left-color: var(--color-peligro-alto); }
 .alerta--media { border-left-color: var(--color-peligro-medio); }   /* D6: antes #e07b00 */
 .alerta--informativa { border-left-color: var(--color-info); }
-.alerta__meta { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-size: 0.75rem; }
+.alerta__cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.alerta__badges { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-size: 0.75rem; }
+.alerta__hora { font-size: 0.78rem; color: var(--color-ink-500); white-space: nowrap; padding-top: 0.15rem; }
+.alerta__clase { padding: 0.15rem 0.55rem; border-radius: 999px; font-weight: 600; background: var(--color-surface-2, #F1F5F9); color: var(--color-ink-700, #334155); border: 1px solid var(--color-border); }
+.alerta__clase--incidente { background: #fff; }
+.alerta__clase--tendencia, .alerta__clase--estacional { border-style: dashed; }
+/* Los análisis (no "ahora") se ven más sobrios: fondo gris claro y borde punteado */
+.alerta--tendencia, .alerta--estacional { background: var(--color-surface-1, #F8FAFC); border-left-style: dashed; }
 .alerta__nivel { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 999px; }
 .alerta__nivel--alta { background: var(--color-peligro-alto-bg); color: var(--color-peligro-alto-txt); }
 .alerta__nivel--media { background: var(--color-peligro-medio-bg); color: var(--color-peligro-medio-txt); } /* D6: 7.9:1 */
 .alerta__nivel--informativa { background: var(--color-info-bg); color: var(--color-info-txt); }
-.alerta__tipo { color: var(--text-2); }
-.alerta__titulo { margin: 0; font-size: 1rem; color: var(--navy-900); }
+.alerta__titulo { display: flex; align-items: flex-start; gap: 0.45rem; margin: 0.15rem 0 0; font-size: 1.08rem; line-height: 1.3; color: var(--color-ink-900); }
 .alerta__mensaje { margin: 0; font-size: 0.875rem; color: var(--text-2); line-height: 1.5; flex: 1; }
-.alerta__pie { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; font-size: 0.75rem; color: var(--color-ink-500); } /* D5: antes #75746f (4.3:1) */
+.alerta__pie { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--color-border); color: var(--color-ink-500); } /* D5: antes #75746f (4.3:1) */
 .alerta__pie a { color: var(--color-brand); font-weight: 600; }
 
-.como-funciona { margin-top: 2.5rem; padding: 1.25rem 1.5rem; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); }
-.como-funciona h2 { margin: 0 0 0.75rem; font-size: 1.1rem; color: var(--navy-900); }
+.como-funciona { margin: 0 0 1.5rem; max-width: 760px; padding: 1.25rem 1.5rem; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); }
+.como-funciona { padding: 0.75rem 1.1rem; }
+.como-funciona summary { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600; color: var(--color-brand-dark); min-height: 32px; }
+.como-funciona[open] summary { margin-bottom: 0.75rem; }
 .como-funciona ul { display: grid; gap: 0.5rem; list-style: disc; padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-2); line-height: 1.5; }
 .como-funciona p { margin: 1rem 0 0; font-size: 0.9rem; }
 .como-funciona a { color: var(--blue); font-weight: 600; }
@@ -97,7 +105,7 @@
 .exito__acciones { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin-top: 1.25rem; }
 
 /* Contacto */
-.emergencias { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.emergencias { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 2rem; max-width: 760px; }
 .emergencia { display: grid; gap: 0.2rem; padding: 1.1rem; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); text-align: center; }
 .emergencia:hover { border-color: var(--alert); }
 .emergencia__numero { font-size: 2rem; font-weight: 800; color: var(--alert); }
@@ -115,9 +123,7 @@
 
 @media (max-width: 900px) {
   .resumen { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .modulos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .reporte { grid-template-columns: 1fr; }
-  .emergencias { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .contacto-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) {
@@ -137,3 +143,117 @@
 .ods__item strong { color: var(--ink-900); font-size: 1.05rem; }
 .ods__item p { margin: 0; color: var(--text-2); font-size: 0.9rem; }
 @media (max-width: 640px) { .ods__grid { grid-template-columns: 1fr; } }
+
+/* 404 con la silueta del distrito de fondo */
+.pagina--perdida { min-height: 60vh; align-content: center; padding-inline: 1rem; }
+.pagina--perdida h1 { color: var(--color-ink-900); font-size: clamp(1.5rem, 3.5vw, 2.2rem); max-width: 24ch; margin: 0; }
+.pagina--perdida p { color: var(--color-ink-700, #334155); max-width: 46ch; }
+
+/* ---------- Home rediseñada (plan-redesign-ui-ux) ---------- */
+.hero__anonimo {
+  display: inline-flex !important; align-items: center; gap: 0.4rem; margin-top: 1rem !important;
+  padding: 0.35rem 0.85rem; border-radius: 999px; background: rgba(21, 128, 61, 0.9); color: #fff !important;
+  font-size: 0.92rem !important; font-weight: 600;
+}
+.hero__vivo {
+  display: inline-flex !important; align-items: center; gap: 0.5rem; margin-top: 1.25rem !important;
+  padding: 0.35rem 0.9rem; border-radius: 999px; background: rgba(255, 255, 255, 0.14); font-size: 0.92rem !important; color: #fff !important;
+}
+.hero__vivo-punto { width: 10px; height: 10px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); animation: vivo-latido 1.8s infinite; }
+@keyframes vivo-latido { 70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+
+/* Onboarding de primera visita */
+.bienvenida {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: 1.25rem; padding: 1rem 1.25rem;
+  background: var(--color-brand-light, #DBEAFE); border: 1px solid #BFDBFE; border-radius: var(--radius); position: relative; z-index: 2;
+}
+.bienvenida__emoji { font-size: 2rem; }
+.bienvenida__texto { flex: 1 1 280px; }
+.bienvenida__texto h2 { margin: 0; font-size: 1.1rem; color: var(--color-brand-dark); }
+.bienvenida__texto p { margin: 0.2rem 0 0; color: var(--color-ink-700, #334155); }
+.bienvenida__acciones { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* ODS como píldoras, justo debajo del hero */
+.ods-pildoras { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; position: relative; z-index: 2; }
+.ods-pildora {
+  display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.9rem 0.45rem 0.45rem;
+  background: #fff; border: 1px solid var(--border); border-radius: 999px; box-shadow: var(--shadow-card); font-size: 0.9rem; color: var(--color-ink-700, #334155);
+}
+.ods-pildora__numero { padding: 0.2rem 0.6rem; border-radius: 999px; background: var(--ods); color: #fff; font-weight: 800; font-size: 0.8rem; white-space: nowrap; }
+.ods-pildora strong { color: var(--color-ink-900); }
+
+/* Stats: 2 grandes + 2 pequeños */
+.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+.stat {
+  grid-column: span 3; display: grid; align-content: start; gap: 0.25rem; padding: 1rem 1.25rem;
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-card);
+}
+.stat--grande { grid-column: span 3; padding: 1.25rem 1.5rem; }
+.stat:not(.stat--grande) { grid-column: span 3; }
+.stat__valor { font-size: 1.9rem; font-weight: 800; color: var(--color-ink-900); line-height: 1.1; }
+.stat__valor small { font-size: 0.95rem; font-weight: 600; color: var(--color-ink-500); }
+.stat--grande .stat__valor { font-size: 2.8rem; }
+.stat__etiqueta { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.95rem; font-weight: 600; color: var(--color-ink-700, #334155); }
+.stat__nota { font-size: 0.85rem; color: var(--color-ink-500); }
+.stat__cta { font-weight: 700; color: var(--color-brand); }
+.stat--peligro { border-color: #FECACA; background: linear-gradient(180deg, #FEF2F2, #fff 70%); transition: transform 0.2s, box-shadow 0.2s; }
+.stat--peligro:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised); }
+.stat--peligro .stat__valor, .stat--peligro .stat__etiqueta { color: var(--color-peligro-alto-txt, #991B1B); }
+
+.home-alertas__destacada { max-width: 760px; }
+.home-alertas__destacada .alerta { padding: 1.25rem 1.5rem; }
+.home-alertas__destacada .alerta__titulo { font-size: 1.2rem; }
+
+/* Módulo principal "Reportar" a ancho completo */
+.modulo--principal {
+  grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 1.25rem; padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, var(--color-brand-dark), var(--color-brand)); border-color: transparent; color: #fff;
+}
+.modulo--principal:hover { border-color: transparent; box-shadow: var(--shadow-raised); }
+.modulo--principal .modulo__icono { width: 60px; height: 60px; background: rgba(255, 255, 255, 0.16); color: #fff; flex-shrink: 0; }
+.modulo__cuerpo { flex: 1; display: grid; gap: 0.25rem; }
+.modulo--principal h2 { color: #fff; font-size: 1.45rem; }
+.modulo--principal p { color: #DBEAFE; font-size: 1rem; }
+.modulo--principal .modulo__ir { color: #fff; font-size: 1.8rem; }
+
+@media (max-width: 760px) {
+  .stat--grande, .stat:not(.stat--grande) { grid-column: span 6; }
+  .stat:not(.stat--grande) { grid-column: span 3; }
+  .stat--grande .stat__valor { font-size: 2.3rem; }
+  .modulos { grid-template-columns: 1fr; }
+  .modulo--principal { padding: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) { .hero__vivo-punto { animation: none; } }
+
+/* ---------- Alertas agrupadas ---------- */
+.alerta__fuente { display: inline-flex; align-items: center; gap: 0.25rem; }
+.filtro__contador { opacity: 0.85; font-variant-numeric: tabular-nums; }
+.alertas-grupo { margin-bottom: 2rem; }
+.alertas-grupo__head { margin-bottom: 0.75rem; }
+.alertas-grupo__head h2 { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: 1.2rem; color: var(--color-ink-900); }
+.alertas-grupo__head p { margin: 0.15rem 0 0; font-size: 0.88rem; color: var(--color-ink-500); }
+.alertas-grupo__n { padding: 0.05rem 0.55rem; border-radius: 999px; background: var(--color-surface-2, #F1F5F9); font-size: 0.85rem; color: var(--color-ink-700, #334155); }
+.cta-reportar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 1rem;
+  padding: 1rem 1.25rem; border-radius: var(--radius); background: var(--color-brand-light, #DBEAFE);
+}
+.cta-reportar p { margin: 0; color: var(--color-ink-900); }
+
+
+/* ---------- Emergencias: 105 como botón principal ---------- */
+.emergencia { grid-template-columns: auto auto 1fr; align-items: center; text-align: left; gap: 0.6rem; min-height: 64px; padding: 0.9rem 1.1rem; border-width: 2px; }
+.emergencia__icono { color: var(--color-peligro-alto); }
+.emergencia__numero { font-size: 1.7rem; color: var(--color-peligro-alto-txt, #991B1B); }
+.emergencia__label { font-size: 0.95rem; font-weight: 600; color: var(--color-ink-700, #334155); }
+.emergencia--policia {
+  grid-column: 1 / -1; min-height: 96px; padding: 1.25rem 1.5rem; background: var(--color-peligro-alto); border-color: var(--color-peligro-alto);
+}
+.emergencia--policia:hover { background: var(--color-peligro-alto-txt, #991B1B); border-color: var(--color-peligro-alto-txt, #991B1B); }
+.emergencia--policia .emergencia__icono, .emergencia--policia .emergencia__numero, .emergencia--policia .emergencia__label { color: #fff; }
+.emergencia--policia .emergencia__numero { font-size: 2.6rem; }
+.emergencia--policia .emergencia__label { font-size: 1.15rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.emergencia--linea100 { grid-column: 1 / -1; }
+@media (max-width: 420px) {
+  .emergencia:not(.emergencia--policia) { grid-template-columns: auto 1fr; }
+  .emergencia:not(.emergencia--policia) .emergencia__label { grid-column: 1 / -1; font-size: 0.88rem; }
+}

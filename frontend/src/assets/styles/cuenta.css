@@ -180,7 +180,8 @@
 .mini-emergencias span { font-size: 0.75rem; color: #7c2d12; }
 
 @media (max-width: 960px) {
-  .ingreso { grid-template-columns: 1fr; }
+  .ingreso { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .ingreso__tarjeta { align-self: start; }
   .ingreso__bienvenida { padding-block: 2rem; }
   .ingreso__bienvenida ul { display: none; }
   .cuenta__grid { grid-template-columns: 1fr; }

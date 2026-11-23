@@ -2,29 +2,30 @@ import { Link } from 'react-router-dom'
 import { IconoChat, IconoFormulario, IconoGuiado } from '../../models/iconos'
 import '../../assets/styles/reportar.css'
 
-// El paso a paso va primero y recomendado: es el que nadie deja fuera (adultos mayores, ODS 10).
+// 1 modo recomendado (grande) + 2 alternativas: menos fricción que 3 opciones equivalentes (Ley de Hick).
 const MODOS = [
-  {
-    to: '/reportar/guiado',
-    Icono: IconoGuiado,
-    titulo: 'Paso a paso',
-    texto: 'Te hago preguntas sencillas. Solo toca botones grandes, sin escribir.',
-    etiqueta: '⭐ Recomendado',
-    color: 'verde',
-  },
   {
     to: '/reportar/chat',
     Icono: IconoChat,
     titulo: 'Cuéntame qué pasó',
-    texto: 'Escribe o dicta en tus palabras. La IA te dice qué entendió y tú la corriges si hace falta.',
-    etiqueta: 'Con IA',
+    texto: 'Escribe o dicta en tus palabras. La IA te ayuda y tú corriges si hace falta.',
+    etiqueta: '⭐ Recomendado',
     color: 'azul',
+    principal: true,
+  },
+  {
+    to: '/reportar/guiado',
+    Icono: IconoGuiado,
+    titulo: 'Paso a paso',
+    texto: 'Preguntas sencillas con botones grandes, sin escribir.',
+    etiqueta: 'Más fácil',
+    color: 'verde',
   },
   {
     to: '/reportar/formulario',
     Icono: IconoFormulario,
     titulo: 'Formulario completo',
-    texto: 'Si ya sabes qué ocurrió: llena todos los campos tú mismo.',
+    texto: 'Llena tú los campos.',
     color: 'gris',
   },
 ]
@@ -44,16 +45,12 @@ export default function ReportarPage() {
 
       <header className="reportar__header">
         <h1>¿Cómo quieres reportar?</h1>
-        <p>Elige la forma que te resulte más cómoda. Toma menos de un minuto.</p>
+        <p>Solo toma 60 segundos. Nadie sabrá que fuiste tú.</p>
       </header>
 
-      <div className="aviso-emergencia" role="note">
-        <strong>¿Emergencia en curso?</strong> Llama primero a la Policía al <a href="tel:105">105</a>.
-      </div>
-
       <div className="modos">
-        {MODOS.map(({ to, Icono, titulo, texto, etiqueta, color }) => (
-          <Link key={to} to={to} className={`modo modo--${color}`}>
+        {MODOS.map(({ to, Icono, titulo, texto, etiqueta, color, principal }) => (
+          <Link key={to} to={to} className={`modo modo--${color}${principal ? ' modo--principal' : ''}`}>
             <span className="modo__icono" aria-hidden="true"><Icono size={34} /></span>
             <span className="modo__texto">
               <strong>{titulo}</strong>
@@ -64,6 +61,10 @@ export default function ReportarPage() {
           </Link>
         ))}
       </div>
+
+      <p className="emergencia-inline">
+        <span aria-hidden="true">⚠️</span> ¿Emergencia en curso? Llama primero a la Policía al <a href="tel:105">105</a>.
+      </p>
     </section>
   )
 }

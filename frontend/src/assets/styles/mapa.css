@@ -199,3 +199,74 @@
   width: 44px !important; height: 44px !important;
   line-height: 44px !important; font-size: 20px !important;
 }
+
+/* ---------- Panel del mapa rediseñado: 3 secciones + hoja inferior en celulares ---------- */
+.mapa-panel__asa { display: none; }
+.mapa-panel__cuerpo { display: flex; flex-direction: column; gap: 1rem; }
+.mapa-panel__seccion { display: grid; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+.mapa-panel__seccion-titulo { margin: 0; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-brand-dark); }
+.mapa-panel__label { text-transform: none; letter-spacing: 0; font-size: 0.85rem; color: var(--color-ink-700, #334155); }
+.mapa-panel__vacio { margin: 0; font-size: 0.85rem; color: var(--color-ink-500); }
+.mapa-panel__vacio a { color: var(--color-brand); font-weight: 600; }
+.segmented--periodos { display: grid; grid-template-columns: 1fr 1fr; }
+.segmented--periodos button + button { border-left: 0; }
+.segmented--periodos button:nth-child(even) { border-left: 1px solid #c8d0da; }
+.segmented--periodos button:nth-child(n + 3) { border-top: 1px solid #c8d0da; }
+
+.zonas-lista { gap: 0.4rem; }
+.zonas-lista button { display: grid; grid-template-columns: auto 1fr auto; gap: 0.55rem; padding: 0.55rem 0.65rem; border-radius: 10px; font-size: 0.85rem; min-height: 44px; }
+.zonas-lista__texto { display: grid; min-width: 0; }
+.zonas-lista__texto span { font-size: 0.78rem; color: var(--color-ink-500); }
+.zonas-lista__ir { font-weight: 700; color: var(--color-brand); white-space: nowrap; font-size: 0.8rem; }
+.zona-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.zona-badge--alto { background: var(--color-peligro-alto-bg); color: var(--color-peligro-alto-txt); }
+.zona-badge--medio { background: var(--color-peligro-medio-bg); color: var(--color-peligro-medio-txt); }
+
+/* Leyenda en 2 grupos */
+.leyenda-mapa__subtitulo { display: block; padding: 0.2rem 0.8rem 0.35rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-500); }
+.leyenda-mapa__grupo--peligro .leyenda-mapa__subtitulo { color: var(--color-peligro-alto-txt, #991B1B); }
+.leyenda-mapa__grupo + .leyenda-mapa__grupo { border-top: 1px solid var(--color-border); padding-top: 0.4rem; }
+
+/* Confirmación comunitaria en el panel En vivo */
+.en-vivo__fila { display: grid; gap: 0.15rem; padding-bottom: 0.3rem; border-bottom: 1px solid #F1F5F9; }
+.en-vivo__confirmar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.35rem; padding: 0 0.55rem 0 calc(0.55rem + 30px + 0.55rem); font-size: 0.75rem; color: #475569; }
+.en-vivo__confirmar button { min-height: 32px; padding: 0.2rem 0.7rem; border-radius: 999px; border: 1px solid var(--color-brand); background: #fff; color: var(--color-brand); font-weight: 700; font-size: 0.78rem; cursor: pointer; }
+.en-vivo__confirmar button:hover:not(:disabled) { background: var(--color-brand); color: #fff; }
+.en-vivo__confirmar button:disabled { border-color: #16A34A; color: #15803D; cursor: default; }
+.en-vivo__confirmar .en-vivo__error { flex-basis: 100%; }
+.en-vivo__vacio a { color: var(--color-brand); font-weight: 600; }
+
+/* Pin nuevo en tiempo real: 3 anillos que se expanden (además del pulso) */
+.marcador--nuevo { position: relative; }
+.marcador--nuevo::before, .marcador--nuevo::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 3px solid var(--color-tipo);
+  animation: anillo-pin 1.4s ease-out 3; pointer-events: none; opacity: 0;
+}
+.marcador--nuevo::after { animation-delay: 0.45s; }
+@keyframes anillo-pin { 0% { transform: scale(1); opacity: 0.85; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .marcador--nuevo::before, .marcador--nuevo::after { animation: none; } }
+
+/* Celulares: el mapa ocupa toda la pantalla y el panel es una hoja inferior desplegable */
+@media (max-width: 900px) {
+  .mapa-page { position: relative; grid-template-rows: 1fr; height: calc(100dvh - 71px); overflow: hidden; }
+  .mapa-panel {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 1100; max-height: 78%; padding: 0 1.1rem 1.1rem;
+    border: 0; border-radius: 18px 18px 0 0; box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.18);
+    transform: translateY(calc(100% - 60px)); transition: transform 0.28s ease; overflow: hidden;
+  }
+  .mapa-panel--abierta { transform: none; overflow-y: auto; }
+  .mapa-panel__asa {
+    position: sticky; top: 0; z-index: 1; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 0.6rem;
+    width: calc(100% + 2.2rem); margin: 0 -1.1rem 0.5rem; min-height: 60px; padding: 0.9rem 1.1rem 0.5rem; border: 0; background: #fff;
+    font: inherit; font-weight: 700; font-size: 1rem; color: var(--color-ink-900); text-align: left; cursor: pointer;
+  }
+  .mapa-panel__asa-barra { position: absolute; top: 6px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 999px; background: #CBD5E1; }
+  .mapa-panel__asa-n { padding: 0.1rem 0.55rem; border-radius: 999px; background: var(--color-peligro-alto-bg); color: var(--color-peligro-alto-txt); font-size: 0.8rem; }
+  .mapa-panel__asa-icono { transform: rotate(180deg); transition: transform 0.2s; }
+  .mapa-panel--abierta .mapa-panel__asa-icono { transform: none; }
+  .en-vivo { bottom: calc(60px + 0.75rem); max-height: 40%; }
+}
+@media (max-width: 760px) {
+  .mapa-page { height: calc(100dvh - 71px - 64px - env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) { .mapa-panel { transition: none; } }

@@ -46,7 +46,9 @@ export default function UbicacionSelector({ limite, valor, onCambiar, error, gra
         <IconoUbicacion size={grande ? 24 : 18} aria-hidden="true" />
         {estadoGps === 'buscando' ? 'Buscando tu ubicación…' : 'Usar mi ubicación actual'}
       </button>
-      <span className="ubicacion__o">— o toca el mapa —</span>
+      {/* En modo grande hay un camino preferente (GPS) y el mapa queda como alternativa. */}
+      {grande ? <span className="ubicacion__ayuda">Es lo más rápido y preciso.</span> : null}
+      <span className="ubicacion__o">{grande ? '— o si no funciona, toca el lugar en el mapa —' : '— o toca el mapa —'}</span>
       <div className="ubicacion__mapa" style={{ height: altura }}>
         <MapaBase limite={limite} zoom={13} destino={destino} onClick={fijar} className="mapa mapa--form">
           {valor ? (
