@@ -4,6 +4,7 @@ import { reportesController } from '../controllers/reportesController.js'
 import { mapaController } from '../controllers/mapaController.js'
 import { authController } from '../controllers/authController.js'
 import { adminController } from '../controllers/adminController.js'
+import { prediccionesController } from '../controllers/prediccionesController.js'
 import { rateLimit } from '../middlewares/rateLimit.js'
 import { autenticar, requerirRol, requerirSesion } from '../middlewares/auth.js'
 
@@ -24,6 +25,11 @@ routes.get('/auth/me', authController.me)
 // Panel de decisión (datos oficiales SIDPOL)
 routes.get('/catalogos', dashboardController.catalogos)
 routes.get('/dashboard', dashboardController.dashboard)
+
+// Predicción de reportes por zona y plan de acción (datos agregados, sin reportes individuales)
+const limitePlan = rateLimit({ max: 20, ventanaMs: 10 * 60_000, mensaje: 'Pediste muchos planes seguidos. Espera unos minutos.' })
+routes.get('/predicciones', prediccionesController.predicciones)
+routes.get('/predicciones/plan', limitePlan, prediccionesController.plan)
 
 // Mapa, comisarías y alertas
 routes.get('/mapa', mapaController.mapa)

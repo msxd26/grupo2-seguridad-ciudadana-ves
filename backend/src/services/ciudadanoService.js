@@ -22,7 +22,7 @@ const claveDia = new Intl.DateTimeFormat('en-CA', { timeZone: zonaHoraria }) // 
 const horaLima = new Intl.DateTimeFormat('en-GB', { timeZone: zonaHoraria, hour: '2-digit', hourCycle: 'h23' })
 
 // Comisaría más cercana como referencia para nombrar cada zona.
-function referenciaCercana(lat, lng, comisarias) {
+export function referenciaCercana(lat, lng, comisarias) {
   let mejor = null
   for (const c of comisarias) {
     const d = distanciaMetros(lat, lng, c.lat, c.lng)

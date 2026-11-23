@@ -50,6 +50,16 @@ export const ReporteModel = {
     return rows.map(mapear)
   },
 
+  // Para la predicción: solo lo necesario para agregar por zona (sin descripción ni autor, ODS 5).
+  async listarParaPrediccion({ dias }) {
+    const [rows] = await pool.query(
+      `SELECT tipo, lat, lng, fecha_hecho, es_demo FROM reportes
+        WHERE ${VISIBLE} AND fecha_hecho >= NOW() - INTERVAL ? DAY AND fecha_hecho <= NOW()`,
+      [dias],
+    )
+    return rows.map((r) => ({ tipo: r.tipo, lat: Number(r.lat), lng: Number(r.lng), fecha: new Date(r.fecha_hecho), esDemo: Boolean(r.es_demo) }))
+  },
+
   // Reportes visibles entre hace `desde` y hace `hasta` días (para comparar periodos).
   async contarVisiblesEntre(desdeDias, hastaDias) {
     const [[row]] = await pool.query(
