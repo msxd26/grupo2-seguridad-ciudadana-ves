@@ -15,6 +15,7 @@ import pe.jsaire.seguridad.AppContainer
 import pe.jsaire.seguridad.data.model.DatosMapa
 import pe.jsaire.seguridad.data.model.Reporte
 import pe.jsaire.seguridad.data.remote.EventoTiempoReal
+import pe.jsaire.seguridad.util.Encuadre
 
 /** Capas del mapa (iguales a la web: calor, incidentes, zonas y puntos seguros). */
 enum class Capa(val etiqueta: String) {
@@ -34,6 +35,8 @@ data class EstadoMapa(
     val seguirEnVivo: Boolean = true,
     val nuevos: Set<Int> = emptySet(), // reportes llegados en vivo durante esta sesión
     val ultimoEnVivo: Reporte? = null,
+    /** Reportes de la ráfaga en curso (llegados con menos de 20 s entre uno y otro). */
+    val rafaga: List<Reporte> = emptyList(),
 ) {
     val reportes: List<Reporte> get() = datos?.reportes.orEmpty()
 }
@@ -46,7 +49,19 @@ class MapaViewModel(private val c: AppContainer) : ViewModel() {
     private val _volarA = MutableSharedFlow<Reporte>(extraBufferCapacity = 4)
     val volarA: SharedFlow<Reporte> = _volarA.asSharedFlow()
 
+    /** Área que el mapa debe encuadrar (todos los reportes de una ráfaga). */
+    private val _encuadrar = MutableSharedFlow<Encuadre>(extraBufferCapacity = 4)
+    val encuadrar: SharedFlow<Encuadre> = _encuadrar.asSharedFlow()
+
     private var carga: Job? = null
+    private var ultimaLlegada = 0L
+
+    fun verRafaga() {
+        val r = _estado.value.rafaga
+        if (r.size > 1) _encuadrar.tryEmit(Encuadre.de(r))
+    }
+
+    fun cerrarRafaga() = _estado.update { it.copy(rafaga = emptyList()) }
 
     init {
         cargar()
@@ -97,15 +112,22 @@ class MapaViewModel(private val c: AppContainer) : ViewModel() {
                 val r = evento.reporte
                 if (e.tipo != null && r.tipo != e.tipo) return
                 if (datos.reportes.none { it.id == r.id }) {
+                    val ahora = System.currentTimeMillis()
+                    val grupo = if (ahora - ultimaLlegada < 20_000) e.rafaga.filterNot { it.id == r.id } + r else listOf(r)
+                    ultimaLlegada = ahora
                     // Al instante: el punto y el calor se actualizan sin esperar al servidor.
                     _estado.update {
                         it.copy(
                             datos = datos.copy(reportes = listOf(r) + datos.reportes),
                             nuevos = it.nuevos + r.id,
                             ultimoEnVivo = r,
+                            rafaga = grupo,
                         )
                     }
-                    if (e.seguirEnVivo) _volarA.tryEmit(r)
+                    // "Seguir en vivo": un reporte suelto → vuela a él; una ráfaga → encuadra todos sus puntos.
+                    if (e.seguirEnVivo) {
+                        if (grupo.size > 1) _encuadrar.tryEmit(Encuadre.de(grupo)) else _volarA.tryEmit(r)
+                    }
                 }
                 // Las zonas de riesgo se calculan en el servidor: se refrescan en segundo plano.
                 cargar()
@@ -133,7 +155,7 @@ class MapaViewModel(private val c: AppContainer) : ViewModel() {
                     ))
                 }
             }
-            is EventoTiempoReal.MiReporte, is EventoTiempoReal.Conectados -> Unit
+            is EventoTiempoReal.MiReporte, is EventoTiempoReal.Conectados, is EventoTiempoReal.Rafaga -> Unit
         }
     }
 

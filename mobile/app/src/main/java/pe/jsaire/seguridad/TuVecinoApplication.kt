@@ -1,12 +1,14 @@
 package pe.jsaire.seguridad
 
 import android.app.Application
+import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.OkHttpClient
 import org.osmdroid.config.Configuration
 import pe.jsaire.seguridad.data.Preferencias
 import pe.jsaire.seguridad.data.remote.CookieJarPersistente
 import pe.jsaire.seguridad.data.remote.EventosTiempoReal
 import pe.jsaire.seguridad.data.remote.TuVecinoApi
+import pe.jsaire.seguridad.util.Encuadre
 import pe.jsaire.seguridad.util.Notificaciones
 import java.util.concurrent.TimeUnit
 
@@ -22,6 +24,9 @@ class AppContainer(app: Application) {
     val api = TuVecinoApi(prefs, http)
     val eventos = EventosTiempoReal(prefs, http)
     val notificaciones = Notificaciones(app)
+
+    /** Área que el mapa debe encuadrar al abrir la app desde una notificación de ráfaga. */
+    val enfoqueMapa = MutableStateFlow<Encuadre?>(null)
 }
 
 class TuVecinoApplication : Application() {

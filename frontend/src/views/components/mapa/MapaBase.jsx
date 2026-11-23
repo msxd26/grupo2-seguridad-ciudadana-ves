@@ -5,11 +5,17 @@ import { CENTRO_VES, TILE_ATTRIBUTION, TILE_URL, ZOOM_INICIAL } from '../../../m
 
 const ESTILO_LIMITE = { color: '#0f1b2d', weight: 2.5, fillColor: '#f5b301', fillOpacity: 0.06, dashArray: null }
 
-// Mueve el mapa cuando cambia `destino` ({ lat, lng, zoom }).
+// Mueve el mapa cuando cambia `destino`: un punto ({ lat, lng, zoom }) o un área ({ limites: [s, o, n, e] }).
 function Volar({ destino }) {
   const map = useMap()
   useEffect(() => {
-    if (destino) map.flyTo([destino.lat, destino.lng], destino.zoom ?? 17, { duration: 0.8 })
+    if (!destino) return
+    if (destino.limites) {
+      const [s, o, n, e] = destino.limites
+      map.flyToBounds([[s, o], [n, e]], { duration: 0.8, maxZoom: 17, padding: [24, 24] })
+    } else {
+      map.flyTo([destino.lat, destino.lng], destino.zoom ?? 17, { duration: 0.8 })
+    }
   }, [destino, map])
   return null
 }

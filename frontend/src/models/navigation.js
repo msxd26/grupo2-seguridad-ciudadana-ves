@@ -1,9 +1,10 @@
 // Modelo: datos estáticos de navegación y contacto.
 // Se definen a nivel de módulo para no recrearlos en cada render.
 
-// Navegación principal del vecino: 3 destinos + el CTA "Reportar" (Ley de Hick).
-// El panel municipal se abre desde la Home (módulo) o desde el pie de página; el logo lleva al inicio.
+// Navegación principal del vecino: Inicio + 3 destinos + el CTA "Reportar".
+// El panel municipal se abre desde la Home (módulo) o desde el pie de página.
 export const NAV_LINKS = [
+  { id: 'inicio', label: 'Inicio', to: '/' },
   { id: 'mapa', label: 'Mapa', to: '/mapa' },
   { id: 'alertas', label: 'Alertas', to: '/alertas' },
   { id: 'contacto', label: 'Emergencias', to: '/contacto' },
@@ -11,6 +12,7 @@ export const NAV_LINKS = [
 
 // Pie de página: primero la acción principal, luego los destinos y al final el panel municipal.
 export const FOOTER_LINKS = [
+  { id: 'inicio', label: 'Inicio', to: '/' },
   { id: 'reportar', label: 'Reportar un incidente', to: '/reportar' },
   { id: 'mapa', label: 'Mapa', to: '/mapa' },
   { id: 'alertas', label: 'Alertas', to: '/alertas' },

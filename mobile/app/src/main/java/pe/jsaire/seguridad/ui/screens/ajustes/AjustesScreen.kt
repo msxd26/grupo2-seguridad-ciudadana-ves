@@ -35,6 +35,7 @@ fun AjustesScreen(appVm: AppViewModel) {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        AvisosAjustes(appVm)
         Text("Servidor de Tu Vecino", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(
             "Por defecto la app usa el servidor en línea de Tu Vecino. Para pruebas: con Docker en la red local usa la IP " +
