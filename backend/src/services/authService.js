@@ -20,7 +20,7 @@ export function opcionesCookie() {
   return {
     httpOnly: true, // inaccesible desde JavaScript del navegador
     sameSite: 'lax',
-    secure: env.isProd,
+    secure: env.auth.cookieSecure,
     maxAge: env.auth.sesionDias * 86_400_000,
     path: '/',
   }

@@ -159,7 +159,35 @@ grupo2-seguridad-ciudadana-ves/
 
 ---
 
-## 🚀 Instalación
+## 🐳 Despliegue en la red local (Docker)
+
+Levanta la aplicación completa (MySQL + API + web) para que cualquier celular o PC de la misma red la use.
+
+```bash
+cp .env.example .env        # completar PUBLIC_HOST (IP de esta PC), JWT_SECRET y ADMIN_PASSWORD
+docker compose up -d --build
+```
+
+| Contenedor | Qué hace |
+| --- | --- |
+| `seguridad-ves-mysql` | Base de datos (volumen `mysql_data`) |
+| `seguridad-ves-backend` | API Express: al iniciar espera a MySQL, migra, carga los datos oficiales si faltan y crea el administrador |
+| `seguridad-ves-frontend` | Nginx: sirve la app compilada, redirige `/api` (incluido el tiempo real SSE) y publica los puertos **80** y **443** |
+| `seguridad-ves-adminer` | Administración de la BD, solo desde esta PC (`http://localhost:8080`) |
+
+Desde la red: **`http://<IP-de-la-PC>`** o **`https://<IP-de-la-PC>`**. Para saber la IP: `ipconfig` (Windows) o `ip a` (Linux).
+
+- **HTTPS y celulares:** el GPS ("Usar mi ubicación") y las notificaciones del navegador solo funcionan con HTTPS. Nginx
+  genera un certificado autofirmado para `PUBLIC_HOST`; la primera vez el navegador muestra un aviso: elegir
+  *Configuración avanzada → Continuar*. Por HTTP todo lo demás funciona (la ubicación se marca tocando el mapa).
+- **Firewall:** si otros equipos no conectan, permitir los puertos 80 y 443 (PowerShell como administrador):
+  `New-NetFirewallRule -DisplayName "Tu Vecino" -Direction Inbound -Protocol TCP -LocalPort 80,443 -Action Allow`
+- **Actualizar** tras cambios en el código: `docker compose up -d --build`. Ver el arranque: `docker compose logs -f backend`.
+- Los mapas (OpenStreetMap) y la fuente Inter se cargan desde internet: la red local necesita salida a internet.
+
+---
+
+## 🚀 Instalación (desarrollo)
 
 ```bash
 # Clonar el repositorio
@@ -172,7 +200,7 @@ cd grupo2-seguridad-ciudadana-ves
 Requiere [Docker Desktop](https://www.docker.com/products/docker-desktop/). Desde la raíz del proyecto:
 
 ```bash
-docker compose up -d      # MySQL 8.4 en el puerto 3307 + Adminer en http://localhost:8080
+docker compose up -d mysql adminer   # solo MySQL (puerto 3307) + Adminer en http://localhost:8080
 ```
 
 | Servicio | Acceso | Credenciales (solo desarrollo) |

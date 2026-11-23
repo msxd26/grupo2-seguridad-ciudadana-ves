@@ -7,7 +7,7 @@ import { errorHandler, notFound } from './middlewares/errorHandler.js'
 
 export const app = express()
 
-app.set('trust proxy', 'loopback') // IP real detrás del proxy de Vite (para el límite de reportes)
+app.set('trust proxy', env.trustProxy) // IP real detrás del proxy (Vite o Nginx) para los límites por IP
 app.use(cors({ origin: env.corsOrigin, credentials: true }))
 app.use(cookieParser())
 app.use(express.json({ limit: '20kb' }))
