@@ -6,11 +6,13 @@ import { useEventos } from '../../../context/EventosContext'
 import { fetchPanelCiudadano } from '../../../services/seguridadService'
 import { formatNumero, formatVariacion } from '../../../models/estadisticas'
 import { MODOS, colorTipo } from '../../../models/tipos'
-import { NIVELES_ZONA } from '../../../models/mapa'
+// Nivel de la zona en texto (acompaña al color).
+const NIVEL_TEXTO = { alto: 'Prioridad alta', medio: 'Prioridad media', bajo: 'Vigilar' }
 import MapaBase from '../mapa/MapaBase'
 import CapaCalor from '../mapa/CapaCalor'
 import KpiCard from './KpiCard'
 import Tile from './Tile'
+import SkeletonPanel from './SkeletonPanel'
 import ColumnChart from './ColumnChart'
 import HBarList from './HBarList'
 import '../../../assets/styles/mapa.css'
@@ -50,6 +52,8 @@ export default function PanelCiudadano({ pestanas }) {
   useEffect(() => suscribir((evento) => ['reporte', 'reporte-moderado', 'reporte-oculto'].includes(evento) && recargar()), [suscribir, recargar])
 
   const k = data?.kpis
+  // Proporción de cada zona sobre el total del periodo (el funcionario entiende el peso relativo).
+  const pct = (n) => (k?.total ? Math.round((n / k.total) * 100) : 0)
   const delta = k?.variacion !== null && k?.variacion !== undefined
     ? { sube: k.variacion > 0, malo: k.variacion > 0, texto: `${formatVariacion(k.variacion)} vs. ${dias} días anteriores` }
     : null
@@ -78,17 +82,23 @@ export default function PanelCiudadano({ pestanas }) {
 
       <div className={cargando && data ? 'pbi__canvas pbi__canvas--cargando pbi__canvas--completo' : 'pbi__canvas pbi__canvas--completo'}>
         {error ? <div className="pbi__error" role="alert">No se pudo cargar el panel: {error}</div> : null}
-        {!data && !error ? <p>Cargando…</p> : null}
+        {!data && !error ? <SkeletonPanel /> : null}
 
         {data ? (
           <>
             {data.hayDemo ? <p className="pbi__demo">Incluye reportes de demostración para la presentación.</p> : null}
-            <div className="pbi__kpis pbi__kpis--5">
+            <div className="pbi__kpis pbi__kpis--5 pbi__kpis--6">
               <KpiCard label="Reportes vecinales" value={formatNumero(k.total)} delta={delta} detail={`Periodo anterior: ${formatNumero(k.totalPrevio)}`} />
               <KpiCard label="Zonas críticas" value={k.zonasCriticas} detail="3 o más reportes en ~330 m" />
               <KpiCard label="Tipo más frecuente" value={k.tipoPrincipal ? `${k.tipoPrincipal.porcentaje}%` : '—'} detail={k.tipoPrincipal?.label ?? 'Sin reportes'} />
               <KpiCard label="Hora más crítica" value={k.horaPico ? `${String(k.horaPico.hora).padStart(2, '0')}:00` : '—'} detail="Franja con más incidentes" />
               <KpiCard label="Inclusión digital (ODS 10)" value={k.total ? `${Math.round((k.accesibles / k.total) * 100)}%` : '—'} detail="Reportes por chat IA o paso a paso" />
+              {/* "Pensar con IA": la comunidad calibra a la IA corrigiendo sus clasificaciones. */}
+              <KpiCard
+                label="IA calibrada por vecinos"
+                value={k.iaReportes ? `${Math.round((k.iaCorregidos / k.iaReportes) * 100)}%` : '—'}
+                detail={k.iaReportes ? `${k.iaCorregidos} de ${k.iaReportes} reportes del chat corregidos · confianza media ${k.iaConfianzaPromedio}%` : 'Aún sin reportes por chat'}
+              />
             </div>
 
             <div className="pbi__grid">
@@ -136,27 +146,25 @@ export default function PanelCiudadano({ pestanas }) {
 
               <Tile className="span-7" titulo="Top 5 zonas con más incidentes" subtitulo="Dónde priorizar el serenazgo">
                 {data.topZonas.length ? (
-                  <div className="priority">
-                    <table>
-                      <thead>
-                        <tr><th scope="col">Zona</th><th scope="col" className="num">Reportes</th><th scope="col">Tipo dominante</th><th scope="col">Acción sugerida</th></tr>
-                      </thead>
-                      <tbody>
-                        {data.topZonas.map((z) => (
-                          <tr key={z.id}>
-                            <th scope="row">
-                              <Link className="priority__link" to={`/mapa?lat=${z.lat}&lng=${z.lng}`}>
-                                <i className="punto-tipo" style={{ background: NIVELES_ZONA[z.nivel].color }} /> {z.referencia || 'Ver en mapa'}
-                              </Link>
-                            </th>
-                            <td className="num">{z.cantidad}</td>
-                            <td>{z.tipoDominanteLabel}</td>
-                            <td>{z.accion}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  // Cards en lugar de tabla: la acción sugerida se lee de lejos (proyección para el funcionario).
+                  <ol className="zonas-prioridad">
+                    {data.topZonas.map((z, i) => (
+                      <li key={z.id} className={`zona-card zona-card--${z.nivel}`}>
+                        <div className="zona-card__cabecera">
+                          <span className="zona-card__rango">{i + 1}</span>
+                          <span className={`zona-card__nivel zona-card__nivel--${z.nivel}`}>{NIVEL_TEXTO[z.nivel] ?? 'Baja'}</span>
+                        </div>
+                        <strong className="zona-card__lugar">{z.referencia || 'Zona sin referencia'}</strong>
+                        <span className="zona-card__cifra">
+                          {z.cantidad} reportes · {pct(z.cantidad)}% del total
+                          <span className="porcentaje-zona__barra" aria-hidden="true"><span style={{ width: `${pct(z.cantidad)}%` }} /></span>
+                        </span>
+                        <span className="zona-card__tipo"><i className="punto-tipo" style={{ background: colorTipo(z.tipoDominante) }} aria-hidden="true" /> {z.tipoDominanteLabel}</span>
+                        <p className="zona-card__accion">{z.accion}</p>
+                        <Link className="zona-card__ir" to={`/mapa?lat=${z.lat}&lng=${z.lng}`}>Ver en el mapa →</Link>
+                      </li>
+                    ))}
+                  </ol>
                 ) : <p className="tile__nota">Sin reportes en este periodo.</p>}
               </Tile>
             </div>

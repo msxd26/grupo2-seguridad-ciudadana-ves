@@ -29,6 +29,18 @@ export const DenunciaModel = {
     return rows
   },
 
+  // Total de denuncias por mes del año (1–12) en años completos: base de la estacionalidad.
+  async totalesPorMes({ ubigeo, desde, hasta }) {
+    const [rows] = await pool.query(
+      `SELECT mes, SUM(cantidad) AS total, COUNT(DISTINCT anio) AS anios
+         FROM denuncias_policiales
+        WHERE ubigeo = ? AND anio BETWEEN ? AND ?
+        GROUP BY mes ORDER BY mes`,
+      [ubigeo, desde, hasta],
+    )
+    return rows.map((r) => ({ mes: r.mes, total: Number(r.total), anios: Number(r.anios) }))
+  },
+
   // Detalle de un distrito por año, mes y modalidad.
   async detalleDistrito({ ubigeo, desde, hasta, modalidades }) {
     const f = filtroModalidad(modalidades)

@@ -5,6 +5,8 @@ const mapear = (r) => ({
   id: r.id,
   tipo: r.tipo,
   modo: r.modo,
+  iaConfianza: r.ia_confianza ?? null,
+  iaCorregido: Boolean(r.ia_corregido),
   descripcion: r.descripcion,
   referencia: r.referencia,
   lat: Number(r.lat),
@@ -48,6 +50,16 @@ export const ReporteModel = {
     return rows.map(mapear)
   },
 
+  // Para la predicción: solo lo necesario para agregar por zona (sin descripción ni autor, ODS 5).
+  async listarParaPrediccion({ dias }) {
+    const [rows] = await pool.query(
+      `SELECT tipo, lat, lng, fecha_hecho, es_demo FROM reportes
+        WHERE ${VISIBLE} AND fecha_hecho >= NOW() - INTERVAL ? DAY AND fecha_hecho <= NOW()`,
+      [dias],
+    )
+    return rows.map((r) => ({ tipo: r.tipo, lat: Number(r.lat), lng: Number(r.lng), fecha: new Date(r.fecha_hecho), esDemo: Boolean(r.es_demo) }))
+  },
+
   // Reportes visibles entre hace `desde` y hace `hasta` días (para comparar periodos).
   async contarVisiblesEntre(desdeDias, hastaDias) {
     const [[row]] = await pool.query(
@@ -63,11 +75,11 @@ export const ReporteModel = {
     return row ? mapear(row) : null
   },
 
-  async crear({ tipo, modo, descripcion, referencia, lat, lng, fechaHecho, usuarioId = null }) {
+  async crear({ tipo, modo, iaConfianza = null, iaCorregido = false, descripcion, referencia, lat, lng, fechaHecho, usuarioId = null }) {
     const [result] = await pool.query(
-      `INSERT INTO reportes (usuario_id, tipo, modo, descripcion, referencia, lat, lng, fecha_hecho)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [usuarioId, tipo, modo, descripcion, referencia, lat, lng, fechaHecho],
+      `INSERT INTO reportes (usuario_id, tipo, modo, ia_confianza, ia_corregido, descripcion, referencia, lat, lng, fecha_hecho)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [usuarioId, tipo, modo, iaConfianza, iaCorregido ? 1 : 0, descripcion, referencia, lat, lng, fechaHecho],
     )
     return this.buscarPorId(result.insertId)
   },
@@ -108,11 +120,11 @@ export const ReporteModel = {
   },
 
   // Reporte de demostración (simulación en vivo): siempre con es_demo = 1.
-  async crearDemo({ tipo, modo, descripcion, referencia, lat, lng, fechaHecho }) {
+  async crearDemo({ tipo, modo, iaConfianza = null, iaCorregido = false, descripcion, referencia, lat, lng, fechaHecho }) {
     const [result] = await pool.query(
-      `INSERT INTO reportes (tipo, modo, descripcion, referencia, lat, lng, fecha_hecho, es_demo)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
-      [tipo, modo, descripcion, referencia, lat, lng, fechaHecho],
+      `INSERT INTO reportes (tipo, modo, ia_confianza, ia_corregido, descripcion, referencia, lat, lng, fecha_hecho, es_demo)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [tipo, modo, iaConfianza, iaCorregido ? 1 : 0, descripcion, referencia, lat, lng, fechaHecho],
     )
     return this.buscarPorId(result.insertId)
   },

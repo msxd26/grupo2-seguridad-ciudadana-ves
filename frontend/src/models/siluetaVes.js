@@ -1,0 +1,11 @@
+// Silueta real de Villa El Salvador (ubigeo 150142), generada a partir del límite distrital
+// de OpenStreetMap (relación 1944858, ODbL) que también usa el mapa: backend/src/data/ves_limite.geojson.
+// Proyección equirectangular corregida por latitud, norte arriba. 66 vértices.
+export const SILUETA_VES = {
+  viewBox: '0 0 1000 1062',
+  ancho: 1000,
+  alto: 1062,
+  d: 'M0.0 564.1L71.9 639.4L18.4 731.9L56.8 752.8L85.7 763.4L176.0 805.8L243.2 830.2L288.2 857.0L336.2 876.6L414.2 915.3L419.7 920.2L428.6 922.5L548.5 987.1L552.2 988.5L578.2 951.4L620.9 974.4L736.5 1061.7L749.1 1025.0L755.7 1017.6L772.8 1012.7L795.4 1008.3L822.6 1008.3L852.4 1013.6L877.7 1023.3L888.5 1024.9L912.2 1015.5L922.0 1007.0L924.9 996.4L918.6 969.4L920.9 952.8L935.9 930.9L976.9 893.4L964.0 869.6L959.1 852.2L959.0 837.5L1000.0 716.5L872.2 658.3L863.4 651.3L855.2 639.8L829.5 555.4L813.6 485.8L748.2 401.9L515.8 0.0L472.2 27.1L445.9 49.2L424.1 61.8L419.1 62.6L412.0 54.1L385.2 50.3L377.4 47.3L377.5 62.4L367.1 60.6L359.3 63.6L335.9 63.8L287.0 100.3L290.3 106.5L271.2 125.6L276.4 134.5L266.2 140.1L256.3 141.3L240.1 153.3L150.9 163.9L68.4 147.7L59.1 193.6L35.8 363.2L0.0 564.1Z',
+  // Puntos interiores (decorativos) donde se dibujan 'reportes' que laten sobre la silueta.
+  puntos: [[160, 270], [700, 390], [640, 510], [400, 750], [580, 630], [640, 870]],
+}

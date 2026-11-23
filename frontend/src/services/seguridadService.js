@@ -20,3 +20,7 @@ export const marcarFalso = (id) => postJson(`/reportes/${id}/marcar`)
 export const confirmarReporte = (id) => postJson(`/reportes/${id}/confirmar`)
 export const conversarIA = (mensajes) => postJson('/reportes/chat', { mensajes })
 export const fetchPanelCiudadano = ({ dias }, signal) => getJson(`/panel-ciudadano${toQuery({ dias })}`, signal)
+
+// Predicción por zona y plan de acción (panel municipal)
+export const fetchPredicciones = (signal) => getJson('/predicciones', signal)
+export const fetchPlanAccion = (zonas, signal) => getJson(`/predicciones/plan${toQuery({ zonas: zonas?.join(',') })}`, signal)

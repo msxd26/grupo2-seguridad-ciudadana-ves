@@ -88,7 +88,7 @@ class MapaViewModel(private val c: AppContainer) : ViewModel() {
 
     fun cerrarAvisoEnVivo() = _estado.update { it.copy(ultimoEnVivo = null) }
 
-    /** Cambios en vivo enviados por el servidor (SSE). */
+    /** Cambios en vivo enviados por el servidor (WebSocket). */
     fun aplicarEvento(evento: EventoTiempoReal) {
         val e = _estado.value
         val datos = e.datos ?: return
@@ -123,7 +123,17 @@ class MapaViewModel(private val c: AppContainer) : ViewModel() {
                     }))
                 }
             }
-            is EventoTiempoReal.Conectados -> Unit
+            // Moderación en vivo: un descartado desaparece del mapa; un verificado muestra su nuevo estado.
+            is EventoTiempoReal.ReporteModerado -> {
+                val m = evento.moderado
+                _estado.update {
+                    it.copy(datos = datos.copy(reportes =
+                        if (m.estado == "descartado" || m.oculto) datos.reportes.filterNot { r -> r.id == m.id }
+                        else datos.reportes.map { r -> if (r.id == m.id) r.copy(estado = m.estado) else r }
+                    ))
+                }
+            }
+            is EventoTiempoReal.MiReporte, is EventoTiempoReal.Conectados -> Unit
         }
     }
 

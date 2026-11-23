@@ -11,6 +11,7 @@ import Heatmap from './Heatmap'
 import PriorityTable from './PriorityTable'
 import Insights from './Insights'
 import { exportarCsv } from './exportarCsv'
+import SkeletonPanel from './SkeletonPanel'
 
 
 const COLS_MES = [
@@ -63,7 +64,7 @@ export default function PanelOficial({ pestanas }) {
     )
   }
   if (!data || !catalogos) {
-    return <div className="pbi pbi--estado"><p>Cargando panel de decisión…</p></div>
+    return <div className="pbi pbi--estado"><SkeletonPanel texto="Cargando panel de decisión…" /></div>
   }
 
   const { kpis, filtros, ranking } = data

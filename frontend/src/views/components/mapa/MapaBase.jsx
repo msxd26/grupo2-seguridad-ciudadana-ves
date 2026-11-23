@@ -19,10 +19,16 @@ function Clicks({ onClick }) {
   return null
 }
 
+// Para miniaturas: un mapa que solo muestra (sin arrastrar, zoom ni teclado).
+const SIN_INTERACCION = {
+  dragging: false, zoomControl: false, scrollWheelZoom: false, doubleClickZoom: false,
+  touchZoom: false, boxZoom: false, keyboard: false,
+}
+
 // Mapa base de Villa El Salvador con el límite distrital.
-export default function MapaBase({ limite, centro = CENTRO_VES, zoom = ZOOM_INICIAL, destino, onClick, className, children }) {
+export default function MapaBase({ limite, centro = CENTRO_VES, zoom = ZOOM_INICIAL, destino, onClick, className, estatico = false, children }) {
   return (
-    <MapContainer center={centro} zoom={zoom} className={className} scrollWheelZoom>
+    <MapContainer center={centro} zoom={zoom} className={className} scrollWheelZoom {...(estatico ? SIN_INTERACCION : null)}>
       <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} maxZoom={19} />
       {limite ? <GeoJSON data={limite} style={ESTILO_LIMITE} interactive={false} /> : null}
       {destino ? <Volar destino={destino} /> : null}

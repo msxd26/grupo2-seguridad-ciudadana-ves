@@ -25,10 +25,10 @@ try {
   } else {
     const filas = Array.from({ length: CANTIDAD }, () => {
       const r = generarReporteDemo(azar, fechaAleatoria())
-      return [r.tipo, r.modo, r.descripcion, r.referencia, r.lat, r.lng, r.fechaHecho, azar() < 0.55 ? 'verificado' : 'pendiente', 1]
+      return [r.tipo, r.modo, r.iaConfianza, r.iaCorregido ? 1 : 0, r.descripcion, r.referencia, r.lat, r.lng, r.fechaHecho, azar() < 0.55 ? 'verificado' : 'pendiente', 1]
     })
     await pool.query(
-      'INSERT INTO reportes (tipo, modo, descripcion, referencia, lat, lng, fecha_hecho, estado, es_demo) VALUES ?',
+      'INSERT INTO reportes (tipo, modo, ia_confianza, ia_corregido, descripcion, referencia, lat, lng, fecha_hecho, estado, es_demo) VALUES ?',
       [filas],
     )
     console.log(`✔ ${CANTIDAD} reportes DEMO creados (marcados con es_demo = 1)`)

@@ -50,9 +50,14 @@ export function generarReporteDemo(azar, fechaHecho = new Date()) {
   const tipo = ponderado(Object.entries(PESOS), azar)
   const [lat, lng] = puntoAleatorio(azar)
   const lista = DESCRIPCIONES[tipo]
+  const modo = ponderado(MODOS, azar)
+  // Los reportes por chat llevan la confianza de la IA y si el vecino la corrigió (~1 de cada 5).
+  const chat = modo === 'chat'
   return {
     tipo,
-    modo: ponderado(MODOS, azar),
+    modo,
+    iaConfianza: chat ? 55 + Math.floor(azar() * 44) : null,
+    iaCorregido: chat && azar() < 0.2,
     descripcion: `${lista[Math.floor(azar() * lista.length)]}.`,
     referencia: REFERENCIAS[Math.floor(azar() * REFERENCIAS.length)],
     lat: Number(lat.toFixed(6)),

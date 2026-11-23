@@ -1,5 +1,5 @@
 import * as admin from '../services/adminService.js'
-import { detenerSimulacion, estadoSimulacion, iniciarSimulacion } from '../services/simulacionService.js'
+import { detenerSimulacion, estadoSimulacion, generarRafaga, iniciarSimulacion } from '../services/simulacionService.js'
 import { apiView } from '../views/apiView.js'
 
 export const adminController = {
@@ -22,6 +22,11 @@ export const adminController = {
   cambiarSimulacion(req, res) {
     const { activa, intervaloSeg } = req.body ?? {}
     res.json(apiView.ok(activa ? iniciarSimulacion({ intervaloSeg }) : detenerSimulacion()))
+  },
+
+  // "Generar alertas ahora": ráfaga de reportes DEMO para probar los avisos.
+  rafaga(req, res) {
+    res.status(202).json(apiView.ok(generarRafaga(req.body ?? {})))
   },
 
   async usuarios(req, res) {

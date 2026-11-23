@@ -22,7 +22,7 @@ const claveDia = new Intl.DateTimeFormat('en-CA', { timeZone: zonaHoraria }) // 
 const horaLima = new Intl.DateTimeFormat('en-GB', { timeZone: zonaHoraria, hour: '2-digit', hourCycle: 'h23' })
 
 // Comisaría más cercana como referencia para nombrar cada zona.
-function referenciaCercana(lat, lng, comisarias) {
+export function referenciaCercana(lat, lng, comisarias) {
   let mejor = null
   for (const c of comisarias) {
     const d = distanciaMetros(lat, lng, c.lat, c.lng)
@@ -43,11 +43,17 @@ export async function obtenerPanelCiudadano(query) {
 
   const conteo = new Map(TIPOS_INCIDENTE.map((t) => [t.id, 0]))
   const porModo = { formulario: 0, chat: 0, guiado: 0 }
+  const ia = { conConfianza: 0, sumaConfianza: 0, corregidos: 0 }
   const porHora = Array.from({ length: 24 }, (_, h) => ({ hora: h, total: 0 }))
   const porDiaMap = new Map()
   for (const r of reportes) {
     conteo.set(r.tipo, (conteo.get(r.tipo) ?? 0) + 1)
     porModo[r.modo] = (porModo[r.modo] ?? 0) + 1
+    if (r.modo === 'chat' && r.iaConfianza !== null) {
+      ia.conConfianza++
+      ia.sumaConfianza += r.iaConfianza
+      if (r.iaCorregido) ia.corregidos++
+    }
     const fecha = new Date(r.fechaHecho)
     porHora[Number(horaLima.format(fecha))].total++
     const dia = claveDia.format(fecha)
@@ -97,6 +103,10 @@ export async function obtenerPanelCiudadano(query) {
       horaPico: total ? horaPico : null,
       // Inclusión digital (ODS 10): reportes hechos con chat IA o modo guiado.
       accesibles: porModo.chat + porModo.guiado,
+      // "Pensar con IA": reportes del chat en los que el vecino corrigió la clasificación de la IA.
+      iaReportes: ia.conConfianza,
+      iaCorregidos: ia.corregidos,
+      iaConfianzaPromedio: ia.conConfianza ? Math.round(ia.sumaConfianza / ia.conConfianza) : null,
     },
     porTipo,
     porDia,

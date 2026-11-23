@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { EMERGENCY_NUMBERS, FUENTES, NAV_LINKS } from '../../models/navigation'
+import { EMERGENCY_NUMBERS, FOOTER_LINKS, FUENTES } from '../../models/navigation'
 import Logo from './Logo'
+import FondoVes from './FondoVes'
 import '../../assets/styles/footer.css'
 
 // Valor calculado una sola vez al cargar el módulo.
@@ -8,7 +9,8 @@ const CURRENT_YEAR = new Date().getFullYear()
 
 export default function Footer() {
   return (
-    <footer className="footer">
+    <footer className="footer con-fondo-ves">
+      <FondoVes variante="oscuro" costa={false} puntos={false} />
       <div className="footer__grid container">
         <section className="footer__brand">
           <Logo />
@@ -21,14 +23,11 @@ export default function Footer() {
         <section>
           <h2 className="footer__title">Navegación</h2>
           <ul className="footer__list">
-            {NAV_LINKS.map((link) => (
+            {FOOTER_LINKS.map((link) => (
               <li key={link.id}>
                 <Link to={link.to}>{link.label}</Link>
               </li>
             ))}
-            <li>
-              <Link to="/reportar">Reportar incidente</Link>
-            </li>
           </ul>
         </section>
 
@@ -62,7 +61,7 @@ export default function Footer() {
 
       <div className="footer__bottom">
         <div className="container">
-          © {CURRENT_YEAR} Tu Vecino · Grupo 2 — HackODS UA 2026 · ODS 5 y ODS 10 · Villa El Salvador
+          © {CURRENT_YEAR} Tu Vecino · Grupo 2 — HackODS UA 2026 · ODS 5 y ODS 10 · Villa El Salvador, Ciudad Mensajera de la Paz
         </div>
       </div>
     </footer>

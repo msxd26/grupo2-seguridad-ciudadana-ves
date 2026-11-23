@@ -12,6 +12,7 @@
     "db:setup": "npm run db:migrate && npm run db:seed && npm run db:admin",
     "db:demo": "node database/seeders/seed-demo-reportes.js",
     "db:demo:limpiar": "node database/seeders/seed-demo-reportes.js --limpiar",
+    "db:demo:historial": "node database/seeders/seed-demo-historial.js",
     "datos:actualizar": "node database/seeders/importar-datos-abiertos.js",
     "db:admin": "node database/seeders/crear-admin.js"
   },

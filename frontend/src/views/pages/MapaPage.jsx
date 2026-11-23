@@ -4,14 +4,21 @@ import { CircleMarker } from 'react-leaflet'
 import { useAsync } from '../../controllers/useAsync'
 import { useEventos } from '../../context/EventosContext'
 import { fetchMapa } from '../../services/seguridadService'
-import { NIVELES_ZONA, PERIODOS } from '../../models/mapa'
+import { PERIODOS } from '../../models/mapa'
 import { TIPOS } from '../../models/tipos'
-import { IconoCalor, IconoPin } from '../../models/iconos'
+import { IconoAtencion, IconoCalor, IconoDesplegar, IconoPeligro, IconoPin, IconoUbicacion } from '../../models/iconos'
 import MapaBase from '../components/mapa/MapaBase'
 import CapaCalor from '../components/mapa/CapaCalor'
 import { CapaComisarias, CapaReportes, CapaZonas } from '../components/mapa/capas'
 import PanelEnVivo from '../components/mapa/PanelEnVivo'
+import LeyendaMapa from '../components/mapa/LeyendaMapa'
 import '../../assets/styles/mapa.css'
+
+// Nivel de la zona con ícono + texto (nunca solo color).
+const NIVEL_ZONA_BADGE = {
+  alto: { label: 'Peligro', Icono: IconoPeligro },
+  medio: { label: 'Atención', Icono: IconoAtencion },
+}
 
 const CAPAS = [
   { id: 'calor', label: 'Mapa de calor' },
@@ -36,6 +43,10 @@ export default function MapaPage() {
   const [votos, setVotos] = useState(() => new Map()) // id -> { confirmaciones, marcas } en vivo
   const [seguir, setSeguir] = useState(true)
   const [seleccionado, setSeleccionado] = useState(null)
+  const [miPosicion, setMiPosicion] = useState(null)
+  const [ubicando, setUbicando] = useState(false)
+  const [errorUbicacion, setErrorUbicacion] = useState(null)
+  const [hojaAbierta, setHojaAbierta] = useState(false) // hoja inferior (solo celulares)
   const seguirRef = useRef(seguir)
   seguirRef.current = seguir
 
@@ -81,6 +92,26 @@ export default function MapaPage() {
   const nuevos = useMemo(() => new Set(enVivo.map((r) => r.id)), [enVivo])
   const puntos = useMemo(() => reportes.map((r) => [r.lat, r.lng]), [reportes])
 
+  // "Mi ubicación": referencia espacial para quien no conoce el mapa (adultos mayores).
+  const irAMiUbicacion = () => {
+    if (!navigator.geolocation) return setErrorUbicacion('Tu navegador no permite obtener la ubicación.')
+    setUbicando(true)
+    setErrorUbicacion(null)
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const punto = { lat: coords.latitude, lng: coords.longitude }
+        setMiPosicion(punto)
+        setDestino({ ...punto, zoom: 16 })
+        setUbicando(false)
+      },
+      () => {
+        setErrorUbicacion('No pudimos obtener tu ubicación. Activa el permiso de ubicación.')
+        setUbicando(false)
+      },
+      { enableHighAccuracy: true, timeout: 10_000 },
+    )
+  }
+
   const toggleCapa = (id) => setVisibles((v) => ({ ...v, [id]: !v[id] }))
   const ocultar = (id) => setOcultos((s) => new Set(s).add(id))
   const zonasDestacadas = data?.zonas.filter((z) => z.nivel !== 'bajo').slice(0, 5) ?? []
@@ -88,85 +119,106 @@ export default function MapaPage() {
 
   return (
     <div className="mapa-page">
-      <aside className="mapa-panel" aria-label="Controles del mapa">
-        <div>
-          <h1 className="mapa-panel__title">Mapa de incidentes</h1>
-          <p className="mapa-panel__desc">Lo que reportan los vecinos de Villa El Salvador, en tiempo real.</p>
-        </div>
+      <aside className={hojaAbierta ? 'mapa-panel mapa-panel--abierta' : 'mapa-panel'} aria-label="Controles del mapa">
+        {/* En celulares el panel es una hoja inferior: el mapa queda visible y la hoja se despliega con un toque. */}
+        <button type="button" className="mapa-panel__asa" aria-expanded={hojaAbierta} aria-controls="mapa-panel-cuerpo" onClick={() => setHojaAbierta((a) => !a)}>
+          <span className="mapa-panel__asa-barra" aria-hidden="true" />
+          <span>{hojaAbierta ? 'Ocultar filtros' : 'Filtros y zonas críticas'}</span>
+          {zonasDestacadas.length ? <span className="mapa-panel__asa-n">{zonasDestacadas.length} zonas</span> : null}
+          <IconoDesplegar size={20} aria-hidden="true" className="mapa-panel__asa-icono" />
+        </button>
 
-        <div className="mapa-panel__grupo">
-          <span className="mapa-panel__label">Periodo</span>
-          <div className="segmented" role="group" aria-label="Periodo">
-            {PERIODOS.map((p) => (
-              <button key={p.dias} type="button" aria-pressed={dias === p.dias} className={dias === p.dias ? 'activo' : undefined} onClick={() => setDias(p.dias)}>
-                {p.label}
-              </button>
-            ))}
+        <div id="mapa-panel-cuerpo" className="mapa-panel__cuerpo">
+          <div>
+            <h1 className="mapa-panel__title">Mapa de incidentes</h1>
+            <p className="mapa-panel__desc">Lo que reportan los vecinos de Villa El Salvador, en tiempo real.</p>
           </div>
-        </div>
 
-        <div className="mapa-panel__grupo">
-          <label className="mapa-panel__label" htmlFor="m-tipo">Tipo de incidente</label>
-          <select id="m-tipo" className="mapa-panel__select" value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            <option value="">Todos</option>
-            {TIPOS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-          </select>
-        </div>
-
-        <fieldset className="mapa-panel__grupo">
-          <legend className="mapa-panel__label">Capas</legend>
-          {CAPAS.map((c) => (
-            <label key={c.id} className="mapa-panel__check">
-              <input type="checkbox" checked={visibles[c.id]} onChange={() => toggleCapa(c.id)} /> {c.label}
-            </label>
-          ))}
-        </fieldset>
-
-        <div className="mapa-panel__grupo">
-          <span className="mapa-panel__label">Leyenda</span>
-          <ul className="leyenda">
-            {TIPOS.map((t) => (
-              <li key={t.id}><i className="leyenda__punto" style={{ background: t.color }} />{t.label}</li>
-            ))}
-            <li><i className="leyenda__seguro" />Punto seguro (comisaría)</li>
-          </ul>
-        </div>
-
-        {data ? (
-          <div className="mapa-panel__grupo">
-            <span className="mapa-panel__label">Resumen</span>
-            <p className="mapa-panel__resumen">
-              <strong>{reportes.length}</strong> incidentes · <strong>{zonasDestacadas.length}</strong> zonas críticas
-            </p>
-            {zonasDestacadas.length ? (
-              <ol className="zonas-lista">
-                {zonasDestacadas.map((z) => (
-                  <li key={z.id}>
-                    <button type="button" onClick={() => setDestino({ lat: (z.sur + z.norte) / 2, lng: (z.oeste + z.este) / 2, zoom: 17 })}>
-                      <i style={{ background: NIVELES_ZONA[z.nivel].color }} />
-                      {z.cantidad} reportes · {TIPOS.find((t) => t.id === z.tipoPrincipal)?.label}
-                    </button>
-                  </li>
+          <section className="mapa-panel__seccion" aria-labelledby="sec-filtros">
+            <h2 id="sec-filtros" className="mapa-panel__seccion-titulo">Filtros</h2>
+            <div className="mapa-panel__grupo">
+              <span className="mapa-panel__label" id="m-periodo">¿De cuándo son los reportes?</span>
+              <div className="segmented segmented--periodos" role="group" aria-labelledby="m-periodo">
+                {PERIODOS.map((p) => (
+                  <button key={p.dias} type="button" aria-pressed={dias === p.dias} className={dias === p.dias ? 'activo' : undefined} onClick={() => setDias(p.dias)}>
+                    {p.label}
+                  </button>
                 ))}
-              </ol>
-            ) : null}
-          </div>
-        ) : null}
+              </div>
+            </div>
+            <div className="mapa-panel__grupo">
+              <label className="mapa-panel__label" htmlFor="m-tipo">Tipo de incidente</label>
+              <select id="m-tipo" className="mapa-panel__select" value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                <option value="">Todos</option>
+                {TIPOS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+              </select>
+            </div>
+          </section>
 
-        {hayDemo ? <p className="aviso-demo">Incluye reportes <strong>de demostración</strong> (marcados como DEMO).</p> : null}
+          <section className="mapa-panel__seccion" aria-labelledby="sec-capas">
+            <h2 id="sec-capas" className="mapa-panel__seccion-titulo">Capas</h2>
+            <fieldset className="mapa-panel__grupo">
+              <legend className="sr-only">Capas visibles en el mapa</legend>
+              {CAPAS.map((c) => (
+                <label key={c.id} className="mapa-panel__check">
+                  <input type="checkbox" checked={visibles[c.id]} onChange={() => toggleCapa(c.id)} /> {c.label}
+                </label>
+              ))}
+            </fieldset>
+          </section>
 
-        {data ? (
-          <p className="mapa-panel__fuente">
-            Comisarías: <a href={data.fuentes.comisarias.url} target="_blank" rel="noreferrer">{data.fuentes.comisarias.entidad}</a> ·
-            Límite: <a href={data.fuentes.limite.url} target="_blank" rel="noreferrer">{data.fuentes.limite.entidad}</a>
-          </p>
-        ) : null}
+          {data ? (
+            <section className="mapa-panel__seccion" aria-labelledby="sec-zonas">
+              <h2 id="sec-zonas" className="mapa-panel__seccion-titulo">Zonas críticas</h2>
+              <p className="mapa-panel__resumen">
+                <strong>{reportes.length}</strong> incidentes · <strong>{zonasDestacadas.length}</strong> zonas críticas
+              </p>
+              {zonasDestacadas.length ? (
+                <ol className="zonas-lista">
+                  {zonasDestacadas.map((z) => {
+                    const nivel = NIVEL_ZONA_BADGE[z.nivel]
+                    return (
+                      <li key={z.id}>
+                        <button type="button" onClick={() => { setDestino({ lat: (z.sur + z.norte) / 2, lng: (z.oeste + z.este) / 2, zoom: 17 }); setHojaAbierta(false) }}>
+                          <span className={`zona-badge zona-badge--${z.nivel}`}><nivel.Icono size={13} aria-hidden="true" /> {nivel.label}</span>
+                          <span className="zonas-lista__texto">
+                            <strong>{TIPOS.find((t) => t.id === z.tipoPrincipal)?.label ?? 'Varios'}</strong>
+                            <span>{z.cantidad} reportes</span>
+                          </span>
+                          <span className="zonas-lista__ir">Ver zona →</span>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ol>
+              ) : (
+                <p className="mapa-panel__vacio">Todo tranquilo por ahora. Si ves algo, <Link to="/reportar">puedes reportarlo aquí →</Link></p>
+              )}
+            </section>
+          ) : null}
+
+          {hayDemo ? <p className="aviso-demo">Incluye reportes <strong>de demostración</strong> (marcados como DEMO).</p> : null}
+
+          {data ? (
+            <p className="mapa-panel__fuente">
+              Comisarías: <a href={data.fuentes.comisarias.url} target="_blank" rel="noreferrer">{data.fuentes.comisarias.entidad}</a> ·
+              Límite: <a href={data.fuentes.limite.url} target="_blank" rel="noreferrer">{data.fuentes.limite.entidad}</a>
+            </p>
+          ) : null}
+        </div>
       </aside>
 
       <div className="mapa-contenedor">
         {error ? <div className="mapa-error" role="alert">No se pudo cargar el mapa: {error}</div> : null}
-        {cargando ? <div className="mapa-cargando">Actualizando…</div> : null}
-        <button type="button" className={visibles.calor ? 'boton-calor boton-calor--activo' : 'boton-calor'} onClick={() => toggleCapa('calor')} aria-pressed={visibles.calor}>
+        {cargando && !data ? (
+          <div className="mapa-carga-inicial" role="status">
+            <span className="spinner" aria-hidden="true" />
+            <p>Cargando mapa…</p>
+          </div>
+        ) : null}
+        {cargando && data ? <div className="mapa-cargando" role="status">Actualizando…</div> : null}
+        {errorUbicacion ? <div className="mapa-error mapa-error--ubicacion" role="alert">{errorUbicacion}</div> : null}
+        <button type="button" className={visibles.calor ? 'boton-calor boton-calor--activo' : 'boton-calor'} onClick={() => toggleCapa('calor')} aria-pressed={visibles.calor} title="Mostrar u ocultar el mapa de calor">
           <IconoCalor size={18} aria-hidden="true" /> Calor
         </button>
         <MapaBase limite={data?.limite} destino={destino} className="mapa">
@@ -174,8 +226,13 @@ export default function MapaPage() {
           {data && visibles.zonas ? <CapaZonas zonas={data.zonas} /> : null}
           {visibles.reportes ? <CapaReportes reportes={reportes} nuevos={nuevos} onOculto={ocultar} abrirId={seleccionado} /> : null}
           {data && visibles.comisarias ? <CapaComisarias comisarias={data.comisarias} /> : null}
+          {miPosicion ? <CircleMarker center={[miPosicion.lat, miPosicion.lng]} radius={8} pathOptions={{ color: '#fff', weight: 3, fillColor: '#1D4ED8', fillOpacity: 1 }} /> : null}
           {destino ? <CircleMarker center={[destino.lat, destino.lng]} radius={22} pathOptions={{ color: '#1E3A8A', weight: 2, fill: false, dashArray: '4 4' }} /> : null}
         </MapaBase>
+        <button type="button" className="boton-ubicacion" onClick={irAMiUbicacion} disabled={ubicando} aria-label="Centrar el mapa en mi ubicación" title="Mi ubicación">
+          {ubicando ? <span className="spinner" aria-hidden="true" /> : <IconoUbicacion size={22} aria-hidden="true" />}
+        </button>
+        <LeyendaMapa />
         <PanelEnVivo
           reportes={reportes}
           nuevos={nuevos}

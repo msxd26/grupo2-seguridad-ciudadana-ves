@@ -18,7 +18,7 @@ import pe.jsaire.seguridad.data.remote.EventoTiempoReal
 
 /**
  * Estado compartido por toda la app: sesión del vecino, catálogo de tipos,
- * conexión con el servidor y eventos en tiempo real (SSE).
+ * conexión con el servidor y eventos en tiempo real (WebSocket).
  */
 class AppViewModel(private val c: AppContainer) : ViewModel() {
     private val _usuario = MutableStateFlow<Usuario?>(null)
@@ -61,6 +61,19 @@ class AppViewModel(private val c: AppContainer) : ViewModel() {
         trabajoEventos = viewModelScope.launch {
             c.eventos.flujo().collect { evento ->
                 if (evento is EventoTiempoReal.Conectados) _vecinosEnLinea.value = evento.total
+                // Notificación del sistema por cada reporte nuevo de los vecinos.
+                if (evento is EventoTiempoReal.NuevoReporte) c.notificaciones.nuevoReporte(evento.reporte)
+                // Aviso privado: el moderador revisó un reporte mío (snackbar + notificación).
+                if (evento is EventoTiempoReal.MiReporte) {
+                    c.notificaciones.miReporte(evento.aviso)
+                    val a = evento.aviso
+                    val estado = when (a.estado) {
+                        "verificado" -> "verificado ✅"
+                        "descartado" -> "no procede"
+                        else -> "en revisión"
+                    }
+                    _avisos.tryEmit("Tu reporte #${a.id}: $estado" + (a.comentarioAdmin?.let { " · $it" } ?: ""))
+                }
                 _eventos.emit(evento)
             }
         }

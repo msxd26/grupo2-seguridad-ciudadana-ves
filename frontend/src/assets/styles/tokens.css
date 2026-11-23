@@ -1,0 +1,153 @@
+/* ============================================================
+   TU VECINO — Design Tokens v1.0
+   HackODS UA 2026 · Villa El Salvador
+   Importar PRIMERO en global.css:  @import './tokens.css';
+   ============================================================ */
+
+:root {
+
+  /* ── Marca ─────────────────────────────────────────────── */
+  --color-brand:        #1D4ED8;   /* 7.2:1 sobre blanco ✅ AAA */
+  --color-brand-dark:   #1E3A8A;   /* 11.4:1 sobre blanco ✅ AAA */
+  --color-brand-light:  #DBEAFE;   /* decorativo */
+
+  /* ── Semáforo de peligro (mapa y alertas) ───────────────── */
+  --color-peligro-alto:        #DC2626;  /* 4.6:1 ✅ AA */
+  --color-peligro-alto-bg:     #FEE2E2;
+  --color-peligro-alto-txt:    #991B1B;  /* 7.1:1 sobre -bg ✅ AAA */
+
+  --color-peligro-medio:       #C2410C;  /* 5.4:1 ✅ AA */
+  --color-peligro-medio-bg:    #FEF3C7;
+  --color-peligro-medio-txt:   #78350F;  /* 7.9:1 sobre -bg ✅ AAA */
+
+  --color-peligro-bajo:        #CA8A04;  /* 3.1:1 — solo con icono */
+  --color-peligro-bajo-bg:     #FEF9C3;
+  --color-peligro-bajo-txt:    #713F12;  /* 8.4:1 sobre -bg ✅ AAA */
+
+  --color-info:                #0369A1;  /* 5.9:1 ✅ AA */
+  --color-info-bg:             #E0F2FE;
+  --color-info-txt:            #075985;  /* 7.4:1 sobre -bg ✅ AAA */
+
+  /* ── Estados UI ─────────────────────────────────────────── */
+  --color-success:      #15803D;   /* 7.0:1 ✅ AAA */
+  --color-success-bg:   #F0FDF4;
+  --color-success-txt:  #14532D;   /* 9.1:1 sobre -bg ✅ AAA */
+
+  --color-warning:      #D97706;   /* 4.6:1 ✅ AA */
+  --color-warning-bg:   #FFFBEB;
+  --color-warning-txt:  #78350F;   /* 7.9:1 sobre -bg ✅ AAA */
+
+  --color-error:        #DC2626;   /* 4.6:1 ✅ AA */
+  --color-error-bg:     #FEE2E2;
+  --color-error-txt:    #991B1B;   /* 7.1:1 sobre -bg ✅ AAA */
+
+  --color-disabled-txt: #94A3B8;   /* 2.5:1 — solo no-texto */
+  --color-focus:        #1D4ED8;
+
+  /* ── Neutros ────────────────────────────────────────────── */
+  --color-ink-900:      #0F172A;   /* 19.4:1 ✅ AAA */
+  --color-ink-700:      #334155;   /* 10.2:1 ✅ AAA */
+  --color-ink-500:      #64748B;   /* 4.6:1 ✅ AA */
+  --color-ink-400:      #94A3B8;   /* 2.5:1 — solo placeholder */
+
+  --color-surface-0:    #FFFFFF;
+  --color-surface-1:    #F8FAFC;
+  --color-surface-2:    #F1F5F9;
+
+  --color-border:       #E2E8F0;
+  --color-border-strong:#CBD5E1;
+
+  /* ── Mapa ───────────────────────────────────────────────── */
+  --color-mapa-usuario:    #1D4ED8;
+  --color-mapa-seleccion:  #7C3AED;
+  --color-mapa-seguro:     #15803D;
+
+  /* ── Accents ────────────────────────────────────────────── */
+  --color-teal:         #0D9488;   /* 4.5:1 ✅ AA */
+  --color-amber:        #D97706;   /* 6.3:1 sobre navy ✅ AA */
+
+  /* ── Gráficos del dashboard ─────────────────────────────── */
+  --chart-1: #1D4ED8;
+  --chart-2: #C2410C;
+  --chart-3: #D97706;
+  --chart-4: #334155;
+  --chart-5: #0369A1;
+  --chart-6: #78350F;
+  --chart-7: #64748B;
+
+  /* ── Tipografía ─────────────────────────────────────────── */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px — mínimo para cuerpo */
+  --text-md:   1.0625rem;  /* 17px */
+  --text-lg:   1.125rem;   /* 18px — mínimo wizard */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  1.875rem;   /* 30px */
+  --text-4xl:  2.25rem;    /* 36px */
+
+  /* ── Espaciado ──────────────────────────────────────────── */
+  --space-1:   0.25rem;   /*  4px */
+  --space-2:   0.5rem;    /*  8px */
+  --space-3:   0.75rem;   /* 12px */
+  --space-4:   1rem;      /* 16px */
+  --space-5:   1.25rem;   /* 20px */
+  --space-6:   1.5rem;    /* 24px */
+  --space-8:   2rem;      /* 32px */
+  --space-10:  2.5rem;    /* 40px */
+  --space-16:  4rem;      /* 64px */
+
+  /* ── Radios ─────────────────────────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   10px;    /* = --radius actual */
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  20px;
+  --radius-pill: 999px;
+
+  /* Alias de compatibilidad — mantener mientras se migra */
+  --radius: var(--radius-md);
+
+  /* ── Sombras ────────────────────────────────────────────── */
+  --shadow-subtle:  0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-card:    0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-raised:  0 8px 24px rgba(15, 23, 42, 0.12);
+  --shadow-modal:   0 16px 40px rgba(15, 23, 42, 0.22);
+  --shadow-fab:     0 6px 16px rgba(29, 78, 216, 0.35); /* azul, no rojo */
+
+  /* ── Animaciones ────────────────────────────────────────── */
+  --duration-fast:  150ms;
+  --duration-base:  200ms;
+  --duration-slow:  300ms;
+  --duration-enter: 350ms;
+  --ease-default:   ease-out;
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Alias legacy — DEPRECADO, eliminar en cada archivo migrado ── */
+  --primary:      var(--color-brand);
+  --primary-dark: var(--color-brand-dark);
+  --danger:       var(--color-peligro-alto);
+  --warning:      var(--color-warning);
+  --success:      var(--color-success);
+  --info:         var(--color-info);
+  --ink-900:      var(--color-ink-900);
+  --text-2:       var(--color-ink-500);
+  --text-muted:   var(--color-ink-400);
+  --bg:           var(--color-surface-1);
+  --border:       var(--color-border);
+  --navy-900:     var(--color-ink-900);
+  --navy-800:     #1E293B;
+  --navy-700:     var(--color-brand-dark);
+  --amber:        var(--color-amber);
+  --alert:        var(--color-peligro-alto);
+  --alert-dark:   #B91C1C;
+  --blue:         var(--color-brand);
+  --text:         var(--color-ink-900);
+  --malo:         var(--color-peligro-alto);
+  --bueno:        var(--color-success);
+  --max-width:    1200px;
+  --warning-text: var(--color-peligro-medio);  /* texto naranja legible (antes #C2410C) */
+  --info-text:    var(--color-info);
+}

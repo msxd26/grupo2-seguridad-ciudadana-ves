@@ -5,6 +5,7 @@ import { ErrorValidacion } from '../utils/texto.js'
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const MAX_MENSAJES = 12
 const MAX_CARACTERES = 600
+export const UMBRAL_CONFIANZA = 70 // por debajo, la IA pregunta antes de pedir confirmación
 
 // Prompt del plan (sección "Prompt del Sistema — Groq"), adaptado a la API de este backend.
 const SYSTEM_PROMPT = `
@@ -17,10 +18,13 @@ Cuando el vecino te cuente qué pasó:
 2. Extrae o infiere la zona, calle o referencia si se menciona (si no, deja "").
 3. Escribe una descripción breve y neutral (máximo 150 caracteres), sin datos personales.
 4. Indica cuándo ocurrió si se menciona: "ahora", "hace_1h", "hoy" o "".
-5. Responde SIEMPRE solo con este JSON:
-   {"tipo":"...","descripcion":"...","zona":"...","cuando":"...","mensaje":"..."}
+5. Indica en "confianza" un número entero entre 0 y 100 con tu certeza en la clasificación del tipo.
+6. Responde SIEMPRE solo con este JSON:
+   {"tipo":"...","confianza":0,"descripcion":"...","zona":"...","cuando":"...","mensaje":"..."}
    donde "mensaje" es una respuesta corta, cálida y en lenguaje coloquial peruano que confirme lo que entendiste
    y pregunte si es correcto. Llama al usuario "vecino/a".
+   Si "confianza" es menor que ${UMBRAL_CONFIANZA}, en "mensaje" NO pidas confirmación: haz UNA pregunta de seguimiento
+   concreta para aclarar qué pasó (por ejemplo, si llegaron a quitarle algo o solo lo intentaron).
 
 Si el mensaje no describe un incidente de seguridad, usa "tipo":"" y en "mensaje" pide amablemente que cuente qué pasó.
 Si menciona una emergencia en curso (arma, herido, persona en peligro), en "mensaje" recomienda llamar al 105 primero.
@@ -54,15 +58,31 @@ function clasificarLocal(texto) {
   const zona = texto.match(ZONA_RE)?.[1]?.trim() ?? ''
   const descripcion = texto.replace(/\s+/g, ' ').trim().slice(0, 150)
   const emergencia = /\b(arma|pistola|cuchillo|herid\w*|sangr\w*|disparo\w*|balacera)\b/.test(t)
+  const confianza = confianzaLocal(t, tipo, zona, cuando)
 
   let mensaje
   if (!tipo) {
     mensaje = 'Te escucho, vecino/a. ¿Me cuentas un poco más? Por ejemplo: qué pasó y por dónde fue.'
+  } else if (confianza < UMBRAL_CONFIANZA) {
+    mensaje = `Creo que fue ${etiquetaTipo(tipo).toLowerCase()}, pero no estoy seguro, vecino/a. ¿Me cuentas un poco más de lo que pasó${zona ? '' : ' y por dónde fue'}?`
   } else {
     mensaje = `Entendido, vecino/a. Detecté: ${etiquetaTipo(tipo)}${zona ? ` en ${zona}` : ''}. ¿Es correcto?`
-    if (emergencia) mensaje = `Si alguien está en peligro ahora mismo, llama primero al 105. ${mensaje}`
   }
-  return { tipo, descripcion, zona, cuando, mensaje, motor: 'local' }
+  if (tipo && emergencia) mensaje = `Si alguien está en peligro ahora mismo, llama primero al 105. ${mensaje}`
+  return { tipo, confianza, descripcion, zona, cuando, mensaje, motor: 'local' }
+}
+
+// Certeza aproximada del clasificador local: baja si el texto es muy corto o encaja en varios tipos.
+function confianzaLocal(t, tipo, zona, cuando) {
+  if (!tipo) return 0
+  // "Intento de robo" también encaja en la regla de robo: eso no cuenta como ambigüedad.
+  const coincidencias = REGLAS.filter(([id, re]) => re.test(t) && !(tipo === 'intento_robo' && id === 'robo')).length
+  const palabras = t.split(/\s+/).filter(Boolean).length
+  let confianza = coincidencias > 1 ? 58 : 80
+  if (zona) confianza += 8
+  if (cuando) confianza += 4
+  if (palabras < 4) confianza -= 15
+  return Math.max(30, Math.min(95, confianza))
 }
 
 // --- Groq ---------------------------------------------------------------------------------
@@ -84,8 +104,10 @@ async function clasificarConGroq(mensajes) {
   const body = await res.json()
   const datos = JSON.parse(body.choices?.[0]?.message?.content ?? '{}')
   const tipo = TIPOS_REPORTE.includes(datos.tipo) ? datos.tipo : ''
+  const confianza = Number(datos.confianza)
   return {
     tipo,
+    confianza: tipo ? (Number.isFinite(confianza) ? Math.max(0, Math.min(100, Math.round(confianza))) : 75) : 0,
     descripcion: String(datos.descripcion ?? '').slice(0, 150),
     zona: String(datos.zona ?? '').slice(0, 120),
     cuando: ['ahora', 'hace_1h', 'hoy'].includes(datos.cuando) ? datos.cuando : '',

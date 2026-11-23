@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
-import { CircleMarker, Marker, Popup, Rectangle, Tooltip, useMap } from 'react-leaflet'
+import { Marker, Popup, Rectangle, Tooltip, useMap } from 'react-leaflet'
 import { NIVELES_ZONA, enlaceOsm } from '../../../models/mapa'
+import { iconoMarcador } from './iconosMarcador'
 import { MODOS, etiquetaTipo, haceCuanto, tipoDe } from '../../../models/tipos'
 import { confirmarReporte, marcarFalso } from '../../../services/seguridadService'
 
 // Ícono de punto seguro / comisaría (SVG en línea; evita las imágenes por defecto de Leaflet).
 const ICONO_COMISARIA = L.divIcon({
   className: 'icono-comisaria',
-  html: '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" fill="#16A34A" stroke="#fff" stroke-width="1.5"/><path d="M8.5 12.5l2.3 2.3 4.7-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  html: '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" fill="#15803D" stroke="#fff" stroke-width="1.5"/><path d="M8.5 12.5l2.3 2.3 4.7-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
   iconSize: [28, 28],
   iconAnchor: [14, 14],
   popupAnchor: [0, -12],
@@ -89,15 +90,19 @@ export function CapaReportes({ reportes, nuevos, onOculto, abrirId }) {
     const tipo = tipoDe(r.tipo)
     const esNuevo = nuevos?.has(r.id)
     return (
-      <CircleMarker
+      <Marker
         key={r.id}
         ref={(capa) => (capa ? refs.current.set(r.id, capa) : refs.current.delete(r.id))}
-        center={[r.lat, r.lng]}
-        radius={esNuevo ? 10 : 7}
-        pathOptions={{ color: '#fff', weight: 2, fillColor: tipo.color, fillOpacity: 0.95, className: esNuevo ? 'marcador-nuevo' : '' }}
+        position={[r.lat, r.lng]}
+        icon={iconoMarcador(r.tipo, { nuevo: esNuevo, verificado: r.estado === 'verificado' })}
+        title={`${tipo.label} · ${haceCuanto(r.fechaHecho)}`}
+        alt={tipo.label}
+        zIndexOffset={esNuevo ? 1000 : 0}
       >
         <Popup>
-          <strong style={{ color: tipo.color }}>{tipo.label}</strong>
+          <strong className="popup-tipo" style={{ color: tipo.texto }}>
+            <tipo.Icono size={16} aria-hidden="true" /> {tipo.label}
+          </strong>
           {r.esDemo ? <span className="badge-demo">DEMO</span> : null}
           {esNuevo ? <span className="badge-nuevo">NUEVO</span> : null}
           <br />
@@ -108,7 +113,7 @@ export function CapaReportes({ reportes, nuevos, onOculto, abrirId }) {
           <Confirmar id={r.id} total={r.confirmaciones ?? 0} />
           {r.estado !== 'verificado' ? <MarcarFalso id={r.id} onOculto={onOculto} /> : null}
         </Popup>
-      </CircleMarker>
+      </Marker>
     )
   })
 }

@@ -63,7 +63,7 @@ export default function ReportarFormularioPage() {
 
       <form className="form-reporte" onSubmit={enviar} noValidate>
         <div className="form-reporte__columna">
-          <fieldset className="campo">
+          <fieldset className="campo campo--tipo">
             <legend>Tipo de incidente *</legend>
             <div className="chips-tipo">
               {TIPOS.map(({ id, label, color, Icono }) => (
@@ -108,7 +108,8 @@ export default function ReportarFormularioPage() {
           </button>
         </div>
 
-        <div className="form-reporte__columna">
+        {/* En celulares el mapa sube justo después del tipo: la ubicación orienta lo que se describe. */}
+        <div className="form-reporte__columna form-reporte__ubicacion">
           <span className="campo__label">¿Dónde ocurrió? *</span>
           <UbicacionSelector limite={limite} valor={ubicacion} onCambiar={(u) => { setUbicacion(u); setErrores((x) => ({ ...x, ubicacion: undefined })) }} error={err.ubicacion} />
         </div>

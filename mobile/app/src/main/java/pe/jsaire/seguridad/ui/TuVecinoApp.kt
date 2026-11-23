@@ -21,6 +21,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -63,6 +67,14 @@ fun TuVecinoApp(container: AppContainer) {
     val entrada by nav.currentBackStackEntryAsState()
     val actual = Destino.entries.firstOrNull { it.ruta == entrada?.destination?.route } ?: Destino.INICIO
     val snackbar = remember { SnackbarHostState() }
+
+    // Android 13+: pedir permiso para notificar reportes en vivo (una sola vez; Android recuerda la respuesta).
+    val pedirPermisoNotificaciones = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !container.notificaciones.permitidas()) {
+            pedirPermisoNotificaciones.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     LaunchedEffect(Unit) { appVm.avisos.collect { snackbar.showSnackbar(it) } }
     // Aviso en pantalla cuando un vecino reporta algo (tiempo real).
