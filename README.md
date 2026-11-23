@@ -4,7 +4,7 @@
 
 **Equipo:** Grupo 2 — Seguridad Ciudadana para Villa El Salvador (VES).
 
-🔗 **Demo en vivo:** http://34.176.116.202/
+🔗 **Demo en vivo:** https://34-176-116-202.sslip.io/ (HTTPS con certificado válido;  redirige ahí)
 
 ## Descripción
 
@@ -29,15 +29,17 @@ incidentes no se denuncia) y la registrada oficialmente, y la cruza con las **de
 | --- | --- | --- |
 | Inicio | `/` | Resumen del distrito, accesos a los módulos y alertas activas |
 | Reportar | `/reportar` | Tres modos: **chat con IA** (`/reportar/chat`, escribir o dictar en `es-PE`), **paso a paso** (`/reportar/guiado`, botones grandes) y **formulario** (`/reportar/formulario`). Ubicación en el mapa validada dentro de VES; anónimo o con cuenta |
-| Mapa | `/mapa` | Leaflet con límite distrital, mapa de calor, reportes por tipo y periodo, zonas de riesgo (cuadrícula de ~330 m) y comisarías PNP. Panel **En vivo** con vecinos conectados, reportes que llegan al instante y "seguir en vivo"; en cada reporte se puede **confirmar** o **marcar como falso** |
-| Alertas | `/alertas` | Reportes de las últimas 24 h, zonas con más reportes y modalidades oficiales en aumento; filtros *Mi zona* y *Peligro alto* |
+| Mapa | `/mapa` | Leaflet con límite distrital, mapa de calor, reportes por tipo y periodo, zonas de riesgo (cuadrícula de ~330 m) y comisarías PNP. Panel **En vivo** con vecinos conectados, reportes que llegan al instante y "seguir en vivo"; en cada reporte se puede **confirmar** ("¿También lo viste? +1") o **marcar como falso**. Selector de fuente para **comparar** reportes vecinales con las denuncias oficiales (brecha de visibilidad por zona). En celulares, los filtros van en una hoja inferior |
+| Alertas | `/alertas` | Agrupadas en incidentes recientes, zonas de riesgo y tendencias oficiales, con contador por filtro (*Todas*, *Mi zona*, *Peligro alto*, *Zonas y análisis*), "Ver más" en mensajes largos y accesos a "Reportar igual" y a las estadísticas |
 | Emergencias | `/contacto` | Números de emergencia (105, 116, 106, 100) y comisarías cercanas |
 | Ingresar | `/ingresar` | Inicio de sesión y registro |
 | Mi cuenta | `/mi-cuenta` | Historial de reportes del vecino con su estado (en revisión → verificado / no procede) y la respuesta del equipo |
 
 **Avisos del navegador:** el vecino elige radio (500 m, 1 km, 2 km o todo el distrito), tipos de incidente y "solo
-Peligro"; la preferencia y la ubicación se guardan solo en su navegador. El autor de un reporte recibe un aviso
-privado cuando lo moderan.
+Peligro"; la preferencia y la ubicación se guardan solo en su navegador (el filtro se aplica en el dispositivo).
+Cuando llegan varios reportes seguidos (una **ráfaga**), se recibe **un solo aviso** con el resumen ("5 reportes
+nuevos · 3 robos y 2 acosos") y el mapa encuadra todos los puntos. El autor de un reporte recibe un aviso privado
+cuando lo moderan. Los avisos y el GPS requieren HTTPS (ver despliegue).
 
 **Moderación comunitaria:** con 3 marcas de "falso" de personas distintas el reporte se oculta hasta revisión.
 
@@ -69,8 +71,8 @@ descarta cualquier texto con cifras que no estén en los datos.
 
 ### Administración (`/admin`, rol administrador)
 
-- **Resumen:** indicadores de reportes, usuarios y alertas.
-- **Reportes:** bandeja de moderación (verificar / descartar con comentario), filtros, búsqueda, paginación y detalle con mapa.
+- **Resumen:** indicadores agrupados en *Moderación* (pendientes, verificados, descartados, ocultos) y *Plataforma* (reportes, usuarios, alertas) y gráficos de los últimos días.
+- **Reportes:** bandeja de moderación (verificar / descartar con comentario), filtros, búsqueda, paginación y detalle con mapa. En celular la tabla se muestra como tarjetas.
 - **Usuarios:** cambiar rol y activar / desactivar.
 - **Simulación en vivo** y **ráfaga de alertas** (3, 5 o 10 reportes DEMO) para presentaciones y para probar las notificaciones de la web y la app. La simulación se apaga sola a los 30 minutos.
 
@@ -79,6 +81,8 @@ descarta cualquier texto con cifras que no estén en los datos.
 App nativa en Kotlin + Jetpack Compose que usa la misma API. Pantallas: Inicio, Mapa (osmdroid con mapa de calor),
 Reportar, Alertas, Cuenta, Emergencias y Ajustes. Incluye **recomendación de seguridad según la ubicación**
 (`/api/recomendacion`), notificaciones de reportes en tiempo real por WebSocket y sesión con la misma cookie de la web.
+En **Ajustes → Avisos de reportes** se elige el radio, los tipos y "solo Peligro" (igual que en la web); una ráfaga
+llega en una sola notificación y al tocarla el mapa encuadra todos los reportes.
 El servidor por defecto es el despliegue en Google Cloud y se puede cambiar desde **Ajustes** (emulador o red local).
 
 ---
@@ -123,8 +127,8 @@ se construyen con los **reportes ciudadanos**.
 | App móvil | Kotlin, Jetpack Compose (Material 3), OkHttp, kotlinx.serialization, osmdroid (Android 10+, `minSdk 29`) |
 | IA | Groq API — `llama-3.1-8b-instant` (opcional; sin clave se usan un clasificador y un redactor locales) |
 | Voz | Web Speech API (dictado en `es-PE`) |
-| Tiempo real | WebSocket en el mismo puerto de la API (`/api/ws`) |
-| Despliegue | Docker Compose (MySQL + API + Nginx con HTTPS autofirmado), VM en Google Cloud |
+| Tiempo real | WebSocket en el mismo puerto de la API (`/api/ws`); si varios backends comparten la BD, se sincronizan cada 2 s por la base de datos |
+| Despliegue | Docker Compose (MySQL + API + Nginx), VM en Google Cloud con HTTPS de Let's Encrypt (sslip.io); en la red local, certificado autofirmado |
 
 ---
 
@@ -160,7 +164,7 @@ grupo2-seguridad-ciudadana-ves/
 │       └── assets/styles/       # Tokens del design system y estilos por módulo
 │
 ├── mobile/                      # App Android (Kotlin + Compose)
-├── infra/desplegar-gcp.sh       # Despliegue en la VM de Google Cloud
+├── infra/                       # desplegar-gcp.sh (despliegue en la VM) y certificado-https.sh (Let's Encrypt)
 ├── docs/                        # Planes y especificaciones de diseño
 ├── docker-compose.yml
 └── .env.example                 # Configuración para Docker Compose
@@ -276,11 +280,26 @@ Acceso desde la red: `http://<IP-de-la-PC>` o `https://<IP-de-la-PC>`.
 - **Detener:** `docker compose down` (conserva datos) · `docker compose down -v` (borra datos).
 - Los mapas de OpenStreetMap necesitan salida a internet.
 
+- **Varios backends con la misma BD** (por ejemplo el de desarrollo y el de Docker en la misma PC): cada uno reenvía a
+  sus navegadores los reportes y moderaciones que guardó el otro, revisando la BD cada 2 s. `SINCRONIZACION_MS=0` lo desactiva.
+
 ### Google Cloud
 
 `bash infra/desplegar-gcp.sh` (desde Git Bash, en la raíz) empaqueta el último commit, lo copia a la VM
 `tu-vecino-vm` por el túnel IAP y ejecuta `docker compose up -d --build`. Requiere `gcloud` con sesión iniciada y el
 archivo `.env.produccion` en la raíz (no se sube a git).
+
+**HTTPS con certificado válido.** Con `SITIO_SEGURO` en `.env.produccion` (hoy `34-176-116-202.sslip.io`, una
+dirección gratuita que apunta a la IP de la VM), Nginx usa el certificado de Let's Encrypt y redirige la web a HTTPS;
+la API (`/api`) sigue respondiendo por HTTP para la app Android. Para emitirlo, una sola vez en la VM:
+
+```bash
+sudo bash /opt/tu-vecino/infra-certificado-https.sh   # copia de infra/certificado-https.sh
+```
+
+Valida el dominio sin detener Nginx, no envía ningún correo a Let's Encrypt y deja un cron diario (03:17) que
+renueva el certificado y recarga Nginx. Para usar un dominio propio, cambiar `SITIO_SEGURO`, desplegar y volver a
+ejecutar el script.
 
 ---
 
@@ -299,6 +318,7 @@ Todas las respuestas son JSON bajo `/api`.
 | GET | `/predicciones/plan?zonas=` | Plan de acción recomendado |
 | GET | `/mapa?dias=30&tipos=robo,acoso` | Límite, comisarías, reportes y zonas de riesgo (`dias`: 1, 7, 30 o 90) |
 | GET | `/mapa/limite` | Límite distrital (GeoJSON) |
+| GET | `/mapa/brecha` | Comparación reportes vecinales vs. denuncias oficiales por zona (brecha de visibilidad) |
 | GET | `/comisarias` | Comisarías con coordenadas |
 | GET | `/alertas` | Alertas vigentes |
 | GET | `/recomendacion?lat=&lng=` | Recomendación de seguridad para una ubicación (app Android) |
