@@ -34,6 +34,7 @@ routes.get('/predicciones/plan', limitePlan, prediccionesController.plan)
 // Mapa, comisarías y alertas
 routes.get('/mapa', mapaController.mapa)
 routes.get('/mapa/limite', mapaController.limite)
+routes.get('/mapa/brecha', mapaController.brecha)
 routes.get('/comisarias', mapaController.comisarias)
 routes.get('/alertas', mapaController.alertas)
 const limiteRecomendacion = rateLimit({ max: 30, ventanaMs: 10 * 60_000, mensaje: 'Pediste muchas recomendaciones. Espera unos minutos.' })

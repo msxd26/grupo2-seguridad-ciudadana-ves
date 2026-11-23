@@ -1,12 +1,17 @@
 import { listarComisarias, obtenerMapa } from '../services/mapaService.js'
 import { obtenerAlertas } from '../services/alertasService.js'
 import { obtenerRecomendacion } from '../services/recomendacionService.js'
+import { obtenerComparacion } from '../services/comparacionService.js'
 import { LIMITE_VES } from '../utils/geo.js'
 import { apiView } from '../views/apiView.js'
 
 export const mapaController = {
   async mapa(req, res) {
     res.json(apiView.ok(await obtenerMapa(req.query)))
+  },
+
+  async brecha(req, res) {
+    res.json(apiView.ok(await obtenerComparacion(req.query)))
   },
 
   limite(_req, res) {
