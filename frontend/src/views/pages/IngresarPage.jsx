@@ -33,16 +33,19 @@ export default function IngresarPage() {
     <section className="ingreso">
       <div className="ingreso__bienvenida con-fondo-ves">
         <FondoVes variante="teal" />
-        <span className="ingreso__emoji" aria-hidden="true">👋</span>
-        <h1>¡Hola, vecino/a!</h1>
-        <p>Únete a la red de vecinos que cuidan Villa El Salvador.</p>
-        <ul>
-          {BENEFICIOS.map((b) => (
-            <li key={b.texto}><span aria-hidden="true">{b.icono}</span>{b.texto}</li>
-          ))}
-        </ul>
+        <div className="ingreso__bienvenida-contenido">
+          <span className="ingreso__emoji" aria-hidden="true">👋</span>
+          <h1>¡Hola, vecino/a!</h1>
+          <p>Únete a la red de vecinos que cuidan Villa El Salvador.</p>
+          <ul>
+            {BENEFICIOS.map((b) => (
+              <li key={b.texto}><span aria-hidden="true">{b.icono}</span>{b.texto}</li>
+            ))}
+          </ul>
+        </div>
       </div>
 
+      {/* Pestañas y formulario en una sola tarjeta, centrada en su columna. */}
       <div className="ingreso__tarjeta">
         <div className="tabs" role="tablist" aria-label="Ingresar o crear cuenta">
           <button type="button" role="tab" aria-selected={!esRegistro} className={!esRegistro ? 'activo' : undefined} onClick={() => form.cambiarModo('ingresar')}>

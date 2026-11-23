@@ -69,7 +69,7 @@ export default function MapaPage() {
     () =>
       suscribir((evento, datos) => {
         if (evento === 'reporte' && (!tipo || datos.tipo === tipo)) {
-          setEnVivo((v) => [datos, ...v])
+          setEnVivo((v) => (v.some((r) => r.id === datos.id) ? v : [datos, ...v])) // sin duplicados
           const ahora = Date.now()
           const continua = ahora - ultimaLlegada.current < 20_000
           ultimaLlegada.current = ahora

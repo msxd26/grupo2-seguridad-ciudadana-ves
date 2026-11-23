@@ -33,25 +33,30 @@ export default function AdminReportesPage() {
         </div>
       </div>
 
+      {/* Fila 1: estado + búsqueda. Fila 2: tipo y opciones. */}
       <div className="adm-filtros">
-        <div className="adm-tabs" role="tablist">
-          {PESTANAS.map((p) => (
-            <button key={p.id} type="button" role="tab" aria-selected={filtros.estado === p.id} className={filtros.estado === p.id ? 'activo' : undefined} onClick={() => setFiltro('estado', p.id)}>
-              {p.label}
-            </button>
-          ))}
+        <div className="adm-filtros__fila">
+          <div className="adm-tabs" role="tablist" aria-label="Estado del reporte">
+            {PESTANAS.map((p) => (
+              <button key={p.id} type="button" role="tab" aria-selected={filtros.estado === p.id} className={filtros.estado === p.id ? 'activo' : undefined} onClick={() => setFiltro('estado', p.id)}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <input className="adm-input adm-filtros__buscar" type="search" placeholder="Buscar por texto, autor o N.º" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} aria-label="Buscar" />
         </div>
-        <input className="adm-input" type="search" placeholder="Buscar por texto, autor o N.º" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} aria-label="Buscar" />
-        <select className="adm-input" value={filtros.tipo} onChange={(e) => setFiltro('tipo', e.target.value)} aria-label="Tipo">
-          <option value="">Todos los tipos</option>
-          {TIPOS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-        </select>
-        <label className="adm-switch">
-          <input type="checkbox" checked={filtros.marcados} onChange={(e) => setFiltro('marcados', e.target.checked)} /> Solo marcados 🚩
-        </label>
-        <label className="adm-switch">
-          <input type="checkbox" checked={filtros.demo} onChange={(e) => setFiltro('demo', e.target.checked)} /> Incluir demo
-        </label>
+        <div className="adm-filtros__fila">
+          <select className="adm-input" value={filtros.tipo} onChange={(e) => setFiltro('tipo', e.target.value)} aria-label="Tipo">
+            <option value="">Todos los tipos</option>
+            {TIPOS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+          </select>
+          <label className="adm-switch">
+            <input type="checkbox" checked={filtros.marcados} onChange={(e) => setFiltro('marcados', e.target.checked)} /> Solo marcados como falso 🚩
+          </label>
+          <label className="adm-switch">
+            <input type="checkbox" checked={filtros.demo} onChange={(e) => setFiltro('demo', e.target.checked)} /> Incluir datos de demostración
+          </label>
+        </div>
       </div>
 
       {error ? <div className="adm-error" role="alert">{error}</div> : null}
@@ -72,13 +77,13 @@ export default function AdminReportesPage() {
           <tbody>
             {(data?.reportes ?? []).map((r) => (
               <tr key={r.id} className={seleccionado?.id === r.id ? 'adm-tabla__fila--activa' : undefined}>
-                <td className="adm-mono">#{r.id}</td>
-                <td>{etiquetaTipo(r.tipo)}{r.esDemo ? <span className="badge-demo">DEMO</span> : null}<span className="adm-muted adm-modo">{MODOS[r.modo]}</span></td>
-                <td className="adm-tabla__desc">{r.descripcion}</td>
-                <td>{r.autor ? r.autor.nombre : <span className="adm-muted">Anónimo</span>}</td>
-                <td className="adm-nowrap">{fechaCorta.format(new Date(r.fechaHecho))}</td>
-                <td><span className={`adm-estado adm-estado--${r.estado}`}>{ESTADOS_REPORTE[r.estado].label}</span>{r.marcas ? <span className={r.oculto ? "adm-marcas adm-marcas--oculto" : "adm-marcas"} title="Marcas de la comunidad como falso">🚩 {r.marcas}{r.oculto ? " · oculto" : ""}</span> : null}</td>
-                <td><button type="button" className="adm-boton adm-boton--chico" onClick={() => setSeleccionado(r)}>Revisar</button></td>
+                <td className="adm-mono" data-label="N.º">#{r.id}</td>
+                <td data-label="Tipo">{etiquetaTipo(r.tipo)}{r.esDemo ? <span className="badge-demo">DEMO</span> : null}<span className="adm-muted adm-modo">{MODOS[r.modo]}</span></td>
+                <td className="adm-tabla__desc" data-label="Descripción">{r.descripcion}</td>
+                <td data-label="Autor">{r.autor ? r.autor.nombre : <span className="adm-muted">Anónimo</span>}</td>
+                <td className="adm-nowrap" data-label="Fecha">{fechaCorta.format(new Date(r.fechaHecho))}</td>
+                <td data-label="Estado"><span className={`adm-estado adm-estado--${r.estado}`}>{ESTADOS_REPORTE[r.estado].label}</span>{r.marcas ? <span className={r.oculto ? "adm-marcas adm-marcas--oculto" : "adm-marcas"} title="Marcas de la comunidad como falso">🚩 {r.marcas}{r.oculto ? " · oculto" : ""}</span> : null}</td>
+                <td className="adm-tabla__accion"><button type="button" className="adm-boton adm-boton--chico" onClick={() => setSeleccionado(r)}>Revisar</button></td>
               </tr>
             ))}
           </tbody>

@@ -67,15 +67,24 @@ export default function AdminResumenPage() {
         </div>
       ) : null}
 
-      <div className="adm-kpis">
-        <div className="adm-kpi adm-kpi--pendiente"><span>Pendientes</span><strong>{formatNumero(pendientes)}</strong></div>
-        <div className="adm-kpi adm-kpi--verificado"><span>Verificados</span><strong>{formatNumero(e.verificado ?? 0)}</strong></div>
-        <div className="adm-kpi adm-kpi--descartado"><span>Descartados</span><strong>{formatNumero(e.descartado ?? 0)}</strong></div>
-        <div className="adm-kpi"><span>Total de reportes</span><strong>{formatNumero(total)}</strong></div>
-        <div className="adm-kpi"><span>Usuarios</span><strong>{formatNumero(data.usuarios.total)}</strong><small>+{data.usuarios.nuevos7dias} en 7 días · {data.usuarios.admins} admin</small></div>
-        <div className="adm-kpi adm-kpi--pendiente"><span>Ocultos por la comunidad</span><strong>{data.ocultos}</strong><small>3+ marcas como falso</small></div>
-        <div className="adm-kpi"><span>Alertas activas</span><strong>{data.alertas.total}</strong><small>{data.alertas.altas} de nivel alto</small></div>
-      </div>
+      {/* Dos grupos que llenan su fila: estado de la moderación y uso de la plataforma. */}
+      <section className="adm-kpis-grupo" aria-labelledby="kpi-moderacion">
+        <h2 id="kpi-moderacion" className="adm-kpis-grupo__titulo">Moderación</h2>
+        <div className="adm-kpis adm-kpis--4">
+          <div className="adm-kpi adm-kpi--pendiente"><span>Pendientes</span><strong>{formatNumero(pendientes)}</strong><small>Esperan revisión</small></div>
+          <div className="adm-kpi adm-kpi--verificado"><span>Verificados</span><strong>{formatNumero(e.verificado ?? 0)}</strong><small>Confirmados por el equipo</small></div>
+          <div className="adm-kpi adm-kpi--descartado"><span>Descartados</span><strong>{formatNumero(e.descartado ?? 0)}</strong><small>No proceden</small></div>
+          <div className="adm-kpi adm-kpi--pendiente"><span>Ocultos por la comunidad</span><strong>{data.ocultos}</strong><small>3+ marcas como falso</small></div>
+        </div>
+      </section>
+      <section className="adm-kpis-grupo" aria-labelledby="kpi-plataforma">
+        <h2 id="kpi-plataforma" className="adm-kpis-grupo__titulo">Plataforma</h2>
+        <div className="adm-kpis adm-kpis--3">
+          <div className="adm-kpi"><span>Total de reportes</span><strong>{formatNumero(total)}</strong><small>{demo ? 'Incluye datos de demostración' : 'Reportes ciudadanos reales'}</small></div>
+          <div className="adm-kpi"><span>Usuarios</span><strong>{formatNumero(data.usuarios.total)}</strong><small>+{data.usuarios.nuevos7dias} en 7 días · {data.usuarios.admins} admin</small></div>
+          <div className="adm-kpi"><span>Alertas activas</span><strong>{data.alertas.total}</strong><small>{data.alertas.altas} de nivel alto</small></div>
+        </div>
+      </section>
 
       <div className="adm-grid">
         <section className="adm-tarjeta">

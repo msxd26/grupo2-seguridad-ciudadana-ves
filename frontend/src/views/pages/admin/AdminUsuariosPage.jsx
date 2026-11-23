@@ -40,7 +40,7 @@ export default function AdminUsuariosPage() {
           <h1>Usuarios</h1>
           <p>Gestiona los roles y el acceso de los vecinos registrados.</p>
         </div>
-        <input className="adm-input" type="search" placeholder="Buscar por nombre o correo" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} aria-label="Buscar usuarios" />
+        <input className="adm-input adm-filtros__buscar" type="search" placeholder="Buscar por nombre o correo" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} aria-label="Buscar usuarios" />
       </div>
 
       {error ? <div className="adm-error" role="alert">{error}</div> : null}
@@ -63,13 +63,13 @@ export default function AdminUsuariosPage() {
               const soyYo = u.id === yo.id
               return (
                 <tr key={u.id} className={u.activo ? undefined : 'adm-tabla__fila--inactiva'}>
-                  <td>
+                  <td className="adm-tabla__titulo" data-label="Usuario">
                     <div className="adm-persona">
                       <span className={u.rol === 'admin' ? 'avatar avatar--admin' : 'avatar'} aria-hidden="true">{iniciales(u.nombre)}</span>
                       <div><strong>{u.nombre}{soyYo ? ' (tú)' : ''}</strong><span>{u.email}</span></div>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Rol">
                     <select
                       className="adm-input adm-input--chico"
                       value={u.rol}
@@ -81,10 +81,10 @@ export default function AdminUsuariosPage() {
                       <option value="admin">Administrador</option>
                     </select>
                   </td>
-                  <td className="num">{u.reportes}</td>
-                  <td className="adm-nowrap">{fecha.format(new Date(u.creadoEn))}</td>
-                  <td className="adm-nowrap">{u.ultimoAcceso ? fecha.format(new Date(u.ultimoAcceso)) : '—'}</td>
-                  <td>
+                  <td className="num" data-label="Reportes">{u.reportes}</td>
+                  <td className="adm-nowrap" data-label="Registro">{fecha.format(new Date(u.creadoEn))}</td>
+                  <td className="adm-nowrap" data-label="Último acceso">{u.ultimoAcceso ? fecha.format(new Date(u.ultimoAcceso)) : '—'}</td>
+                  <td data-label="Estado">
                     <button
                       type="button"
                       className={u.activo ? 'adm-toggle adm-toggle--on' : 'adm-toggle'}
