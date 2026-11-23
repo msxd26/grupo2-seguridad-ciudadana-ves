@@ -50,7 +50,7 @@ export default function UbicacionSelector({ limite, valor, onCambiar, error, gra
       <div className="ubicacion__mapa" style={{ height: altura }}>
         <MapaBase limite={limite} zoom={13} destino={destino} onClick={fijar} className="mapa mapa--form">
           {valor ? (
-            <CircleMarker center={[valor.lat, valor.lng]} radius={10} pathOptions={{ color: '#fff', weight: 3, fillColor: '#DC2626', fillOpacity: 1 }} />
+            <CircleMarker center={[valor.lat, valor.lng]} radius={10} pathOptions={{ color: '#fff', weight: 3, fillColor: '#7C3AED' /* --color-mapa-seleccion */, fillOpacity: 1 }} />
           ) : null}
         </MapaBase>
       </div>

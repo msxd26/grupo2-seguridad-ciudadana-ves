@@ -7,16 +7,16 @@
   --adm-ink-2: #4b5563;
   --adm-ink-3: #9ca3af;
   --adm-border: #e5e7eb;
-  --adm-blue: #2563eb;
+  --adm-blue: var(--color-brand);   /* D1: un solo azul institucional */
   --adm-ok: #15803d;
   --adm-warn: #b45309;
   --adm-bad: #b91c1c;
   /* Variables que usan los gráficos compartidos */
-  --s1: #2563eb; --s1-soft: #bfdbfe; --s1-wash: rgba(37, 99, 235, 0.1); --s2: #eb6834;
+  --s1: var(--color-brand); --s1-soft: #BFDBFE; --s1-wash: rgba(29, 78, 216, 0.1); --s2: var(--color-peligro-medio);
   --grid: #f0f1f3; --ink: #111827; --ink-2: #4b5563; --ink-3: #9ca3af;
   display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100vh;
   background: var(--adm-bg); color: var(--adm-ink);
-  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  font-family: var(--font-sans);   /* D4: Inter, como el resto de la app */
 }
 
 /* Barra lateral */
@@ -86,7 +86,7 @@
 .adm-filtros { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
 .adm-tabs { display: inline-flex; background: #e9ebef; border-radius: 8px; padding: 3px; }
 .adm-tabs button { border: 0; background: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--adm-ink-2); }
-.adm-tabs button.activo { background: #fff; color: var(--adm-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+.adm-tabs button.activo { background: #fff; color: var(--adm-ink); font-weight: 600; box-shadow: var(--shadow-subtle); }
 .adm-input { font: inherit; font-size: 0.875rem; padding: 0.45rem 0.65rem; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: var(--adm-ink); min-width: 0; }
 .adm-input:focus { outline: 2px solid #bfdbfe; border-color: var(--adm-blue); }
 .adm-input--chico { padding: 0.3rem 0.4rem; font-size: 0.82rem; }
@@ -185,3 +185,16 @@
 .adm .punto-vivo { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; animation: vivo-adm 1.6s infinite; }
 .adm .punto-vivo--off { background: #9ca3af; animation: none; }
 @keyframes vivo-adm { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+
+/* Ráfaga de alertas */
+.adm-rafaga {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: 1rem 1.1rem; background: #fff; border: 1px solid var(--adm-border); border-left: 4px solid var(--adm-blue); border-radius: 10px;
+}
+.adm-rafaga__texto { display: grid; gap: 0.45rem; flex: 1; min-width: 260px; }
+.adm-rafaga h2 { margin: 0; font-size: 1rem; }
+.adm-rafaga p { margin: 0; font-size: 0.85rem; color: var(--adm-ink-2); max-width: 70ch; line-height: 1.45; }
+.adm-rafaga__progreso { font-weight: 600; color: var(--adm-blue) !important; }
+.adm-rafaga__controles { display: flex; gap: 0.6rem; align-items: center; }
+.adm-rafaga .adm-label { display: inline-flex; gap: 0.4rem; align-items: center; }
+.adm-rafaga__boton { padding: 0.6rem 1rem; font-size: 0.9rem; }

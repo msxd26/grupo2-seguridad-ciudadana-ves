@@ -7,14 +7,14 @@
   --ink-2: #605e5c;
   --ink-3: #8a8886;
   --grid: #edebe9;
-  --s1: #2a78d6;
-  --s1-soft: #b7d3f6;
-  --s1-wash: rgba(42, 120, 214, 0.1);
+  --s1: var(--color-brand);   /* D1: un solo azul institucional */
+  --s1-soft: #BFDBFE;
+  --s1-wash: rgba(29, 78, 216, 0.1);
   --s2: #eb6834;
   --malo: #c1272d;
   --bueno: #1e7b34;
   --medio: #a35c00;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
   background: var(--canvas);
   color: var(--ink);
   min-height: calc(100vh - 71px);
@@ -93,7 +93,7 @@
 .kpi {
   display: flex; flex-direction: column; gap: 0.2rem; padding: 0.9rem 1rem;
   background: var(--tile); border: 1px solid var(--tile-border); border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-subtle);
 }
 .kpi__label { font-size: 0.8rem; color: var(--ink-2); }
 .kpi__value { font-size: 1.75rem; font-weight: 600; line-height: 1.2; }
@@ -113,7 +113,7 @@
 
 .tile {
   background: var(--tile); border: 1px solid var(--tile-border); border-radius: 4px;
-  padding: 0.85rem 1rem 1rem; min-width: 0; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  padding: 0.85rem 1rem 1rem; min-width: 0; box-shadow: var(--shadow-subtle);
   display: flex; flex-direction: column;
 }
 .tile__header { display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.6rem; }
@@ -155,7 +155,7 @@
 .chart__tooltip {
   position: absolute; transform: translate(-50%, calc(-100% - 10px)); display: grid; gap: 0.15rem;
   padding: 0.45rem 0.65rem; background: #252423; color: #fff; border-radius: 4px; font-size: 0.78rem;
-  white-space: nowrap; pointer-events: none; z-index: 5; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  white-space: nowrap; pointer-events: none; z-index: 5; box-shadow: var(--shadow-raised);
 }
 .chart__tooltip strong { text-transform: capitalize; }
 .chart__tooltip .chart__key { width: 10px; }
@@ -257,7 +257,7 @@ button.hbars__row:hover { background: #f3f2f1; }
 .hbars--compacto .hbars__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Pestañas de fuente de datos y panel vecinal */
-.pbi-tabs { display: flex; gap: 0.25rem; padding: 0.6rem 1.25rem 0; background: #1E3A8A; overflow-x: auto; }
+.pbi-tabs { display: flex; gap: 0.25rem; padding: 0.6rem 1.25rem 0; background: var(--color-brand-dark); overflow-x: auto; }
 .pbi-tab {
   display: grid; text-align: left; gap: 0.05rem; padding: 0.55rem 1rem; border: 0; border-radius: 8px 8px 0 0; cursor: pointer;
   background: rgba(255, 255, 255, 0.08); color: #DBEAFE; white-space: nowrap;

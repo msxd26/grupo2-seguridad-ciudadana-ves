@@ -17,3 +17,4 @@ export const fetchAdminUsuarios = ({ q }, signal) => getJson(`/admin/usuarios${t
 export const actualizarUsuario = (id, datos) => patchJson(`/admin/usuarios/${id}`, datos)
 export const fetchSimulacion = (signal) => getJson('/admin/simulacion', signal)
 export const cambiarSimulacion = (datos) => postJson('/admin/simulacion', datos)
+export const generarRafaga = (datos) => postJson('/admin/simulacion/rafaga', datos)

@@ -35,7 +35,7 @@
 .mapa { width: 100%; height: 100%; z-index: 0; }
 .mapa-error, .mapa-cargando {
   position: absolute; top: 0.75rem; left: 50%; transform: translateX(-50%); z-index: 500;
-  padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.85rem; box-shadow: var(--shadow-card);
 }
 .mapa-error { background: #fdecec; color: #8a1c20; }
 .mapa-cargando { background: #fff; color: var(--text-2); }
@@ -43,9 +43,9 @@
 .icono-comisaria { background: none; border: 0; }
 /* Leaflet usa Helvetica/Arial a 12px por defecto: se hereda Inter y se sube el tamaño (adultos mayores) */
 .leaflet-container { font-family: inherit; font-size: 0.95rem; }
-.leaflet-popup-content { font-family: inherit; font-size: 0.95rem; line-height: 1.5; }
+.leaflet-popup-content { font-family: var(--font-sans); font-size: 0.95rem; line-height: 1.5; }
 .leaflet-tooltip { font-family: inherit; font-size: 0.9rem; }
-.leaflet-popup-content a { color: var(--blue); text-decoration: underline; }
+.leaflet-popup-content a { color: var(--color-brand); text-decoration: underline; }
 .popup-desc { display: inline-block; margin-top: 0.25rem; max-width: 240px; }
 
 .mapa--form { height: 420px; border-radius: var(--radius); border: 1px solid var(--border); cursor: crosshair; }
@@ -62,17 +62,18 @@
 .boton-calor {
   position: absolute; top: 0.75rem; right: 0.75rem; z-index: 500; display: inline-flex; gap: 0.35rem; align-items: center;
   padding: 0.5rem 0.85rem; border-radius: 999px; border: 2px solid #fff; background: #fff; color: #0F172A;
-  font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  font-weight: 700; cursor: pointer; box-shadow: var(--shadow-card);
 }
-.boton-calor--activo { background: #DC2626; color: #fff; }
+/* Interruptor activo: azul de marca (el rojo queda reservado para peligro). */
+.boton-calor--activo { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
 .fab-reportar {
   position: absolute; right: 1rem; bottom: 1.5rem; z-index: 500; display: inline-flex; gap: 0.4rem; align-items: center;
-  padding: 0.9rem 1.2rem; border-radius: 999px; background: #DC2626; color: #fff; font-weight: 800;
-  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.4);
+  min-height: 56px; padding: 0.9rem 1.2rem; border-radius: var(--radius-pill); background: var(--color-brand); color: #fff; font-weight: 800;
+  box-shadow: var(--shadow-fab);
 }
-.fab-reportar:hover { background: #B91C1C; }
+.fab-reportar:hover { background: var(--color-brand-dark); }
 .leyenda__seguro {
-  display: inline-block; width: 14px; height: 16px; background: #16A34A;
+  display: inline-block; width: 14px; height: 16px; background: var(--color-mapa-seguro);
   clip-path: polygon(50% 0%, 100% 20%, 100% 70%, 50% 100%, 0% 70%, 0% 20%);
 }
 @supports (clip-path: path('M0 0')) {
@@ -80,17 +81,18 @@
 }
 .marcador-nuevo { animation: latido-marcador 1.4s ease-out 3; transform-origin: center; transform-box: fill-box; }
 @keyframes latido-marcador { 0% { stroke-width: 2; } 50% { stroke-width: 10; stroke-opacity: 0.4; } 100% { stroke-width: 2; } }
-.badge-nuevo { display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700; background: #DC2626; color: #fff; }
+.badge-nuevo { display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700; background: var(--color-brand); color: #fff; } /* "nuevo" no es peligro */
 .popup-marcar { margin-top: 0.5rem; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #FCA5A5; background: #fff; color: #B91C1C; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
 .popup-marcar:hover { background: #FEF2F2; }
 .popup-nota { margin: 0.5rem 0 0; font-size: 0.8rem; color: #475569; }
-@media (max-width: 760px) { .fab-reportar { bottom: 5rem; } }
+/* En móvil el panel "En vivo" ocupa la parte baja del mapa: el FAB sube a la esquina superior derecha. */
+@media (max-width: 760px) { .fab-reportar { top: 0.75rem; bottom: auto; right: 0.75rem; z-index: 650; } }
 
 /* Panel "En vivo" sobre el mapa */
 .en-vivo {
   position: absolute; top: 4rem; right: 0.75rem; z-index: 600; width: min(330px, calc(100% - 1.5rem));
-  max-height: calc(100% - 9rem); display: flex; flex-direction: column;
-  background: rgba(255, 255, 255, 0.97); border-radius: 14px; box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22); overflow: hidden;
+  max-height: calc(100% - 10.5rem); display: flex; flex-direction: column; /* deja libre el FAB de abajo */
+  background: rgba(255, 255, 255, 0.97); border-radius: 14px; box-shadow: var(--shadow-modal); overflow: hidden;
 }
 .en-vivo--cerrado { max-height: none; }
 .en-vivo__titulo {
@@ -159,7 +161,7 @@
 
 .leyenda-mapa {
   position: absolute; top: calc(10px + 88px + 44px + 1.2rem); left: 10px; z-index: 500; width: 210px;
-  background: rgba(255, 255, 255, 0.97); border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18); overflow: hidden;
+  background: rgba(255, 255, 255, 0.97); border-radius: 12px; box-shadow: var(--shadow-card); overflow: hidden;
 }
 .leyenda-mapa--cerrada { width: auto; }
 .leyenda-mapa__titulo {
@@ -191,3 +193,9 @@
 }
 .popup-tipo { display: inline-flex; align-items: center; gap: 0.3rem; }
 @media (prefers-reduced-motion: reduce) { .marcador--nuevo { animation: none; } .marcador { transition: none; } }
+
+/* Controles de zoom de Leaflet con área táctil de 44 px (WCAG 2.5.5) */
+.leaflet-control-zoom a {
+  width: 44px !important; height: 44px !important;
+  line-height: 44px !important; font-size: 20px !important;
+}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useEventos } from '../../../context/EventosContext'
-import { useNotificacionesCercanas } from '../../../controllers/useNotificacionesCercanas'
+import ControlNotificaciones from '../ControlNotificaciones'
 import { haceCuanto, tipoDe } from '../../../models/tipos'
 
 const MAXIMO = 15
@@ -9,7 +9,6 @@ const MAXIMO = 15
 // "seguir en vivo" (el mapa vuela al reporte nuevo) y avisos del navegador cerca de mí.
 export default function PanelEnVivo({ reportes, nuevos, seguir, onSeguir, onElegir, seleccionado }) {
   const { conectado, conectados } = useEventos()
-  const avisos = useNotificacionesCercanas()
   const [abierto, setAbierto] = useState(true)
   const [, setTic] = useState(0)
   const listaRef = useRef(null)
@@ -52,12 +51,7 @@ export default function PanelEnVivo({ reportes, nuevos, seguir, onSeguir, onEleg
               <span className="interruptor__pista" aria-hidden="true" />
               Seguir reportes nuevos
             </label>
-            {avisos.soportado ? (
-              <button type="button" className={avisos.activo ? 'en-vivo__avisos en-vivo__avisos--on' : 'en-vivo__avisos'} onClick={avisos.activo ? avisos.desactivar : avisos.activar}>
-                {avisos.activo ? '🔔 Avisos cerca de mí: activados' : '🔕 Avisarme de reportes cerca de mí'}
-              </button>
-            ) : null}
-            {avisos.error ? <p className="en-vivo__error">{avisos.error}</p> : null}
+            <ControlNotificaciones compacto />
           </div>
 
           <ol className="en-vivo__lista" ref={listaRef}>

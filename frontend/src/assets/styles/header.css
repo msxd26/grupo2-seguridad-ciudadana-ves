@@ -93,7 +93,7 @@
 .user-menu__nombre { font-size: 0.9rem; }
 .user-menu__lista {
   position: absolute; right: 0; top: calc(100% + 8px); min-width: 240px; z-index: 1300;
-  background: #fff; border-radius: 12px; box-shadow: 0 12px 32px rgba(15, 27, 45, 0.2); overflow: hidden;
+  background: #fff; border-radius: 12px; box-shadow: var(--shadow-modal); overflow: hidden;
   display: grid;
 }
 .user-menu__info { display: grid; gap: 0.15rem; padding: 0.9rem 1rem; background: #f4f6f9; border-bottom: 1px solid #e3e7ec; }

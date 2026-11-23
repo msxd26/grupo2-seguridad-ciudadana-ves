@@ -49,3 +49,36 @@ export function detenerSimulacion() {
   if (estabaActiva) emitir('simulacion', estadoSimulacion())
   return estadoSimulacion()
 }
+
+// Ráfaga de alertas: crea varios reportes DEMO seguidos (uno cada ~1.5 s) para probar
+// los avisos de la web y la app. Responde de inmediato; los reportes llegan por WebSocket.
+const INTERVALO_RAFAGA_MS = 1500
+let rafagaEnCurso = false
+
+export function generarRafaga({ cantidad } = {}) {
+  const n = Math.min(10, Math.max(1, Number.parseInt(cantidad, 10) || 5))
+  if (rafagaEnCurso) {
+    throw Object.assign(new Error('Ya hay una ráfaga en curso. Espera a que termine.'), { status: 409 })
+  }
+  rafagaEnCurso = true
+  emitir('rafaga', { cantidad: n, estado: 'iniciada' })
+
+  let intentos = 0 // se cuentan intentos (no éxitos) para que un error de BD no la deje en bucle
+  const siguiente = async () => {
+    intentos++
+    try {
+      // Hora del hecho: "ahora mismo", para que todos los avisos digan "hace un momento".
+      const reporte = await ReporteModel.crearDemo(generarReporteDemo(azar, new Date()))
+      emitir('reporte', reporte)
+    } catch (err) {
+      console.error('Ráfaga:', err.message)
+    }
+    if (intentos < n) setTimeout(siguiente, INTERVALO_RAFAGA_MS)
+    else {
+      rafagaEnCurso = false
+      emitir('rafaga', { cantidad: n, estado: 'terminada' })
+    }
+  }
+  siguiente()
+  return { cantidad: n, intervaloMs: INTERVALO_RAFAGA_MS }
+}

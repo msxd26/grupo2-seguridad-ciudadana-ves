@@ -1,36 +1,10 @@
-/* Tu Vecino · paleta del plan (azul institucional + semáforo) y tipografía Inter */
+@import './tokens.css';
+
+/* Tu Vecino · estilos globales. Colores, tipografía, radios y sombras vienen de tokens.css (design system). */
 :root {
-  --primary: #1D4ED8;
-  --primary-dark: #1E3A8A;
-  --danger: #DC2626;
-  --warning: #F97316;        /* solo decorativo: 2.9:1 sobre blanco */
-  --warning-text: #C2410C;   /* 5.1:1 */
-  --success: #16A34A;
-  --info: #0EA5E9;           /* solo decorativo: 2.7:1 sobre blanco */
-  --info-text: #0369A1;      /* 5.9:1 */
-  --ink-900: #0F172A;
-  --text-2: #475569;
-  --text-muted: #94A3B8;     /* solo sobre fondos oscuros (footer); sobre blanco usar --text-2 */
-  --bg: #F8FAFC;
-  --border: #E2E8F0;
-
-  /* Alias usados por estilos anteriores */
-  --navy-900: #0F172A;
-  --navy-800: #1E293B;
-  --navy-700: #1E3A8A;
-  --amber: #FBBF24;
-  --alert: #DC2626;
-  --alert-dark: #B91C1C;
-  --blue: #1D4ED8;
-  --text: #0F172A;
-  --malo: #DC2626;
-  --bueno: #16A34A;
-
-  --radius: 10px;
-  --max-width: 1200px;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  color: var(--ink-900);
-  background: var(--bg);
+  font-family: var(--font-sans);
+  color: var(--color-ink-900);
+  background: var(--color-surface-1);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -66,8 +40,13 @@ button { font: inherit; }
   border: 1px solid transparent; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; text-align: center;
 }
 .btn:disabled { opacity: 0.6; cursor: progress; }
-.btn--alert { background: var(--danger); color: #fff; }
-.btn--alert:hover { background: var(--alert-dark); }
+/* "Reportar" es una acción positiva: azul de marca (el rojo queda solo para peligro). */
+.btn--alert { background: var(--color-brand); color: #fff; }
+.btn--alert:hover { background: var(--color-brand-dark); }
+/* Sobre fondos azules (cabecera, hero) el botón azul no se distinguiría: va blanco con texto azul. */
+.header .btn--alert, .hero .btn--alert { background: var(--color-surface-0); color: var(--color-brand-dark); }
+.header .btn--alert:hover, .hero .btn--alert:hover { background: var(--color-brand-light); }
+.btn--alert:active { transform: scale(0.98); }
 .btn--primario { background: var(--primary); color: #fff; }
 .btn--primario:hover { background: var(--primary-dark); }
 .btn--secundario { background: #fff; color: var(--primary-dark); border-color: #CBD5E1; }
@@ -88,7 +67,7 @@ button { font: inherit; }
   position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 1500;
   display: grid; grid-template-columns: auto 1fr auto auto; gap: 0.75rem; align-items: center;
   width: min(560px, calc(100% - 1.5rem)); padding: 0.75rem 0.9rem; border-radius: 14px;
-  background: #0F172A; color: #fff; box-shadow: 0 16px 40px rgba(15, 23, 42, 0.35);
+  background: #0F172A; color: #fff; box-shadow: var(--shadow-modal);
   border-left: 5px solid var(--color-tipo); animation: entrar 0.35s ease-out;
 }
 @keyframes entrar { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -109,7 +88,7 @@ button { font: inherit; }
   }
   .bottom-nav__item { display: grid; justify-items: center; align-content: center; gap: 0.15rem; min-height: 48px; font-size: 0.78rem; font-weight: 600; color: #64748B; padding: 0.25rem; }
   .bottom-nav__item--activo { color: var(--primary); }
-  .bottom-nav__item--destacado svg { padding: 0.45rem; width: 44px; height: 44px; margin-top: -1.1rem; border-radius: 50%; background: var(--danger); color: #fff; box-shadow: 0 6px 14px rgba(220, 38, 38, 0.35); }
+  .bottom-nav__item--destacado svg { padding: 0.45rem; width: 44px; height: 44px; margin-top: -1.1rem; border-radius: 50%; background: var(--color-brand); color: #fff; box-shadow: var(--shadow-fab); }
   .layout { padding-bottom: 64px; }
   .aviso-vivo { bottom: 5rem; }
 }
@@ -118,7 +97,7 @@ button { font: inherit; }
 .aviso-mio {
   position: fixed; right: 1.25rem; top: 5.5rem; z-index: 1500; display: grid; grid-template-columns: auto 1fr auto auto;
   gap: 0.7rem; align-items: center; width: min(440px, calc(100% - 1.5rem)); padding: 0.8rem 0.9rem; border-radius: 14px;
-  background: #fff; color: var(--ink-900); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.25); border-left: 5px solid var(--primary);
+  background: #fff; color: var(--ink-900); box-shadow: var(--shadow-modal); border-left: 5px solid var(--primary);
   animation: entrar-derecha 0.35s ease-out;
 }
 .aviso-mio--verificado { border-left-color: var(--success); }
@@ -138,9 +117,37 @@ button { font: inherit; }
   position: fixed; left: 50%; top: 4.9rem; transform: translateX(-50%); z-index: 1400;
   display: inline-flex; align-items: center; gap: 0.5rem; max-width: calc(100% - 1.5rem);
   padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+  box-shadow: var(--shadow-raised);
 }
 .indicador-conexion--caido { background: #FEF3C7; color: #78350F; }
 .indicador-conexion--recuperado { background: #DCFCE7; color: #166534; }
 .indicador-conexion .punto-vivo { width: 10px; height: 10px; border-radius: 50%; background: #22C55E; flex-shrink: 0; }
 .indicador-conexion .punto-vivo--off { background: #D97706; }
+
+/* Avisos en vivo apilados */
+.avisos-vivo {
+  position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 1500;
+  display: grid; gap: 0.5rem; width: min(560px, calc(100% - 1.5rem));
+}
+.avisos-vivo .aviso-vivo { position: static; transform: none; width: 100%; }
+@keyframes entrar-aviso { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.avisos-vivo .aviso-vivo { animation: entrar-aviso 0.3s ease-out; }
+@media (prefers-reduced-motion: reduce) { .avisos-vivo .aviso-vivo { animation: none; } }
+@media (max-width: 760px) { .avisos-vivo { bottom: 5rem; } }
+
+/* Control de notificaciones del navegador */
+.notif { display: grid; gap: 0.35rem; font-size: 0.85rem; }
+.notif__opciones { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.notif__titulo { font-weight: 600; color: var(--ink-900); margin-right: 0.2rem; }
+.notif__boton {
+  min-height: 36px; padding: 0.35rem 0.75rem; border-radius: 999px; border: 1px solid #CBD5E1; background: #fff;
+  color: var(--ink-900); font-weight: 600; cursor: pointer; font-size: 0.82rem;
+}
+.notif__boton:hover { border-color: var(--primary); color: var(--primary); }
+.notif__estado { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding: 0.45rem 0.6rem; border-radius: 8px; background: #DCFCE7; color: #166534; }
+.notif__quitar { margin-left: auto; background: none; border: 0; color: #166534; text-decoration: underline; cursor: pointer; font-size: 0.8rem; }
+.notif__error { margin: 0; color: #B91C1C; font-size: 0.8rem; }
+.notif--compacto .notif__titulo { width: 100%; }
+
+/* DEMO legible sobre el fondo oscuro del aviso */
+.aviso-vivo .badge-demo { background: #C4B5FD; color: #1E1B4B; }

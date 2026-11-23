@@ -8,6 +8,7 @@ import { etiquetaTipo } from '../../../models/tipos'
 import ColumnChart from '../../components/dashboard/ColumnChart'
 import HBarList from '../../components/dashboard/HBarList'
 import ControlSimulacion from '../../components/admin/ControlSimulacion'
+import ControlRafaga from '../../components/admin/ControlRafaga'
 import '../../../assets/styles/dashboard.css'
 
 const diaCorto = new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'short' })
@@ -55,6 +56,7 @@ export default function AdminResumenPage() {
         </label>
       </div>
 
+      <ControlRafaga />
       <ControlSimulacion />
 
       {pendientes > 0 ? (

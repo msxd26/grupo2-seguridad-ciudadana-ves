@@ -7,6 +7,7 @@ import pe.jsaire.seguridad.data.Preferencias
 import pe.jsaire.seguridad.data.remote.CookieJarPersistente
 import pe.jsaire.seguridad.data.remote.EventosTiempoReal
 import pe.jsaire.seguridad.data.remote.TuVecinoApi
+import pe.jsaire.seguridad.util.Notificaciones
 import java.util.concurrent.TimeUnit
 
 /** Contenedor simple de dependencias compartidas por toda la app. */
@@ -20,6 +21,7 @@ class AppContainer(app: Application) {
         .build()
     val api = TuVecinoApi(prefs, http)
     val eventos = EventosTiempoReal(prefs, http)
+    val notificaciones = Notificaciones(app)
 }
 
 class TuVecinoApplication : Application() {

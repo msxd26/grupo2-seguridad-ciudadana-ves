@@ -9,7 +9,7 @@ import { confirmarReporte, marcarFalso } from '../../../services/seguridadServic
 // Ícono de punto seguro / comisaría (SVG en línea; evita las imágenes por defecto de Leaflet).
 const ICONO_COMISARIA = L.divIcon({
   className: 'icono-comisaria',
-  html: '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" fill="#16A34A" stroke="#fff" stroke-width="1.5"/><path d="M8.5 12.5l2.3 2.3 4.7-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  html: '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" fill="#15803D" stroke="#fff" stroke-width="1.5"/><path d="M8.5 12.5l2.3 2.3 4.7-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
   iconSize: [28, 28],
   iconAnchor: [14, 14],
   popupAnchor: [0, -12],

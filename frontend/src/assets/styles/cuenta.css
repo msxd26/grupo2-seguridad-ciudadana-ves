@@ -1,6 +1,6 @@
 /* Área del ciudadano: diseño cálido y amigable */
 .cuenta, .ingreso {
-  --teal: #0d9488;
+  --teal: var(--color-teal);   /* D3: acento registrado en tokens.css */
   --teal-claro: #ccfbf1;
   --coral: #f2674f;
   --coral-claro: #ffe4de;
@@ -41,11 +41,11 @@
 .ingreso__tarjeta { align-self: center; justify-self: center; width: min(440px, 100% - 2rem); margin-block: 2rem; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; background: #efe9df; border-radius: 999px; padding: 4px; margin-bottom: 1rem; }
 .tabs button { border: 0; background: none; padding: 0.65rem; border-radius: 999px; font-weight: 600; color: var(--tinta-2); cursor: pointer; }
-.tabs button.activo { background: #fff; color: var(--teal); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+.tabs button.activo { background: #fff; color: var(--teal); box-shadow: var(--shadow-card); }
 
 .form-amable {
   display: grid; gap: 1rem; padding: 1.75rem; background: #fff; border-radius: var(--redondo);
-  box-shadow: 0 10px 30px rgba(31, 41, 55, 0.08); border: 1px solid var(--borde);
+  box-shadow: var(--shadow-raised); border: 1px solid var(--borde);
 }
 .form-amable h2 { margin: 0 0 0.25rem; font-size: 1.35rem; color: var(--tinta); }
 .form-amable__nota { margin: 0; font-size: 0.85rem; color: var(--tinta-2); text-align: center; line-height: 1.5; }
@@ -101,9 +101,9 @@
 .acciones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-bottom: 2rem; }
 .accion {
   display: grid; gap: 0.15rem; padding: 1.1rem 1.2rem; border-radius: var(--redondo); background: #fff;
-  border: 1px solid var(--borde); box-shadow: 0 8px 20px rgba(31, 41, 55, 0.06); transition: transform 0.15s, box-shadow 0.15s;
+  border: 1px solid var(--borde); box-shadow: var(--shadow-raised); transition: transform 0.15s, box-shadow 0.15s;
 }
-.accion:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(31, 41, 55, 0.1); }
+.accion:hover { transform: translateY(-3px); box-shadow: var(--shadow-raised); }
 .accion__icono { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; font-size: 1.4rem; margin-bottom: 0.4rem; }
 .accion strong { color: var(--tinta); }
 .accion span:last-child { font-size: 0.85rem; color: var(--tinta-2); }
