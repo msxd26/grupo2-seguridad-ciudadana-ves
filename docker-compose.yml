@@ -1,0 +1,104 @@
+# Tu Vecino en Docker: aplicación completa lista para la red local (LAN).
+#
+#   docker compose up -d --build     → levanta todo: MySQL + API + web (http://<IP> y https://<IP>)
+#   docker compose up -d mysql       → solo la base de datos (para desarrollar con npm run dev)
+#   docker compose logs -f backend   → ver el arranque de la API (migraciones y carga de datos)
+#   docker compose down              → detiene los contenedores (los datos se conservan)
+#   docker compose down -v           → detiene y BORRA los datos
+#
+# Configuración: copia .env.example a .env en esta carpeta y completa los valores
+# (sobre todo JWT_SECRET, ADMIN_PASSWORD y PUBLIC_HOST con la IP de esta PC en la red).
+
+name: seguridad-ves
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: seguridad-ves-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ves_root_2026}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-seguridad_ves}
+      MYSQL_USER: ${MYSQL_USER:-ves_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ves_app_2026}
+      TZ: America/Lima
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "${MYSQL_PORT:-3307}:3306" # solo para desarrollo / Adminer; la app usa la red interna
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  backend:
+    build: ./backend
+    image: tu-vecino-backend
+    container_name: seguridad-ves-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      TZ: America/Lima
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-ves_app}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-ves_app_2026}
+      DB_NAME: ${MYSQL_DATABASE:-seguridad_ves}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en el archivo .env (mínimo 32 caracteres)}
+      SESION_DIAS: ${SESION_DIAS:-7}
+      COOKIE_SECURE: "false" # se accede por HTTP y HTTPS en la LAN
+      TRUST_PROXY: uniquelocal # confía en Nginx (red privada de Docker) para la IP real
+      ADMIN_NOMBRE: ${ADMIN_NOMBRE:-Administrador VES}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@alertaves.pe}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Define ADMIN_PASSWORD en el archivo .env}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      SEED_DEMO: ${SEED_DEMO:-true} # carga reportes DEMO la primera vez
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  frontend:
+    build: ./frontend
+    image: tu-vecino-frontend
+    container_name: seguridad-ves-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:-localhost} # IP de esta PC en la LAN (para el certificado HTTPS)
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - certificados:/etc/nginx/certs
+
+  adminer:
+    image: adminer:4.8.1
+    container_name: seguridad-ves-adminer
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    ports:
+      - "127.0.0.1:${ADMINER_PORT:-8080}:8080" # solo desde esta PC, no desde la LAN
+
+volumes:
+  mysql_data:
+  certificados:

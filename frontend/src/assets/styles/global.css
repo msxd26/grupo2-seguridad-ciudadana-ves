@@ -1,0 +1,124 @@
+/* Tu Vecino · paleta del plan (azul institucional + semáforo) y tipografía Inter */
+:root {
+  --primary: #1D4ED8;
+  --primary-dark: #1E3A8A;
+  --danger: #DC2626;
+  --warning: #F97316;
+  --success: #16A34A;
+  --info: #0EA5E9;
+  --ink-900: #0F172A;
+  --text-2: #475569;
+  --text-muted: #94A3B8;
+  --bg: #F8FAFC;
+  --border: #E2E8F0;
+
+  /* Alias usados por estilos anteriores */
+  --navy-900: #0F172A;
+  --navy-800: #1E293B;
+  --navy-700: #1E3A8A;
+  --amber: #FBBF24;
+  --alert: #DC2626;
+  --alert-dark: #B91C1C;
+  --blue: #1D4ED8;
+  --text: #0F172A;
+  --malo: #DC2626;
+  --bueno: #16A34A;
+
+  --radius: 10px;
+  --max-width: 1200px;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ink-900);
+  background: var(--bg);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+button { font: inherit; }
+
+.container { width: 100%; max-width: var(--max-width); margin-inline: auto; padding-inline: 1.25rem; }
+
+.layout { min-height: 100vh; display: flex; flex-direction: column; }
+.layout__main { flex: 1; }
+.page-loading { padding-block: 3rem; color: var(--text-2); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.logo { display: inline-flex; align-items: center; gap: 0.5rem; color: #fff; }
+.logo__icon { color: var(--amber); }
+.logo__text { color: #fff; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.01em; }
+.logo__text strong { color: var(--amber); font-weight: 800; }
+
+.btn {
+  display: inline-block; padding: 0.6rem 1.1rem; border-radius: var(--radius); font-weight: 700;
+  border: 1px solid transparent; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; text-align: center;
+}
+.btn:disabled { opacity: 0.6; cursor: progress; }
+.btn--alert { background: var(--danger); color: #fff; }
+.btn--alert:hover { background: var(--alert-dark); }
+.btn--primario { background: var(--primary); color: #fff; }
+.btn--primario:hover { background: var(--primary-dark); }
+.btn--secundario { background: #fff; color: var(--primary-dark); border-color: #CBD5E1; }
+.btn--secundario:hover { border-color: var(--primary); }
+.btn--claro { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.6); }
+.btn--claro:hover { background: rgba(255, 255, 255, 0.1); }
+
+.var--malo { color: var(--malo); }
+.var--bueno { color: var(--bueno); }
+
+.badge-demo {
+  display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-size: 0.65rem;
+  font-weight: 700; letter-spacing: 0.05em; background: #EDE9FE; color: #4C1D95; vertical-align: middle;
+}
+
+/* Aviso en tiempo real (nuevo reporte) */
+.aviso-vivo {
+  position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 1500;
+  display: grid; grid-template-columns: auto 1fr auto auto; gap: 0.75rem; align-items: center;
+  width: min(560px, calc(100% - 1.5rem)); padding: 0.75rem 0.9rem; border-radius: 14px;
+  background: #0F172A; color: #fff; box-shadow: 0 16px 40px rgba(15, 23, 42, 0.35);
+  border-left: 5px solid var(--color-tipo); animation: entrar 0.35s ease-out;
+}
+@keyframes entrar { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .aviso-vivo { animation: none; } }
+.aviso-vivo__icono { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: var(--color-tipo); }
+.aviso-vivo__texto { display: grid; min-width: 0; }
+.aviso-vivo__texto span { font-size: 0.82rem; color: #CBD5E1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aviso-vivo a { color: #93C5FD; font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
+.aviso-vivo button { background: none; border: 0; color: #94A3B8; font-size: 1.4rem; cursor: pointer; line-height: 1; }
+
+/* Navegación inferior en celulares */
+.bottom-nav { display: none; }
+@media (max-width: 760px) {
+  .bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200; display: grid; grid-template-columns: repeat(4, 1fr);
+    background: #fff; border-top: 1px solid var(--border); padding: 0.35rem 0 calc(0.35rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+  }
+  .bottom-nav__item { display: grid; justify-items: center; gap: 0.15rem; font-size: 0.72rem; font-weight: 600; color: #64748B; padding: 0.25rem; }
+  .bottom-nav__item--activo { color: var(--primary); }
+  .bottom-nav__item--destacado svg { padding: 0.45rem; width: 44px; height: 44px; margin-top: -1.1rem; border-radius: 50%; background: var(--danger); color: #fff; box-shadow: 0 6px 14px rgba(220, 38, 38, 0.35); }
+  .layout { padding-bottom: 64px; }
+  .aviso-vivo { bottom: 5rem; }
+}
+
+/* Aviso privado: moderaron mi reporte */
+.aviso-mio {
+  position: fixed; right: 1.25rem; top: 5.5rem; z-index: 1500; display: grid; grid-template-columns: auto 1fr auto auto;
+  gap: 0.7rem; align-items: center; width: min(440px, calc(100% - 1.5rem)); padding: 0.8rem 0.9rem; border-radius: 14px;
+  background: #fff; color: var(--ink-900); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.25); border-left: 5px solid var(--primary);
+  animation: entrar-derecha 0.35s ease-out;
+}
+.aviso-mio--verificado { border-left-color: var(--success); }
+.aviso-mio--descartado { border-left-color: #78716C; }
+@keyframes entrar-derecha { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .aviso-mio { animation: none; } }
+.aviso-mio__icono { font-size: 1.5rem; }
+.aviso-mio div { display: grid; gap: 0.15rem; min-width: 0; }
+.aviso-mio strong { font-size: 0.9rem; }
+.aviso-mio div span { font-size: 0.82rem; color: var(--text-2); }
+.aviso-mio a { color: var(--primary); font-weight: 700; font-size: 0.88rem; }
+.aviso-mio button { background: none; border: 0; font-size: 1.3rem; color: #94A3B8; cursor: pointer; }
+@media (max-width: 760px) { .aviso-mio { top: auto; bottom: 9.5rem; right: 0.75rem; } }

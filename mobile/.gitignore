@@ -1,0 +1,17 @@
+# Android / Gradle
+*.iml
+.gradle/
+/local.properties
+/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+.kotlin/
+*.apk
+*.aab
+
+# Android Studio: solo se versionan las configuraciones compartibles
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/runConfigurations/
+.DS_Store
