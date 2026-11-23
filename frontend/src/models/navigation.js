@@ -3,8 +3,8 @@
 
 export const NAV_LINKS = [
   { id: 'inicio', label: 'Inicio', to: '/' },
-  { id: 'dashboard', label: 'Panel de decisión', to: '/dashboard' },
-  { id: 'mapa', label: 'Mapa de riesgo', to: '/mapa' },
+  { id: 'dashboard', label: 'Panel municipal', to: '/dashboard' },
+  { id: 'mapa', label: 'Mapa', to: '/mapa' },
   { id: 'alertas', label: 'Alertas', to: '/alertas' },
   { id: 'contacto', label: 'Contacto', to: '/contacto' },
 ]

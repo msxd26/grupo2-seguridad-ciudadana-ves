@@ -3,6 +3,7 @@ import { CircleMarker } from 'react-leaflet'
 import MapaBase from '../mapa/MapaBase'
 import { ESTADOS_REPORTE } from '../../../models/reportes'
 import { colorDeTipo } from '../../../models/mapa'
+import { MODOS, etiquetaTipo } from '../../../models/tipos'
 import '../../../assets/styles/mapa.css'
 
 const fechaLarga = new Intl.DateTimeFormat('es-PE', { dateStyle: 'full', timeStyle: 'short' })
@@ -42,7 +43,7 @@ export default function DetalleReporte({ reporte, onCerrar, onModerar }) {
         <header className="adm-detalle__cabecera">
           <div>
             <span className="adm-mono">Reporte #{reporte.id}</span>
-            <h2>{reporte.tipo}{reporte.esDemo ? <span className="badge-demo">DEMO</span> : null}</h2>
+            <h2>{etiquetaTipo(reporte.tipo)}{reporte.esDemo ? <span className="badge-demo">DEMO</span> : null}</h2>
           </div>
           <button type="button" className="adm-detalle__cerrar" onClick={onCerrar} aria-label="Cerrar">×</button>
         </header>
@@ -52,6 +53,8 @@ export default function DetalleReporte({ reporte, onCerrar, onModerar }) {
 
           <dl className="adm-datos">
             <dt>Descripción</dt><dd>{reporte.descripcion}</dd>
+            <dt>Canal</dt><dd>{MODOS[reporte.modo] ?? 'Formulario'}</dd>
+            {reporte.marcas ? <><dt>Comunidad</dt><dd>🚩 {reporte.marcas} marca(s) como falso{reporte.oculto ? ' · oculto del mapa hasta tu revisión' : ''}</dd></> : null}
             {reporte.referencia ? <><dt>Referencia</dt><dd>{reporte.referencia}</dd></> : null}
             <dt>Fecha del hecho</dt><dd>{fechaLarga.format(new Date(reporte.fechaHecho))}</dd>
             <dt>Autor</dt><dd>{reporte.autor ? `${reporte.autor.nombre} (${reporte.autor.email})` : 'Anónimo'}</dd>

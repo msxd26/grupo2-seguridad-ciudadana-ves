@@ -168,3 +168,6 @@
   .adm-topbar__menu { display: block; }
   .adm-contenido { padding: 1rem; }
 }
+.adm-modo { display: block; font-size: 0.72rem; }
+.adm-marcas { display: inline-block; margin-left: 0.35rem; padding: 0.1rem 0.45rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: #fef2f2; color: #b91c1c; }
+.adm-marcas--oculto { background: #b91c1c; color: #fff; }

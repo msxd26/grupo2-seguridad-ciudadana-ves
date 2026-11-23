@@ -28,17 +28,20 @@ export const MODALIDAD_COMPLETA = {
 }
 export const nombreModalidad = (m) => MODALIDAD_COMPLETA[m] ?? m
 
-// Tipos que un ciudadano puede reportar (alineados con las modalidades oficiales).
-export const TIPOS_REPORTE = [
-  'Robo',
-  'Hurto',
-  'Extorsión',
-  'Estafa',
-  'Violencia contra la mujer',
-  'Secuestro',
-  'Microcomercialización de drogas',
-  'Pandillaje',
-  'Consumo de alcohol en vía pública',
-  'Alumbrado o zona insegura',
-  'Otro',
+// Tipos de incidente de Tu Vecino (plan HackODS UA 2026). `nivel` define el color de la alerta.
+export const TIPOS_INCIDENTE = [
+  { id: 'robo', label: 'Robo', nivel: 'peligro' },
+  { id: 'intento_robo', label: 'Intento de robo', nivel: 'atencion' },
+  { id: 'acoso', label: 'Acoso', nivel: 'peligro' },
+  { id: 'actividad_sospechosa', label: 'Actividad sospechosa', nivel: 'atencion' },
+  { id: 'zona_oscura', label: 'Zona oscura', nivel: 'info' },
+  { id: 'espacio_abandonado', label: 'Espacio abandonado', nivel: 'info' },
+  { id: 'otro', label: 'Otro', nivel: 'info' },
 ]
+export const TIPOS_REPORTE = TIPOS_INCIDENTE.map((t) => t.id)
+const porId = new Map(TIPOS_INCIDENTE.map((t) => [t.id, t]))
+export const etiquetaTipo = (id) => porId.get(id)?.label ?? id
+export const nivelTipo = (id) => porId.get(id)?.nivel ?? 'info'
+
+export const MODOS_REPORTE = ['formulario', 'chat', 'guiado']
+export const MARCAS_PARA_OCULTAR = 3

@@ -16,3 +16,6 @@ export const fetchAlertas = (signal) => getJson('/alertas', signal)
 // Reportes ciudadanos
 export const fetchTiposReporte = (signal) => getJson('/reportes/tipos', signal)
 export const crearReporte = (data) => postJson('/reportes', data)
+export const marcarFalso = (id) => postJson(`/reportes/${id}/marcar`)
+export const conversarIA = (mensajes) => postJson('/reportes/chat', { mensajes })
+export const fetchPanelCiudadano = ({ dias }, signal) => getJson(`/panel-ciudadano${toQuery({ dias })}`, signal)

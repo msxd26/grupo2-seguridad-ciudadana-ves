@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useAsync } from '../../../controllers/useAsync'
 import { useAdminReportes } from '../../../controllers/useAdminReportes'
-import { fetchTiposReporte } from '../../../services/seguridadService'
 import { ESTADOS_REPORTE } from '../../../models/reportes'
+import { MODOS, TIPOS, etiquetaTipo } from '../../../models/tipos'
 import DetalleReporte from '../../components/admin/DetalleReporte'
 
 const fechaCorta = new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -16,7 +15,6 @@ const PESTANAS = [
 
 export default function AdminReportesPage() {
   const { filtros, data, error, cargando, setFiltro, seleccionado, setSeleccionado, moderar } = useAdminReportes()
-  const tipos = useAsync((signal) => fetchTiposReporte(signal), [])
   const [busqueda, setBusqueda] = useState(filtros.q)
 
   // Búsqueda con pequeña espera para no consultar en cada tecla.
@@ -46,8 +44,11 @@ export default function AdminReportesPage() {
         <input className="adm-input" type="search" placeholder="Buscar por texto, autor o N.º" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} aria-label="Buscar" />
         <select className="adm-input" value={filtros.tipo} onChange={(e) => setFiltro('tipo', e.target.value)} aria-label="Tipo">
           <option value="">Todos los tipos</option>
-          {(tipos.data ?? []).map((t) => <option key={t} value={t}>{t}</option>)}
+          {TIPOS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
         </select>
+        <label className="adm-switch">
+          <input type="checkbox" checked={filtros.marcados} onChange={(e) => setFiltro('marcados', e.target.checked)} /> Solo marcados 🚩
+        </label>
         <label className="adm-switch">
           <input type="checkbox" checked={filtros.demo} onChange={(e) => setFiltro('demo', e.target.checked)} /> Incluir demo
         </label>
@@ -72,11 +73,11 @@ export default function AdminReportesPage() {
             {(data?.reportes ?? []).map((r) => (
               <tr key={r.id} className={seleccionado?.id === r.id ? 'adm-tabla__fila--activa' : undefined}>
                 <td className="adm-mono">#{r.id}</td>
-                <td>{r.tipo}{r.esDemo ? <span className="badge-demo">DEMO</span> : null}</td>
+                <td>{etiquetaTipo(r.tipo)}{r.esDemo ? <span className="badge-demo">DEMO</span> : null}<span className="adm-muted adm-modo">{MODOS[r.modo]}</span></td>
                 <td className="adm-tabla__desc">{r.descripcion}</td>
                 <td>{r.autor ? r.autor.nombre : <span className="adm-muted">Anónimo</span>}</td>
                 <td className="adm-nowrap">{fechaCorta.format(new Date(r.fechaHecho))}</td>
-                <td><span className={`adm-estado adm-estado--${r.estado}`}>{ESTADOS_REPORTE[r.estado].label}</span></td>
+                <td><span className={`adm-estado adm-estado--${r.estado}`}>{ESTADOS_REPORTE[r.estado].label}</span>{r.marcas ? <span className={r.oculto ? "adm-marcas adm-marcas--oculto" : "adm-marcas"} title="Marcas de la comunidad como falso">🚩 {r.marcas}{r.oculto ? " · oculto" : ""}</span> : null}</td>
                 <td><button type="button" className="adm-boton adm-boton--chico" onClick={() => setSeleccionado(r)}>Revisar</button></td>
               </tr>
             ))}

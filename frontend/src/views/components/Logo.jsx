@@ -10,10 +10,10 @@ const shieldIcon = (
 
 export default function Logo() {
   return (
-    <Link className="logo" to="/" aria-label="Alerta VES, ir al inicio">
+    <Link className="logo" to="/" aria-label="Tu Vecino, ir al inicio">
       {shieldIcon}
       <span className="logo__text">
-        Alerta <strong>VES</strong>
+        Tu <strong>Vecino</strong>
       </span>
     </Link>
   )

@@ -33,10 +33,18 @@ routes.get('/alertas', mapaController.alertas)
 
 // Reportes ciudadanos
 const limiteReportes = rateLimit({ max: 5, ventanaMs: 10 * 60_000, mensaje: 'Demasiados reportes en poco tiempo. Intenta nuevamente en unos minutos.' })
+const limiteChat = rateLimit({ max: 40, ventanaMs: 10 * 60_000, mensaje: 'El asistente recibió muchos mensajes. Espera unos minutos.' })
+const limiteMarcas = rateLimit({ max: 20, ventanaMs: 10 * 60_000 })
 routes.get('/reportes/tipos', reportesController.tipos)
 routes.get('/reportes/mios', requerirSesion, reportesController.mios)
 routes.get('/reportes', reportesController.listar)
 routes.post('/reportes', limiteReportes, reportesController.crear)
+routes.post('/reportes/chat', limiteChat, reportesController.chat)
+routes.post('/reportes/:id/marcar', limiteMarcas, reportesController.marcar)
+routes.get('/panel-ciudadano', reportesController.panelCiudadano)
+
+// Tiempo real: nuevos reportes llegan a todos los navegadores conectados
+routes.get('/eventos', reportesController.eventos)
 
 // Administración (solo rol admin)
 const admin = Router()

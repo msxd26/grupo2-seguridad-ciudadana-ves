@@ -13,8 +13,8 @@ export default function Footer() {
         <section className="footer__brand">
           <Logo />
           <p>
-            Sistema digital de alertas ciudadanas y monitoreo de la delincuencia en Villa El Salvador.
-            Datos oficiales para decidir mejor y reportes ciudadanos para actuar a tiempo.
+            Haciendo visible la inseguridad que no se denuncia. Reportes vecinales en tiempo real y datos
+            oficiales para que Villa El Salvador decida mejor.
           </p>
         </section>
 
@@ -62,8 +62,7 @@ export default function Footer() {
 
       <div className="footer__bottom">
         <div className="container">
-          © {CURRENT_YEAR} Alerta VES · Grupo 2 — Seguridad Ciudadana Villa El Salvador · Datos abiertos del
-          Estado peruano
+          © {CURRENT_YEAR} Tu Vecino · Grupo 2 — HackODS UA 2026 · ODS 5 y ODS 10 · Villa El Salvador
         </div>
       </div>
     </footer>

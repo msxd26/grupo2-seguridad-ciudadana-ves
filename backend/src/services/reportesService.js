@@ -1,14 +1,17 @@
+import { createHash } from 'node:crypto'
 import { ReporteModel } from '../models/ReporteModel.js'
-import { TIPOS_REPORTE } from '../config/fuente.js'
+import { env } from '../config/env.js'
+import { MODOS_REPORTE, TIPOS_INCIDENTE, TIPOS_REPORTE } from '../config/fuente.js'
 import { puntoEnPoligono } from '../utils/geo.js'
 import { ErrorValidacion } from '../utils/texto.js'
+import { emitir } from '../utils/eventos.js'
 
 const MAX_DIAS_ATRAS = 30
-const DIAS_PERMITIDOS = new Set([7, 30, 90])
+const DIAS_PERMITIDOS = new Set([1, 7, 30, 90])
 
 export function parsearDias(valor, porDefecto = 30) {
   const dias = Number(valor ?? porDefecto)
-  if (!DIAS_PERMITIDOS.has(dias)) throw new ErrorValidacion('El periodo debe ser 7, 30 o 90 días')
+  if (!DIAS_PERMITIDOS.has(dias)) throw new ErrorValidacion('El periodo debe ser 1, 7, 30 o 90 días')
   return dias
 }
 
@@ -23,24 +26,27 @@ const limpiar = (texto) => String(texto ?? '').replace(/\s+/g, ' ').trim()
 export function validarReporte(body) {
   const errores = {}
   const tipo = limpiar(body.tipo)
+  const modo = MODOS_REPORTE.includes(body.modo) ? body.modo : 'formulario'
   const descripcion = limpiar(body.descripcion)
   const referencia = limpiar(body.referencia)
   const lat = Number(body.lat)
   const lng = Number(body.lng)
   const fechaHecho = new Date(body.fechaHecho)
 
-  if (!TIPOS_REPORTE.includes(tipo)) errores.tipo = 'Selecciona un tipo de incidente válido'
-  if (descripcion.length < 10) errores.descripcion = 'Describe lo ocurrido (mínimo 10 caracteres)'
+  if (!TIPOS_REPORTE.includes(tipo)) errores.tipo = 'Selecciona qué tipo de incidente fue'
+  // En el modo guiado (solo botones) la descripción es opcional; en los demás, al menos 10 caracteres.
+  const minimo = modo === 'guiado' ? 0 : 10
+  if (descripcion.length < minimo) errores.descripcion = 'Describe lo ocurrido (mínimo 10 caracteres)'
   if (descripcion.length > 500) errores.descripcion = 'La descripción no puede superar 500 caracteres'
   if (referencia.length > 200) errores.referencia = 'La referencia no puede superar 200 caracteres'
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    errores.ubicacion = 'Marca la ubicación en el mapa'
+    errores.ubicacion = 'Indica dónde ocurrió'
   } else if (!puntoEnPoligono(lat, lng)) {
     errores.ubicacion = 'La ubicación debe estar dentro de Villa El Salvador'
   }
   const ahora = Date.now()
   if (Number.isNaN(fechaHecho.getTime())) {
-    errores.fechaHecho = 'Indica la fecha y hora del incidente'
+    errores.fechaHecho = 'Indica cuándo ocurrió'
   } else if (fechaHecho.getTime() > ahora + 5 * 60_000) {
     errores.fechaHecho = 'La fecha no puede estar en el futuro'
   } else if (ahora - fechaHecho.getTime() > MAX_DIAS_ATRAS * 86_400_000) {
@@ -48,17 +54,35 @@ export function validarReporte(body) {
   }
 
   if (Object.keys(errores).length) throw new ErrorValidacion('Revisa los datos del reporte', errores)
-  return { tipo, descripcion, referencia: referencia || null, lat, lng, fechaHecho }
+  const etiqueta = TIPOS_INCIDENTE.find((t) => t.id === tipo).label
+  return { tipo, modo, descripcion: descripcion || `${etiqueta} (reporte guiado)`, referencia: referencia || null, lat, lng, fechaHecho }
 }
 
 export async function crearReporte(body, usuario) {
-  return ReporteModel.crear({ ...validarReporte(body), usuarioId: usuario?.id ?? null })
+  const reporte = await ReporteModel.crear({ ...validarReporte(body), usuarioId: usuario?.id ?? null })
+  // Aviso en tiempo real a todos los navegadores conectados (sin datos del autor).
+  emitir('reporte', reporte)
+  return reporte
 }
+
+// Huella anónima de quien marca: usuario si hay sesión; si no, IP + navegador (con hash).
+function huellaDe(req) {
+  const base = req.usuario ? `u:${req.usuario.id}` : `a:${req.ip}|${req.get('user-agent') ?? ''}`
+  return createHash('sha256').update(`${env.auth.jwtSecret}|${base}`).digest('hex')
+}
+
+export async function marcarFalso(id, req) {
+  const reporte = await ReporteModel.buscarPorId(Number(id))
+  if (!reporte || reporte.estado === 'descartado') throw Object.assign(new Error('Reporte no encontrado'), { status: 404 })
+  const actualizado = await ReporteModel.marcar(reporte.id, huellaDe(req))
+  if (!actualizado) throw new ErrorValidacion('Ya marcaste este reporte. ¡Gracias por avisar!')
+  if (actualizado.oculto) emitir('reporte-oculto', { id: actualizado.id })
+  return { id: actualizado.id, marcas: actualizado.marcas, oculto: actualizado.oculto }
+}
+
+export const listarReportes = (query) =>
+  ReporteModel.listarRecientes({ dias: parsearDias(query.dias), tipos: parsearTipos(query.tipos) })
 
 export const misReportes = (usuario) => ReporteModel.listarPorUsuario(usuario.id)
 
-export async function listarReportes(query) {
-  return ReporteModel.listarRecientes({ dias: parsearDias(query.dias), tipos: parsearTipos(query.tipos) })
-}
-
-export const tiposReporte = () => TIPOS_REPORTE
+export const tiposReporte = () => TIPOS_INCIDENTE

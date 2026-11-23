@@ -1,15 +1,48 @@
-# 🛡️ Seguridad Ciudadana VES — Grupo 2
+# 🏘️ Tu Vecino — HackODS UA 2026
 
-Sistema digital de **alertas ciudadanas y monitoreo de la delincuencia en Villa El Salvador**, que permite reportar incidentes, identificar zonas de riesgo y contribuir a mejorar la seguridad ciudadana.
+> *"Haciendo visible la inseguridad que no se denuncia."*
+
+**Equipo:** Grupo 2
+**Integrantes:** [Nombre 1], [Nombre 2], [Nombre 3]
+
+## Descripción
+
+Tu Vecino es una plataforma web de reporte ciudadano que transforma el conocimiento colectivo de los vecinos de
+Villa El Salvador en un mapa de seguridad en tiempo real. Llena la brecha entre la inseguridad real (la mayoría de
+incidentes no se denuncia) y la registrada oficialmente, y la cruza con las **denuncias oficiales del SIDPOL**
+(datos abiertos del MININTER) para que la municipalidad decida con más información.
+
+## ODS abordados
+
+- **ODS 5 — Igualdad de género:** canal seguro y anónimo para reportar acoso y violencia.
+- **ODS 10 — Reducción de desigualdades:** interfaz accesible para adultos mayores y personas con baja
+  alfabetización digital (chat con IA + modo paso a paso con botones grandes).
+
+## Desafíos oficiales
+
+- Desafío 2: Prevención de violencia
+- Desafío 3: Inclusión digital
+
+## Demo en vivo
+
+🔗 *[URL del despliegue — pendiente]*
 
 ---
 
-## 📌 Objetivos
+## ✨ Funcionalidades (plan Tu Vecino)
 
-- **Reportar incidentes** de forma rápida desde cualquier dispositivo.
-- **Identificar zonas de riesgo** a partir de los reportes registrados.
-- **Monitorear la delincuencia** con información centralizada y actualizada.
-- **Fortalecer la colaboración** entre vecinos y autoridades locales.
+| Funcionalidad | Dónde |
+| --- | --- |
+| **3 modos de reporte** — chat con IA (escribir o dictar por voz), paso a paso (botones grandes, letra ≥ 18 px) y formulario | `/reportar` |
+| **Mapa en tiempo real** con mapa de calor, incidentes por tipo, zonas críticas y puntos seguros (comisarías PNP) | `/mapa` |
+| **Tiempo real**: cada reporte nuevo aparece al instante en el mapa, las alertas y el panel, con aviso en pantalla (Server-Sent Events) | todo el sitio |
+| **Alertas comunitarias**: feed de reportes de 24 h, filtros *Mi zona* (geolocalización) y *Peligro alto* | `/alertas` |
+| **Moderación comunitaria**: "Marcar como falso"; con 3 marcas de personas distintas el reporte se oculta hasta revisión | popup del mapa |
+| **Panel municipal** de reportes vecinales: KPIs, calor, tipos, línea de tiempo, horas críticas, canal de reporte y top 5 zonas con acción sugerida + panel de **denuncias oficiales SIDPOL** estilo Power BI | `/dashboard` |
+| Reporte **anónimo** (sin registro) o con cuenta para seguir su estado | `/mi-cuenta` |
+| Administración: moderación, reportes marcados y usuarios | `/admin` |
+
+Tipos de incidente: robo, intento de robo, acoso, actividad sospechosa, zona oscura, espacio abandonado y otro.
 
 ---
 
@@ -62,7 +95,10 @@ Las denuncias oficiales vienen **agregadas** (sin direcciones ni coordenadas); p
 | ------------- | ---------------------- |
 | Backend       | Node.js + Express      |
 | Base de datos | MySQL 8.4 (Docker)     |
-| Frontend      | React 19 + Vite, React Router, Leaflet |
+| Frontend      | React 19 + Vite, React Router, Leaflet + leaflet.heat, Lucide (íconos), fuente Inter |
+| IA conversacional | Groq API — `llama-3.1-8b-instant` (opcional; sin clave usa un clasificador local) |
+| Voz           | Web Speech API (dictado en `es-PE`) |
+| Tiempo real   | Server-Sent Events desde Express |
 | Arquitectura  | MVC (backend y frontend) |
 | Repositorio   | Monorepo               |
 
@@ -190,6 +226,10 @@ El frontend redirige `/api` al backend automáticamente (proxy de Vite).
 | GET | `/api/reportes?dias=30` | Reportes ciudadanos recientes |
 | POST | `/api/reportes` | Crea un reporte: `{ tipo, descripcion, referencia?, lat, lng, fechaHecho }` (máx. 5 cada 10 min por IP). Con sesión queda vinculado al usuario |
 | GET | `/api/reportes/mios` | 🔒 Reportes del usuario con sesión |
+| POST | `/api/reportes/chat` | Asistente de reporte: `{ mensajes: [{ role, content }] }` → `{ tipo, descripcion, zona, cuando, mensaje }` |
+| POST | `/api/reportes/:id/marcar` | Marca comunitaria "esto es falso" (una por persona) |
+| GET | `/api/panel-ciudadano?dias=30` | Panel municipal de reportes vecinales |
+| GET | `/api/eventos` | Canal de tiempo real (Server-Sent Events): eventos `reporte` y `reporte-oculto` |
 | POST | `/api/auth/registro` · `/api/auth/login` · `/api/auth/logout` | Crear cuenta, ingresar y salir |
 | GET | `/api/auth/me` | Usuario de la sesión actual (o `null`) |
 | GET | `/api/admin/resumen` | 🛡️ Indicadores de reportes, usuarios y alertas |

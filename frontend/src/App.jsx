@@ -8,6 +8,9 @@ import RutaProtegida from './views/components/RutaProtegida'
 const DashboardPage = lazy(() => import('./views/pages/DashboardPage'))
 const MapaPage = lazy(() => import('./views/pages/MapaPage'))
 const ReportarPage = lazy(() => import('./views/pages/ReportarPage'))
+const ReportarFormularioPage = lazy(() => import('./views/pages/reportar/ReportarFormularioPage'))
+const ReportarChatPage = lazy(() => import('./views/pages/reportar/ReportarChatPage'))
+const ReportarGuiadoPage = lazy(() => import('./views/pages/reportar/ReportarGuiadoPage'))
 const AlertasPage = lazy(() => import('./views/pages/AlertasPage'))
 const ContactoPage = lazy(() => import('./views/pages/ContactoPage'))
 const IngresarPage = lazy(() => import('./views/pages/IngresarPage'))
@@ -31,6 +34,9 @@ export default function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="mapa" element={<MapaPage />} />
           <Route path="reportar" element={<ReportarPage />} />
+          <Route path="reportar/formulario" element={<ReportarFormularioPage />} />
+          <Route path="reportar/chat" element={<ReportarChatPage />} />
+          <Route path="reportar/guiado" element={<ReportarGuiadoPage />} />
           <Route path="alertas" element={<AlertasPage />} />
           <Route path="contacto" element={<ContactoPage />} />
           <Route path="ingresar" element={<IngresarPage />} />

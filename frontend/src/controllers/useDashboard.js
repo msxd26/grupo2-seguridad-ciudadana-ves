@@ -48,7 +48,8 @@ export function useDashboard() {
           modalidades: modalidades.includes(id) ? modalidades.filter((m) => m !== id) : [...modalidades, id],
         }),
       setModalidades: (lista) => actualizar({ modalidades: lista }),
-      limpiar: () => setParams(new URLSearchParams(), { replace: true }),
+      // Conserva la pestaña activa (?vista=oficial) al restablecer los filtros.
+      limpiar: () => setParams((prev) => new URLSearchParams(prev.get('vista') ? { vista: prev.get('vista') } : {}), { replace: true }),
     }),
     [actualizar, modalidades, setParams],
   )
@@ -59,7 +60,7 @@ export function useDashboard() {
     error: dashboard.error ?? catalogos.error,
     cargando: dashboard.cargando,
     modalidadesSeleccionadas: modalidades,
-    hayFiltros: params.size > 0,
+    hayFiltros: [...params.keys()].some((k) => k !== 'vista'),
     acciones,
   }
 }

@@ -88,20 +88,25 @@ npm run dev
 
 ## STATUS DE TAREAS
 
+> **Adaptación al stack del equipo:** el plan se aplicó sobre el monorepo existente
+> (Express + MySQL + React con MVC) en lugar de Next.js + Supabase. Equivalencias:
+> Supabase → MySQL 8.4 en Docker · Supabase Realtime → Server-Sent Events (`/api/eventos`) ·
+> Supabase Auth → JWT en cookie httpOnly · Recharts → gráficos SVG propios · Groq → `POST /api/reportes/chat`.
+
 | # | Subtarea | Estado |
 |---|----------|--------|
-| T1 | Scaffolding del proyecto Next.js + Supabase | [ ] pending |
-| T2 | Modelo de datos en Supabase (SQL migrations) | [ ] pending |
-| T3 | Mapa base con Leaflet + capa de incidentes | [ ] pending |
-| T4 | Formulario de reporte de incidente (3 modos) | [ ] pending |
-| T5 | Interfaz de chat IA con Groq (modo conversacional) | [ ] pending |
-| T6 | Wizard paso a paso con botones grandes (modo accesible) | [ ] pending |
-| T7 | Panel de alertas comunitarias | [ ] pending |
-| T8 | Dashboard municipal con Recharts | [ ] pending |
-| T9 | Autenticación con Supabase Auth | [ ] pending |
-| T10 | UI/UX final: paleta, tipografía, responsive | [ ] pending |
-| T11 | Demo seed data + deploy en Vercel | [ ] pending |
-| T12 | README completo + repositorio GitHub público | [ ] pending |
+| T1 | Scaffolding del proyecto (monorepo Express + React) | [x] done |
+| T2 | Modelo de datos (migraciones MySQL 001–006) | [x] done |
+| T3 | Mapa base con Leaflet + capa de incidentes + calor + puntos seguros | [x] done |
+| T4 | Selector de 3 modos + formulario clásico | [x] done |
+| T5 | Chat IA con Groq (+ clasificador local de respaldo) y micrófono | [x] done |
+| T6 | Wizard paso a paso con botones grandes (modo accesible) | [x] done |
+| T7 | Panel de alertas comunitarias (feed 24 h, Mi zona, Peligro alto) | [x] done |
+| T8 | Dashboard municipal (reportes vecinales + denuncias SIDPOL) | [x] done |
+| T9 | Autenticación (anónimo permitido, cuentas ciudadano/admin) | [x] done |
+| T10 | UI/UX final: paleta azul institucional, Inter, responsive, bottom nav | [x] done |
+| T11 | Demo seed data (72 reportes DEMO) · deploy pendiente (requiere cuenta del equipo) | [~] parcial |
+| T12 | README completo + repositorio GitHub | [x] done |
 
 ---
 

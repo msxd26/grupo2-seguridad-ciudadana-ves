@@ -1,15 +1,16 @@
+import { useState } from 'react'
 import L from 'leaflet'
 import { CircleMarker, Marker, Popup, Rectangle, Tooltip } from 'react-leaflet'
-import { NIVELES_ZONA, colorDeTipo, enlaceOsm } from '../../../models/mapa'
+import { NIVELES_ZONA, enlaceOsm } from '../../../models/mapa'
+import { MODOS, etiquetaTipo, haceCuanto, tipoDe } from '../../../models/tipos'
+import { marcarFalso } from '../../../services/seguridadService'
 
-const fechaHora = new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium', timeStyle: 'short' })
-
-// Ícono de comisaría (SVG en línea; evita las imágenes por defecto de Leaflet).
+// Ícono de punto seguro / comisaría (SVG en línea; evita las imágenes por defecto de Leaflet).
 const ICONO_COMISARIA = L.divIcon({
   className: 'icono-comisaria',
-  html: '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" fill="#0f1b2d" stroke="#fff" stroke-width="1.5"/><path d="M8.5 12.5l2.3 2.3 4.7-5" fill="none" stroke="#f5b301" stroke-width="2" stroke-linecap="round"/></svg>',
-  iconSize: [26, 26],
-  iconAnchor: [13, 13],
+  html: '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" fill="#16A34A" stroke="#fff" stroke-width="1.5"/><path d="M8.5 12.5l2.3 2.3 4.7-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
   popupAnchor: [0, -12],
 })
 
@@ -19,35 +20,60 @@ export function CapaComisarias({ comisarias }) {
       <Popup>
         <strong>{c.nombre}</strong>
         <br />
-        {c.distrito} · {c.divpol}
+        Punto seguro · {c.distrito}
         <br />
-        <a href={enlaceOsm(c.lat, c.lng)} target="_blank" rel="noreferrer">Ver en OpenStreetMap</a>
+        <a href="tel:105">Llamar al 105</a> · <a href={enlaceOsm(c.lat, c.lng)} target="_blank" rel="noreferrer">Cómo llegar</a>
       </Popup>
     </Marker>
   ))
 }
 
-export function CapaReportes({ reportes }) {
-  return reportes.map((r) => (
-    <CircleMarker
-      key={r.id}
-      center={[r.lat, r.lng]}
-      radius={6}
-      pathOptions={{ color: '#fff', weight: 2, fillColor: colorDeTipo(r.tipo), fillOpacity: 0.95 }}
-    >
-      <Popup>
-        <strong>{r.tipo}</strong>
-        {r.esDemo ? <span className="badge-demo">DEMO</span> : null}
-        <br />
-        {fechaHora.format(new Date(r.fechaHecho))}
-        <br />
-        <span className="popup-desc">{r.descripcion}</span>
-        {r.referencia ? <><br /><em>Ref.: {r.referencia}</em></> : null}
-        <br />
-        <small>Estado: {r.estado}</small>
-      </Popup>
-    </CircleMarker>
-  ))
+// Botón "Marcar como falso" dentro del popup (moderación comunitaria).
+function MarcarFalso({ id, onOculto }) {
+  const [estado, setEstado] = useState(null)
+  const marcar = async () => {
+    setEstado('enviando')
+    try {
+      const r = await marcarFalso(id)
+      setEstado(r.oculto ? 'Gracias. El reporte quedó oculto hasta que lo revise un moderador.' : `Gracias por avisar (${r.marcas}/3 marcas).`)
+      if (r.oculto) onOculto?.(id)
+    } catch (err) {
+      setEstado(err.message)
+    }
+  }
+  if (estado && estado !== 'enviando') return <p className="popup-nota">{estado}</p>
+  return (
+    <button type="button" className="popup-marcar" onClick={marcar} disabled={estado === 'enviando'}>
+      🚩 Marcar como falso
+    </button>
+  )
+}
+
+export function CapaReportes({ reportes, nuevos, onOculto }) {
+  return reportes.map((r) => {
+    const tipo = tipoDe(r.tipo)
+    const esNuevo = nuevos?.has(r.id)
+    return (
+      <CircleMarker
+        key={r.id}
+        center={[r.lat, r.lng]}
+        radius={esNuevo ? 10 : 7}
+        pathOptions={{ color: '#fff', weight: 2, fillColor: tipo.color, fillOpacity: 0.95, className: esNuevo ? 'marcador-nuevo' : '' }}
+      >
+        <Popup>
+          <strong style={{ color: tipo.color }}>{tipo.label}</strong>
+          {r.esDemo ? <span className="badge-demo">DEMO</span> : null}
+          {esNuevo ? <span className="badge-nuevo">NUEVO</span> : null}
+          <br />
+          <small>{haceCuanto(r.fechaHecho)} · vía {MODOS[r.modo] ?? 'formulario'}{r.estado === 'verificado' ? ' · ✓ verificado' : ''}</small>
+          <br />
+          <span className="popup-desc">{r.descripcion}</span>
+          {r.referencia ? <><br /><em>Ref.: {r.referencia}</em></> : null}
+          {r.estado !== 'verificado' ? <MarcarFalso id={r.id} onOculto={onOculto} /> : null}
+        </Popup>
+      </CircleMarker>
+    )
+  })
 }
 
 export function CapaZonas({ zonas }) {
@@ -57,10 +83,10 @@ export function CapaZonas({ zonas }) {
       <Rectangle
         key={z.id}
         bounds={[[z.sur, z.oeste], [z.norte, z.este]]}
-        pathOptions={{ color, weight: 1, fillColor: color, fillOpacity: z.nivel === 'alto' ? 0.42 : z.nivel === 'medio' ? 0.3 : 0.16 }}
+        pathOptions={{ color, weight: 1, fillColor: color, fillOpacity: z.nivel === 'alto' ? 0.4 : z.nivel === 'medio' ? 0.28 : 0.14 }}
       >
         <Tooltip sticky>
-          {z.cantidad} reporte{z.cantidad === 1 ? '' : 's'} · principal: {z.tipoPrincipal}
+          {z.cantidad} reporte{z.cantidad === 1 ? '' : 's'} · principal: {etiquetaTipo(z.tipoPrincipal)}
           {z.soloDemo ? ' (demo)' : ''}
         </Tooltip>
       </Rectangle>

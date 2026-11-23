@@ -21,6 +21,10 @@ export const env = {
     jwtSecret: process.env.JWT_SECRET ?? 'solo-desarrollo-cambiar-en-produccion-0000',
     sesionDias: Number(process.env.SESION_DIAS ?? 7),
   },
+  ia: {
+    groqApiKey: process.env.GROQ_API_KEY || null, // opcional: sin clave se usa el clasificador local
+    modelo: process.env.GROQ_MODELO ?? 'llama-3.1-8b-instant',
+  },
   admin: {
     nombre: process.env.ADMIN_NOMBRE ?? 'Administrador',
     email: process.env.ADMIN_EMAIL,

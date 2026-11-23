@@ -34,7 +34,7 @@ export async function listarReportes(query) {
   const q = String(query.q ?? '').trim().slice(0, 80) || null
   const pagina = Math.max(1, Number.parseInt(query.pagina, 10) || 1)
   const { total, reportes } = await ReporteModel.listarAdmin({
-    estado, tipo, q, incluirDemo: esVerdadero(query.demo), pagina, porPagina: POR_PAGINA,
+    estado, tipo, q, incluirDemo: esVerdadero(query.demo), soloMarcados: esVerdadero(query.marcados), pagina, porPagina: POR_PAGINA,
   })
   return { reportes, total, pagina, paginas: Math.max(1, Math.ceil(total / POR_PAGINA)) }
 }

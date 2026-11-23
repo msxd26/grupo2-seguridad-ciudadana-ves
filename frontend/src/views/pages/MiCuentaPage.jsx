@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useAsync } from '../../controllers/useAsync'
 import { fetchMisReportes } from '../../services/cuentaService'
 import { fetchAlertas } from '../../services/seguridadService'
-import { CONSEJOS, ESTADOS_REPORTE, ICONOS_TIPO, PASOS, pasoActual, saludo } from '../../models/reportes'
+import { CONSEJOS, ESTADOS_REPORTE, PASOS, pasoActual, saludo } from '../../models/reportes'
+import { MODOS, tipoDe } from '../../models/tipos'
 import { EMERGENCY_NUMBERS } from '../../models/navigation'
 import '../../assets/styles/cuenta.css'
 
@@ -20,13 +21,14 @@ const ACCIONES = [
 function TarjetaReporte({ reporte }) {
   const estado = ESTADOS_REPORTE[reporte.estado]
   const paso = pasoActual(reporte.estado)
+  const tipo = tipoDe(reporte.tipo)
   return (
     <article className={`mi-reporte mi-reporte--${reporte.estado}`}>
       <div className="mi-reporte__cabecera">
-        <span className="mi-reporte__icono" aria-hidden="true">{ICONOS_TIPO[reporte.tipo] ?? '📌'}</span>
+        <span className="mi-reporte__icono" aria-hidden="true" style={{ color: tipo.color }}><tipo.Icono size={22} /></span>
         <div>
-          <h3>{reporte.tipo}</h3>
-          <span className="mi-reporte__fecha">Reporte #{reporte.id} · {fecha.format(new Date(reporte.creadoEn))}</span>
+          <h3>{tipo.label}</h3>
+          <span className="mi-reporte__fecha">Reporte #{reporte.id} · {fecha.format(new Date(reporte.creadoEn))} · vía {MODOS[reporte.modo] ?? 'formulario'}</span>
         </div>
         <span className={`estado-pill estado-pill--${reporte.estado}`}>
           <span aria-hidden="true">{estado.icono}</span> {estado.label}

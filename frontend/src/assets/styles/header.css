@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 1100; /* sobre los controles de Leaflet */
-  background: var(--navy-900);
+  background: var(--primary-dark);
   border-bottom: 3px solid var(--amber);
 }
 

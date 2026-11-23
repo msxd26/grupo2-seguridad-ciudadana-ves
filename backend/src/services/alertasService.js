@@ -1,15 +1,37 @@
 import { DenunciaModel } from '../models/DenunciaModel.js'
 import { ReporteModel } from '../models/ReporteModel.js'
-import { FUENTE_DENUNCIAS, UBIGEO_VES, nombreModalidad } from '../config/fuente.js'
+import { FUENTE_DENUNCIAS, UBIGEO_VES, etiquetaTipo, nivelTipo, nombreModalidad } from '../config/fuente.js'
 import { MESES, formatNumero, signo, variacionPorcentual } from '../utils/texto.js'
 import { obtenerMeta } from './metaService.js'
 import { NIVELES_ZONA, calcularZonas } from './mapaService.js'
 
 const ORDEN_NIVEL = { alta: 0, media: 1, informativa: 2 }
+const NIVEL_POR_TIPO = { peligro: 'alta', atencion: 'media', info: 'informativa' }
+
+// Feed comunitario: cada reporte de las últimas 24 horas es una alerta (como en el plan).
+function alertasDeIncidentes(reportes) {
+  const limite = Date.now() - 86_400_000
+  return reportes
+    .filter((r) => new Date(r.fechaHecho).getTime() >= limite)
+    .map((r) => ({
+      id: `incidente-${r.id}`,
+      tipo: 'incidente',
+      nivel: NIVEL_POR_TIPO[nivelTipo(r.tipo)],
+      titulo: etiquetaTipo(r.tipo) + (r.referencia ? ` · ${r.referencia}` : ''),
+      mensaje: r.descripcion,
+      fecha: r.fechaHecho,
+      reporteId: r.id,
+      tipoIncidente: r.tipo,
+      lat: r.lat,
+      lng: r.lng,
+      estado: r.estado,
+      esDemo: r.esDemo,
+      fuente: 'Reporte ciudadano',
+    }))
+}
 
 // Zonas con varios reportes ciudadanos en los últimos 7 días.
-async function alertasDeZonas() {
-  const reportes = await ReporteModel.listarRecientes({ dias: 7 })
+function alertasDeZonas(reportes) {
   return calcularZonas(reportes)
     .filter((z) => z.cantidad >= NIVELES_ZONA.medio)
     .map((z) => ({
@@ -17,7 +39,7 @@ async function alertasDeZonas() {
       tipo: 'zona',
       nivel: z.nivel === 'alto' ? 'alta' : 'media',
       titulo: `Zona con ${z.cantidad} reportes en 7 días`,
-      mensaje: `Concentración de reportes ciudadanos (principalmente ${z.tipoPrincipal.toLowerCase()}). Se recomienda precaución y patrullaje en la zona.`,
+      mensaje: `Concentración de reportes ciudadanos (principalmente ${etiquetaTipo(z.tipoPrincipal).toLowerCase()}). Se recomienda precaución y patrullaje en la zona.`,
       lat: (z.sur + z.norte) / 2,
       lng: (z.oeste + z.este) / 2,
       esDemo: z.soloDemo,
@@ -87,6 +109,9 @@ async function alertaEstacional(meta) {
 
 export async function obtenerAlertas() {
   const meta = await obtenerMeta()
-  const grupos = await Promise.all([alertasDeZonas(), alertasDeTendencia(meta), alertaEstacional(meta)])
-  return grupos.flat().sort((a, b) => ORDEN_NIVEL[a.nivel] - ORDEN_NIVEL[b.nivel])
+  const reportes = await ReporteModel.listarRecientes({ dias: 7 })
+  const [tendencias, estacional] = await Promise.all([alertasDeTendencia(meta), alertaEstacional(meta)])
+  const incidentes = alertasDeIncidentes(reportes) // ya vienen del más reciente al más antiguo
+  const resto = [...alertasDeZonas(reportes), ...tendencias, ...estacional].sort((a, b) => ORDEN_NIVEL[a.nivel] - ORDEN_NIVEL[b.nivel])
+  return [...resto, ...incidentes]
 }

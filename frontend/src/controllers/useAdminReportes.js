@@ -11,6 +11,7 @@ export function useAdminReportes() {
     tipo: params.get('tipo') ?? '',
     q: params.get('q') ?? '',
     demo: params.get('demo') === '1',
+    marcados: params.get('marcados') === '1',
     pagina: Number(params.get('pagina') ?? 1),
   }
   const clave = params.toString()

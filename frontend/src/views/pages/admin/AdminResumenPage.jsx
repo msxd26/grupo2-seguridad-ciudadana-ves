@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAsync } from '../../../controllers/useAsync'
 import { fetchAdminResumen } from '../../../services/cuentaService'
 import { formatNumero } from '../../../models/estadisticas'
+import { etiquetaTipo } from '../../../models/tipos'
 import ColumnChart from '../../components/dashboard/ColumnChart'
 import HBarList from '../../components/dashboard/HBarList'
 import '../../../assets/styles/dashboard.css'
@@ -64,6 +65,7 @@ export default function AdminResumenPage() {
         <div className="adm-kpi adm-kpi--descartado"><span>Descartados</span><strong>{formatNumero(e.descartado ?? 0)}</strong></div>
         <div className="adm-kpi"><span>Total de reportes</span><strong>{formatNumero(total)}</strong></div>
         <div className="adm-kpi"><span>Usuarios</span><strong>{formatNumero(data.usuarios.total)}</strong><small>+{data.usuarios.nuevos7dias} en 7 días · {data.usuarios.admins} admin</small></div>
+        <div className="adm-kpi adm-kpi--pendiente"><span>Ocultos por la comunidad</span><strong>{data.ocultos}</strong><small>3+ marcas como falso</small></div>
         <div className="adm-kpi"><span>Alertas activas</span><strong>{data.alertas.total}</strong><small>{data.alertas.altas} de nivel alto</small></div>
       </div>
 
@@ -75,7 +77,7 @@ export default function AdminResumenPage() {
         <section className="adm-tarjeta">
           <h2>Tipos más reportados · 30 días</h2>
           {data.porTipo.length ? (
-            <HBarList items={data.porTipo.map((t) => ({ key: t.tipo, label: t.tipo, value: t.total }))} ariaLabel="Reportes por tipo" compacto />
+            <HBarList items={data.porTipo.map((t) => ({ key: t.tipo, label: etiquetaTipo(t.tipo), value: t.total }))} ariaLabel="Reportes por tipo" compacto />
           ) : (
             <p className="adm-vacio">Sin reportes en los últimos 30 días.</p>
           )}

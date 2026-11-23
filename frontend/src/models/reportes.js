@@ -10,20 +10,6 @@ export const ESTADOS_REPORTE = {
 export const PASOS = ['Enviado', 'En revisión', 'Resuelto']
 export const pasoActual = (estado) => (estado === 'pendiente' ? 1 : 2)
 
-export const ICONOS_TIPO = {
-  Robo: '👜',
-  Hurto: '👛',
-  Extorsión: '📞',
-  Estafa: '💳',
-  'Violencia contra la mujer': '🛑',
-  Secuestro: '🚨',
-  'Microcomercialización de drogas': '💊',
-  Pandillaje: '⚠️',
-  'Consumo de alcohol en vía pública': '🍺',
-  'Alumbrado o zona insegura': '💡',
-  Otro: '📌',
-}
-
 export const CONSEJOS = [
   { icono: '📱', titulo: 'Celular a buen recaudo', texto: 'Evita usarlo en paraderos y esquinas; guárdalo antes de bajar del transporte.' },
   { icono: '👀', titulo: 'Rutas iluminadas', texto: 'De noche, prefiere calles con luz y movimiento, aunque el camino sea un poco más largo.' },
