@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useEventos } from '../../../context/EventosContext'
 import { useNotificacionesCercanas } from '../../../controllers/useNotificacionesCercanas'
 import { haceCuanto, tipoDe } from '../../../models/tipos'
@@ -12,6 +12,7 @@ export default function PanelEnVivo({ reportes, nuevos, seguir, onSeguir, onEleg
   const avisos = useNotificacionesCercanas()
   const [abierto, setAbierto] = useState(true)
   const [, setTic] = useState(0)
+  const listaRef = useRef(null)
 
   // Refresca los "hace X min" cada 30 segundos.
   useEffect(() => {
@@ -22,6 +23,15 @@ export default function PanelEnVivo({ reportes, nuevos, seguir, onSeguir, onEleg
   // Orden de llegada (como un feed): lo último reportado arriba.
   const llegada = (r) => new Date(r.creadoEn ?? r.fechaHecho).getTime()
   const lista = reportes.toSorted((a, b) => llegada(b) - llegada(a)).slice(0, MAXIMO)
+
+  // Con "Seguir" activo, el reporte seleccionado (p. ej. uno nuevo que llegó en vivo) se hace visible en la lista.
+  const primero = lista[0]?.id
+  useEffect(() => {
+    if (!seguir || !seleccionado || !listaRef.current) return
+    const item = listaRef.current.querySelector(`[data-id="${seleccionado}"]`)
+    const suave = !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    item?.scrollIntoView({ block: 'nearest', behavior: suave ? 'smooth' : 'auto' })
+  }, [seguir, seleccionado, primero])
 
   return (
     <section className={abierto ? 'en-vivo' : 'en-vivo en-vivo--cerrado'} aria-label="Actividad en vivo">
@@ -50,12 +60,12 @@ export default function PanelEnVivo({ reportes, nuevos, seguir, onSeguir, onEleg
             {avisos.error ? <p className="en-vivo__error">{avisos.error}</p> : null}
           </div>
 
-          <ol className="en-vivo__lista">
+          <ol className="en-vivo__lista" ref={listaRef}>
             {lista.map((r) => {
               const t = tipoDe(r.tipo)
               const clases = ['en-vivo__item', nuevos.has(r.id) && 'en-vivo__item--nuevo', seleccionado === r.id && 'en-vivo__item--activo'].filter(Boolean).join(' ')
               return (
-                <li key={r.id}>
+                <li key={r.id} data-id={r.id}>
                   <button type="button" className={clases} onClick={() => onElegir(r)} style={{ '--color-tipo': t.color }}>
                     <span className="en-vivo__icono" aria-hidden="true"><t.Icono size={16} /></span>
                     <span className="en-vivo__texto">

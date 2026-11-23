@@ -61,6 +61,16 @@ class AppViewModel(private val c: AppContainer) : ViewModel() {
         trabajoEventos = viewModelScope.launch {
             c.eventos.flujo().collect { evento ->
                 if (evento is EventoTiempoReal.Conectados) _vecinosEnLinea.value = evento.total
+                // Aviso privado: el moderador revisó un reporte mío.
+                if (evento is EventoTiempoReal.MiReporte) {
+                    val a = evento.aviso
+                    val estado = when (a.estado) {
+                        "verificado" -> "verificado ✅"
+                        "descartado" -> "no procede"
+                        else -> "en revisión"
+                    }
+                    _avisos.tryEmit("Tu reporte #${a.id}: $estado" + (a.comentarioAdmin?.let { " · $it" } ?: ""))
+                }
                 _eventos.emit(evento)
             }
         }

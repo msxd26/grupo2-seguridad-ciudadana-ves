@@ -132,3 +132,15 @@ button { font: inherit; }
 .aviso-mio a { color: var(--primary); font-weight: 700; font-size: 0.88rem; }
 .aviso-mio button { background: none; border: 0; font-size: 1.3rem; color: #94A3B8; cursor: pointer; }
 @media (max-width: 760px) { .aviso-mio { top: auto; bottom: 9.5rem; right: 0.75rem; } }
+
+/* Indicador global del tiempo real */
+.indicador-conexion {
+  position: fixed; left: 50%; top: 4.9rem; transform: translateX(-50%); z-index: 1400;
+  display: inline-flex; align-items: center; gap: 0.5rem; max-width: calc(100% - 1.5rem);
+  padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+}
+.indicador-conexion--caido { background: #FEF3C7; color: #78350F; }
+.indicador-conexion--recuperado { background: #DCFCE7; color: #166534; }
+.indicador-conexion .punto-vivo { width: 10px; height: 10px; border-radius: 50%; background: #22C55E; flex-shrink: 0; }
+.indicador-conexion .punto-vivo--off { background: #D97706; }

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
-import { CircleMarker, Marker, Popup, Rectangle, Tooltip, useMap } from 'react-leaflet'
+import { Marker, Popup, Rectangle, Tooltip, useMap } from 'react-leaflet'
 import { NIVELES_ZONA, enlaceOsm } from '../../../models/mapa'
+import { iconoMarcador } from './iconosMarcador'
 import { MODOS, etiquetaTipo, haceCuanto, tipoDe } from '../../../models/tipos'
 import { confirmarReporte, marcarFalso } from '../../../services/seguridadService'
 
@@ -89,15 +90,19 @@ export function CapaReportes({ reportes, nuevos, onOculto, abrirId }) {
     const tipo = tipoDe(r.tipo)
     const esNuevo = nuevos?.has(r.id)
     return (
-      <CircleMarker
+      <Marker
         key={r.id}
         ref={(capa) => (capa ? refs.current.set(r.id, capa) : refs.current.delete(r.id))}
-        center={[r.lat, r.lng]}
-        radius={esNuevo ? 10 : 7}
-        pathOptions={{ color: '#fff', weight: 2, fillColor: tipo.color, fillOpacity: 0.95, className: esNuevo ? 'marcador-nuevo' : '' }}
+        position={[r.lat, r.lng]}
+        icon={iconoMarcador(r.tipo, { nuevo: esNuevo, verificado: r.estado === 'verificado' })}
+        title={`${tipo.label} · ${haceCuanto(r.fechaHecho)}`}
+        alt={tipo.label}
+        zIndexOffset={esNuevo ? 1000 : 0}
       >
         <Popup>
-          <strong style={{ color: tipo.texto }}>{tipo.label}</strong>
+          <strong className="popup-tipo" style={{ color: tipo.texto }}>
+            <tipo.Icono size={16} aria-hidden="true" /> {tipo.label}
+          </strong>
           {r.esDemo ? <span className="badge-demo">DEMO</span> : null}
           {esNuevo ? <span className="badge-nuevo">NUEVO</span> : null}
           <br />
@@ -108,7 +113,7 @@ export function CapaReportes({ reportes, nuevos, onOculto, abrirId }) {
           <Confirmar id={r.id} total={r.confirmaciones ?? 0} />
           {r.estado !== 'verificado' ? <MarcarFalso id={r.id} onOculto={onOculto} /> : null}
         </Popup>
-      </CircleMarker>
+      </Marker>
     )
   })
 }

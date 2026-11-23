@@ -111,7 +111,9 @@ fun AlertasScreen(container: AppContainer, appVm: AppViewModel) {
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        appVm.eventos.collect { if (it is EventoTiempoReal.NuevoReporte || it is EventoTiempoReal.ReporteOculto) vm.cargar() }
+        appVm.eventos.collect {
+            if (it is EventoTiempoReal.NuevoReporte || it is EventoTiempoReal.ReporteOculto || it is EventoTiempoReal.ReporteModerado) vm.cargar()
+        }
     }
 
     fun miZona() = scope.launch {

@@ -21,9 +21,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Servidor por defecto: el backend de desarrollo visto desde el emulador (10.0.2.2 = la PC).
-        // En un celular de la red local se cambia desde Ajustes (ej. http://192.168.1.20).
-        buildConfigField("String", "SERVIDOR_POR_DEFECTO", "\"http://10.0.2.2:3000\"")
+        // Servidor por defecto: Tu Vecino en Google Cloud (VM tu-vecino-vm, IP estática).
+        // Cuando el dominio de Cloudflare esté listo, cambiar a "https://<dominio>".
+        // Para desarrollo (emulador o red local) se cambia desde Ajustes en la app.
+        buildConfigField("String", "SERVIDOR_EN_LINEA", "\"http://34.176.116.202\"")
+        buildConfigField("String", "SERVIDOR_POR_DEFECTO", "\"http://34.176.116.202\"")
     }
 
     buildTypes {
@@ -59,7 +61,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.okhttp)
-    implementation(libs.okhttp.sse)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.osmdroid)
     testImplementation(libs.junit)

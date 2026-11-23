@@ -206,3 +206,8 @@
 .guiado__paso { animation: entrar-paso 0.22s ease-out; }
 @keyframes entrar-paso { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .guiado__paso, .pensando__texto, .confianza span { animation: none; transition: none; } }
+
+/* La fila de confianza va en columna (etiqueta arriba, barra a todo el ancho):
+   ".deteccion li" (flex) tenía más especificidad y aplastaba la barra en celulares. */
+.deteccion .deteccion__confianza { display: grid; align-items: stretch; gap: 0.35rem; }
+.deteccion .deteccion__confianza .confianza { width: 100%; }

@@ -37,8 +37,8 @@ fun AjustesScreen(appVm: AppViewModel) {
     ) {
         Text("Servidor de Tu Vecino", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(
-            "Dirección del backend. Con Docker en la red local usa la IP de la PC (ej. http://192.168.1.20). " +
-                "Con el backend de desarrollo (npm run dev) usa el puerto 3000. Desde el emulador, la PC es 10.0.2.2.",
+            "Por defecto la app usa el servidor en línea de Tu Vecino. Para pruebas: con Docker en la red local usa la IP " +
+                "de la PC (ej. http://192.168.1.20); con el backend de desarrollo, el puerto 3000. Desde el emulador, la PC es 10.0.2.2.",
             style = MaterialTheme.typography.bodyMedium,
         )
         OutlinedTextField(
@@ -50,6 +50,7 @@ fun AjustesScreen(appVm: AppViewModel) {
             modifier = Modifier.fillMaxWidth(),
         )
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            SuggestionChip(onClick = { url = BuildConfig.SERVIDOR_EN_LINEA }, label = { Text("🌐 Servidor en línea (Google Cloud)") })
             SuggestionChip(onClick = { url = "http://10.0.2.2:3000" }, label = { Text("Emulador → backend dev (10.0.2.2:3000)") })
             SuggestionChip(onClick = { url = "http://10.0.2.2" }, label = { Text("Emulador → Docker (10.0.2.2)") })
         }

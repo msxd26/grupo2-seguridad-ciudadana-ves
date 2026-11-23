@@ -57,9 +57,13 @@ function Burbuja({ mensaje }) {
   )
 }
 
+// Con "reducir movimiento" activado se muestra solo el primer texto, sin rotar.
+const reducirMovimiento = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
 function Pensando() {
   const [paso, setPaso] = useState(0)
   useEffect(() => {
+    if (reducirMovimiento()) return undefined
     const id = setInterval(() => setPaso((p) => Math.min(p + 1, PASOS_PENSANDO.length - 1)), 800)
     return () => clearInterval(id)
   }, [])
@@ -137,7 +141,9 @@ export default function ReportarChatPage() {
       {chat.fase === 'conversando' && chat.mensajes.length === 1 ? (
         <div className="chat__ejemplos">
           <span>Prueba con:</span>
-          {EJEMPLOS.map((ej) => <button key={ej} type="button" onClick={() => setTexto(ej)}>“{ej}”</button>)}
+          {EJEMPLOS.map((ej) => (
+            <button key={ej} type="button" onClick={() => setTexto(ej)} aria-label={`Usar el ejemplo: ${ej}`}>“{ej}”</button>
+          ))}
         </div>
       ) : null}
 
