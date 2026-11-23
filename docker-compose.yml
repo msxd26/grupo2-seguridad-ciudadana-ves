@@ -80,12 +80,25 @@ services:
       backend:
         condition: service_healthy
     environment:
-      PUBLIC_HOST: ${PUBLIC_HOST:-localhost} # IP de esta PC en la LAN (para el certificado HTTPS)
+      PUBLIC_HOST: ${PUBLIC_HOST:-localhost} # IP de esta PC en la LAN (para el certificado HTTPS autofirmado)
+      # Nube: dirección con certificado válido de Let's Encrypt (ej. 34-176-116-202.sslip.io). Vacío en la LAN.
+      SITIO_SEGURO: ${SITIO_SEGURO:-}
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
     volumes:
       - certificados:/etc/nginx/certs
+      - letsencrypt:/etc/letsencrypt:ro
+      - acme:/var/www/certbot:ro
+
+  # Certificado HTTPS válido (Let's Encrypt). No se levanta con el resto: se ejecuta a pedido
+  # (infra/certificado-https.sh) y se renueva solo con un cron en la VM.
+  certbot:
+    image: certbot/certbot:v2.11.0
+    profiles: ["certbot"]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - acme:/var/www/certbot
 
   adminer:
     image: adminer:4.8.1
@@ -102,3 +115,5 @@ services:
 volumes:
   mysql_data:
   certificados:
+  letsencrypt:
+  acme:

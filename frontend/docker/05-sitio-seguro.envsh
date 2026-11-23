@@ -1,0 +1,10 @@
+#!/bin/sh
+# Se carga (source) antes de procesar las plantillas de Nginx.
+# Si hay certificado de Let's Encrypt para SITIO_SEGURO, se activa la redirección http → https
+# de la web (la API sigue por http para la app Android).
+if [ -n "${SITIO_SEGURO:-}" ] && [ -f "/etc/letsencrypt/live/${SITIO_SEGURO}/fullchain.pem" ]; then
+  export REDIRIGIR_HTTPS=1
+else
+  export REDIRIGIR_HTTPS=0
+fi
+export SITIO_SEGURO="${SITIO_SEGURO:-localhost}"

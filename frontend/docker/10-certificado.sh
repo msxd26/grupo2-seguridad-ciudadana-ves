@@ -11,7 +11,20 @@ MARCA="$DIR/.host"
 
 mkdir -p "$DIR"
 
-# Si ya existe para el mismo host, se reutiliza (evita volver a aceptar el aviso del navegador).
+# 1) Certificado válido de Let's Encrypt (servidor en la nube con SITIO_SEGURO): se enlaza y listo.
+LE="/etc/letsencrypt/live/${SITIO_SEGURO:-}"
+if [ -n "${SITIO_SEGURO:-}" ] && [ -f "$LE/fullchain.pem" ] && [ -f "$LE/privkey.pem" ]; then
+  ln -sf "$LE/fullchain.pem" "$CRT"
+  ln -sf "$LE/privkey.pem" "$KEY"
+  echo "letsencrypt:$SITIO_SEGURO" > "$MARCA"
+  echo "certificado: Let's Encrypt para $SITIO_SEGURO"
+  exit 0
+fi
+
+# Venía de Let's Encrypt (enlaces) y ya no está: se descartan para generar uno autofirmado.
+if [ -L "$CRT" ] || [ -L "$KEY" ]; then rm -f "$CRT" "$KEY" "$MARCA"; fi
+
+# 2) Autofirmado (red local). Si ya existe para el mismo host, se reutiliza (evita volver a aceptar el aviso del navegador).
 if [ -f "$CRT" ] && [ -f "$KEY" ] && [ "$(cat "$MARCA" 2>/dev/null)" = "$HOST" ]; then
   echo "certificado: se reutiliza el existente para $HOST"
   exit 0
