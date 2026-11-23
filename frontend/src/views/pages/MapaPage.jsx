@@ -5,6 +5,7 @@ import { useAsync } from '../../controllers/useAsync'
 import { useEventos } from '../../context/EventosContext'
 import { fetchMapa } from '../../services/seguridadService'
 import { PERIODOS } from '../../models/mapa'
+import { encuadreDe, resumenTipos } from '../../models/avisos'
 import { TIPOS } from '../../models/tipos'
 import { IconoAtencion, IconoCalor, IconoDesplegar, IconoPeligro, IconoPin, IconoUbicacion } from '../../models/iconos'
 import MapaBase from '../components/mapa/MapaBase'
@@ -34,10 +35,16 @@ export default function MapaPage() {
   const [tipo, setTipo] = useState('')
   const [visibles, setVisibles] = useState({ calor: true, reportes: true, zonas: false, comisarias: true })
   const [destino, setDestino] = useState(() => {
+    // ?encuadre=s,o,n,e llega desde un aviso de ráfaga: se encuadran todos los reportes.
+    const limites = params.get('encuadre')?.split(',').map(Number)
+    if (limites?.length === 4 && limites.every(Number.isFinite)) return { limites }
     const lat = Number(params.get('lat'))
     const lng = Number(params.get('lng'))
     return lat && lng ? { lat, lng, zoom: 17 } : null
   })
+  // Reportes de la ráfaga en curso (llegados con menos de 20 s entre uno y otro).
+  const [rafaga, setRafaga] = useState([])
+  const ultimaLlegada = useRef(0)
   const [enVivo, setEnVivo] = useState([]) // reportes llegados por tiempo real
   const [ocultos, setOcultos] = useState(() => new Set())
   const [votos, setVotos] = useState(() => new Map()) // id -> { confirmaciones, marcas } en vivo
@@ -49,6 +56,7 @@ export default function MapaPage() {
   const [hojaAbierta, setHojaAbierta] = useState(false) // hoja inferior (solo celulares)
   const seguirRef = useRef(seguir)
   seguirRef.current = seguir
+  const rafagaRef = useRef([])
 
   const tipos = useMemo(() => (tipo ? [tipo] : []), [tipo])
   const { data, error, cargando } = useAsync((signal) => fetchMapa({ dias, tipos }, signal), [dias, tipo])
@@ -62,10 +70,22 @@ export default function MapaPage() {
       suscribir((evento, datos) => {
         if (evento === 'reporte' && (!tipo || datos.tipo === tipo)) {
           setEnVivo((v) => [datos, ...v])
-          // "Seguir en vivo": el mapa vuela al reporte nuevo y abre su ficha.
+          const ahora = Date.now()
+          const continua = ahora - ultimaLlegada.current < 20_000
+          ultimaLlegada.current = ahora
+          const grupo = continua ? [...rafagaRef.current.filter((r) => r.id !== datos.id), datos] : [datos]
+          rafagaRef.current = grupo
+          setRafaga(grupo)
+          // "Seguir en vivo": un reporte suelto → vuela a él y abre su ficha;
+          // una ráfaga → encuadra todos sus puntos en lugar de saltar de uno en otro.
           if (seguirRef.current) {
-            setDestino({ lat: datos.lat, lng: datos.lng, zoom: 16 })
-            setSeleccionado(datos.id)
+            if (grupo.length > 1) {
+              setDestino({ limites: encuadreDe(grupo) })
+              setSeleccionado(null)
+            } else {
+              setDestino({ lat: datos.lat, lng: datos.lng, zoom: 16 })
+              setSeleccionado(datos.id)
+            }
           }
         }
         if (evento === 'reporte-actualizado') setVotos((m) => new Map(m).set(datos.id, { ...m.get(datos.id), ...datos }))
@@ -218,6 +238,14 @@ export default function MapaPage() {
         ) : null}
         {cargando && data ? <div className="mapa-cargando" role="status">Actualizando…</div> : null}
         {errorUbicacion ? <div className="mapa-error mapa-error--ubicacion" role="alert">{errorUbicacion}</div> : null}
+        {rafaga.length > 1 ? (
+          <div className="rafaga-mapa" role="status">
+            <button type="button" className="rafaga-mapa__ver" onClick={() => setDestino({ limites: encuadreDe(rafaga) })}>
+              Ver los {rafaga.length} reportes nuevos · {resumenTipos(rafaga)}
+            </button>
+            <button type="button" className="rafaga-mapa__cerrar" aria-label="Cerrar" onClick={() => { rafagaRef.current = []; setRafaga([]) }}>×</button>
+          </div>
+        ) : null}
         <button type="button" className={visibles.calor ? 'boton-calor boton-calor--activo' : 'boton-calor'} onClick={() => toggleCapa('calor')} aria-pressed={visibles.calor} title="Mostrar u ocultar el mapa de calor">
           <IconoCalor size={18} aria-hidden="true" /> Calor
         </button>
@@ -227,7 +255,7 @@ export default function MapaPage() {
           {visibles.reportes ? <CapaReportes reportes={reportes} nuevos={nuevos} onOculto={ocultar} abrirId={seleccionado} /> : null}
           {data && visibles.comisarias ? <CapaComisarias comisarias={data.comisarias} /> : null}
           {miPosicion ? <CircleMarker center={[miPosicion.lat, miPosicion.lng]} radius={8} pathOptions={{ color: '#fff', weight: 3, fillColor: '#1D4ED8', fillOpacity: 1 }} /> : null}
-          {destino ? <CircleMarker center={[destino.lat, destino.lng]} radius={22} pathOptions={{ color: '#1E3A8A', weight: 2, fill: false, dashArray: '4 4' }} /> : null}
+          {destino?.lat ? <CircleMarker center={[destino.lat, destino.lng]} radius={22} pathOptions={{ color: '#1E3A8A', weight: 2, fill: false, dashArray: '4 4' }} /> : null}
         </MapaBase>
         <button type="button" className="boton-ubicacion" onClick={irAMiUbicacion} disabled={ubicando} aria-label="Centrar el mapa en mi ubicación" title="Mi ubicación">
           {ubicando ? <span className="spinner" aria-hidden="true" /> : <IconoUbicacion size={22} aria-hidden="true" />}

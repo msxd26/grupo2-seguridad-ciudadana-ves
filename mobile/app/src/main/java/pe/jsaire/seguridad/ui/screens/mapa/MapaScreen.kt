@@ -78,9 +78,11 @@ import pe.jsaire.seguridad.ui.components.RecomendacionCard
 import pe.jsaire.seguridad.ui.etiquetaEstado
 import pe.jsaire.seguridad.ui.etiquetaTipo
 import pe.jsaire.seguridad.ui.iconoTipo
+import pe.jsaire.seguridad.util.Encuadre
 import pe.jsaire.seguridad.util.Fechas
 import pe.jsaire.seguridad.util.Punto
 import pe.jsaire.seguridad.util.Ubicacion
+import pe.jsaire.seguridad.util.resumenTipos
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,6 +107,13 @@ fun MapaScreen(container: AppContainer, appVm: AppViewModel) {
             centrarEn = Punto(r.lat, r.lng)
             reporteAbierto = r
         }
+    }
+    // Ráfaga: se encuadran todos sus reportes (en vivo o al abrir la app desde la notificación).
+    var encuadrarEn by remember { mutableStateOf<Encuadre?>(null) }
+    LaunchedEffect(Unit) { vm.encuadrar.collect { encuadrarEn = it; reporteAbierto = null } }
+    val enfoque by container.enfoqueMapa.collectAsStateWithLifecycle()
+    LaunchedEffect(enfoque) {
+        enfoque?.let { encuadrarEn = it; container.enfoqueMapa.value = null }
     }
 
     fun ubicarme() = scope.launch {
@@ -134,6 +143,7 @@ fun MapaScreen(container: AppContainer, appVm: AppViewModel) {
             zonas = if (Capa.ZONAS in capas) datos?.zonas.orEmpty() else emptyList(),
             miUbicacion = miUbicacion,
             centrarEn = centrarEn,
+            encuadrarEn = encuadrarEn,
             onReporteClick = { reporteAbierto = it },
             onComisariaClick = { comisariaAbierta = it },
         )
@@ -204,7 +214,9 @@ fun MapaScreen(container: AppContainer, appVm: AppViewModel) {
                     onClick = { if (Ubicacion.tienePermiso(context)) ubicarme() else permisos.launch(Ubicacion.PERMISOS) },
                 ) { Icon(Icons.Outlined.MyLocation, "Mi ubicación") }
             }
-            estado.ultimoEnVivo?.let { r ->
+            if (estado.rafaga.size > 1) {
+                AvisoRafaga(estado.rafaga, onVer = vm::verRafaga, onCerrar = vm::cerrarRafaga)
+            } else estado.ultimoEnVivo?.let { r ->
                 AvisoEnVivo(
                     r,
                     onVer = { centrarEn = Punto(r.lat, r.lng); reporteAbierto = r },
@@ -319,6 +331,30 @@ private fun AvisoEnVivo(r: Reporte, onVer: () -> Unit, onCerrar: () -> Unit) {
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(Fechas.relativa(r.creadoEn ?: r.fechaHecho), style = MaterialTheme.typography.labelSmall)
+            }
+            IconButton(onClick = onCerrar) { Icon(Icons.Outlined.Close, "Cerrar") }
+        }
+    }
+}
+
+/** Varios reportes seguidos: un solo aviso con el resumen y el botón para verlos todos en el mapa. */
+@Composable
+private fun AvisoRafaga(lista: List<Reporte>, onVer: () -> Unit, onCerrar: () -> Unit) {
+    Card(
+        onClick = onVer,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+    ) {
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFDC2626)), contentAlignment = Alignment.Center) {
+                Text("${lista.size}", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text("${lista.size} reportes nuevos", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleSmall)
+                Text(resumenTipos(lista), style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text("Toca para verlos todos en el mapa", style = MaterialTheme.typography.labelSmall)
             }
             IconButton(onClick = onCerrar) { Icon(Icons.Outlined.Close, "Cerrar") }
         }

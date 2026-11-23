@@ -166,3 +166,37 @@ button { font: inherit; }
 @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
 .skeleton-kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
 .skeleton-kpis .skeleton-card { min-height: 92px; }
+
+/* ---------- Avisos: radio, tipos y ráfagas agrupadas ---------- */
+.notif__panel { display: grid; gap: 0.6rem; padding: 0.7rem; border: 1px solid #CBD5E1; border-radius: 10px; background: #fff; }
+.notif__grupo { display: grid; gap: 0.4rem; margin: 0; padding: 0; border: 0; }
+.notif__grupo legend { padding: 0; margin-bottom: 0.35rem; font-weight: 700; color: var(--color-ink-900); }
+.notif__opciones-radio, .notif__tipos { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.notif__chip {
+  position: relative; display: inline-flex; align-items: center; min-height: 36px; padding: 0.3rem 0.7rem; border-radius: 999px;
+  border: 1px solid #CBD5E1; background: #fff; color: var(--color-ink-900); font-size: 0.82rem; font-weight: 600; cursor: pointer;
+}
+.notif__chip input { position: absolute; opacity: 0; pointer-events: none; }
+.notif__chip:has(input:focus-visible) { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+.notif__chip--activo { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
+.notif__chip--activo::before { content: "✓"; margin-right: 0.3rem; }
+.notif__check { display: flex; align-items: center; gap: 0.45rem; font-weight: 600; cursor: pointer; }
+.notif__check input { width: 18px; height: 18px; accent-color: var(--color-brand); }
+.notif__ayuda { margin: 0; font-size: 0.78rem; color: var(--color-ink-500); }
+.notif__acciones { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.notif__boton--principal { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
+.notif__boton--principal:hover { background: var(--color-brand-dark); color: #fff; }
+
+/* Aviso agrupado de ráfaga */
+.aviso-vivo--grupo { border-left-color: var(--color-peligro-alto); }
+.aviso-vivo--grupo .aviso-vivo__icono { background: var(--color-peligro-alto); color: #fff; font-weight: 800; font-size: 0.95rem; }
+
+/* Mapa: botón para ver la ráfaga completa */
+.rafaga-mapa {
+  position: absolute; top: 0.75rem; left: 50%; transform: translateX(-50%); z-index: 600;
+  display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem; border-radius: 999px; background: #fff; box-shadow: var(--shadow-raised);
+}
+.rafaga-mapa__ver { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 40px; padding: 0.35rem 0.9rem; border: 0; border-radius: 999px; background: var(--color-peligro-alto); color: #fff; font-weight: 700; cursor: pointer; }
+.rafaga-mapa__cerrar { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; font-size: 1.2rem; cursor: pointer; color: var(--color-ink-700, #334155); }
+@media (max-width: 760px) { .rafaga-mapa { top: 4.2rem; max-width: calc(100% - 1.5rem); } }
+.notif__estado--off { background: #F1F5F9; color: #334155; }

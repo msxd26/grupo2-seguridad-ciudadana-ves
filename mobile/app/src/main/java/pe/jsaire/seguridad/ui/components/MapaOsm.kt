@@ -27,6 +27,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
@@ -40,6 +41,7 @@ import pe.jsaire.seguridad.ui.colorNivel
 import pe.jsaire.seguridad.ui.colorTipo
 import pe.jsaire.seguridad.ui.etiquetaTipo
 import pe.jsaire.seguridad.util.CENTRO_VES
+import pe.jsaire.seguridad.util.Encuadre
 import pe.jsaire.seguridad.util.Punto
 
 /**
@@ -58,6 +60,7 @@ fun MapaOsm(
     seleccion: Punto? = null,
     miUbicacion: Punto? = null,
     centrarEn: Punto? = null,
+    encuadrarEn: Encuadre? = null,
     zoomInicial: Double = 14.0,
     onReporteClick: (Reporte) -> Unit = {},
     onComisariaClick: (Comisaria) -> Unit = {},
@@ -103,6 +106,15 @@ fun MapaOsm(
     // Recentrar solo cuando cambia el destino pedido.
     androidx.compose.runtime.LaunchedEffect(centrarEn) {
         centrarEn?.let { mapa.controller.animateTo(GeoPoint(it.lat, it.lng), 16.0, 600L) }
+    }
+
+    // Encuadrar un área (p. ej. todos los reportes de una ráfaga). Si el mapa aún no tiene tamaño, espera al primer layout.
+    androidx.compose.runtime.LaunchedEffect(encuadrarEn) {
+        val e = encuadrarEn ?: return@LaunchedEffect
+        val caja = BoundingBox(e.norte, e.este, e.sur, e.oeste)
+        val margen = (48 * context.resources.displayMetrics.density).toInt()
+        if (mapa.isLayoutOccurred) mapa.zoomToBoundingBox(caja, true, margen)
+        else mapa.addOnFirstLayoutListener { _, _, _, _, _ -> mapa.zoomToBoundingBox(caja, false, margen) }
     }
 
     AndroidView(

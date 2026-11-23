@@ -29,6 +29,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -38,7 +40,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import pe.jsaire.seguridad.AppContainer
-import pe.jsaire.seguridad.data.remote.EventoTiempoReal
+import pe.jsaire.seguridad.util.Ubicacion
 import pe.jsaire.seguridad.ui.screens.ajustes.AjustesScreen
 import pe.jsaire.seguridad.ui.screens.alertas.AlertasScreen
 import pe.jsaire.seguridad.ui.screens.contacto.ContactoScreen
@@ -77,10 +79,16 @@ fun TuVecinoApp(container: AppContainer) {
     }
 
     LaunchedEffect(Unit) { appVm.avisos.collect { snackbar.showSnackbar(it) } }
-    // Aviso en pantalla cuando un vecino reporta algo (tiempo real).
+    // Aviso en pantalla cuando un vecino reporta algo (tiempo real). Una ráfaga llega como un solo mensaje.
+    LaunchedEffect(Unit) { appVm.avisosVivo.collect { snackbar.showSnackbar(it) } }
+    // Se tocó una notificación de ráfaga: ir al mapa (el mapa encuadra los reportes).
+    val enfoque by container.enfoqueMapa.collectAsStateWithLifecycle()
+    LaunchedEffect(enfoque) { if (enfoque != null) irAPestana(nav, Destino.MAPA.ruta) }
+    // "Cerca de mí": se actualiza la ubicación guardada al abrir la app (si hay permiso y radio elegido).
+    val contexto = LocalContext.current
     LaunchedEffect(Unit) {
-        appVm.eventos.collect { e ->
-            if (e is EventoTiempoReal.NuevoReporte) snackbar.showSnackbar("Nuevo reporte: ${etiquetaTipo(e.reporte.tipo)}")
+        if (appVm.configAvisos.value.radio != null && Ubicacion.tienePermiso(contexto)) {
+            appVm.refrescarUbicacionAvisos(Ubicacion.actual(contexto))
         }
     }
 

@@ -34,7 +34,12 @@ sealed interface EventoTiempoReal {
     /** Aviso privado: moderaron un reporte mío (solo llega al autor, identificado por la cookie). */
     data class MiReporte(val aviso: AvisoMiReporte) : EventoTiempoReal
     data class Conectados(val total: Int) : EventoTiempoReal
+    /** El servidor anuncia una ráfaga de reportes (iniciada / terminada): se agrupan en un solo aviso. */
+    data class Rafaga(val datos: DatosRafaga) : EventoTiempoReal
 }
+
+@Serializable
+data class DatosRafaga(val cantidad: Int = 0, val estado: String)
 
 @Serializable
 data class Moderado(val id: Int, val estado: String, val oculto: Boolean = false)
@@ -87,6 +92,7 @@ class EventosTiempoReal(private val prefs: Preferencias, base: OkHttpClient) {
             "reporte-oculto" -> EventoTiempoReal.ReporteOculto(JsonApi.decodeFromJsonElement(IdSolo.serializer(), datos).id)
             "reporte-moderado" -> EventoTiempoReal.ReporteModerado(JsonApi.decodeFromJsonElement(Moderado.serializer(), datos))
             "mi-reporte" -> EventoTiempoReal.MiReporte(JsonApi.decodeFromJsonElement(AvisoMiReporte.serializer(), datos))
+            "rafaga" -> EventoTiempoReal.Rafaga(JsonApi.decodeFromJsonElement(DatosRafaga.serializer(), datos))
             "presencia", "bienvenida" ->
                 EventoTiempoReal.Conectados(JsonApi.decodeFromJsonElement(Presencia.serializer(), datos).conectados)
             else -> null
