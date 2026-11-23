@@ -55,7 +55,11 @@ export function validarReporte(body) {
 
   if (Object.keys(errores).length) throw new ErrorValidacion('Revisa los datos del reporte', errores)
   const etiqueta = TIPOS_INCIDENTE.find((t) => t.id === tipo).label
-  return { tipo, modo, descripcion: descripcion || `${etiqueta} (reporte guiado)`, referencia: referencia || null, lat, lng, fechaHecho }
+  // Solo el chat IA envía la confianza de la clasificación y si el vecino corrigió a la IA.
+  const confianza = Number(body.iaConfianza)
+  const iaConfianza = modo === 'chat' && Number.isFinite(confianza) ? Math.min(100, Math.max(0, Math.round(confianza))) : null
+  const iaCorregido = modo === 'chat' && body.iaCorregido === true
+  return { tipo, modo, iaConfianza, iaCorregido, descripcion: descripcion || `${etiqueta} (reporte guiado)`, referencia: referencia || null, lat, lng, fechaHecho }
 }
 
 export async function crearReporte(body, usuario) {

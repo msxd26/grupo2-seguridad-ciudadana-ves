@@ -22,7 +22,7 @@ const AdminResumenPage = lazy(() => import('./views/pages/admin/AdminResumenPage
 const AdminReportesPage = lazy(() => import('./views/pages/admin/AdminReportesPage'))
 const AdminUsuariosPage = lazy(() => import('./views/pages/admin/AdminUsuariosPage'))
 
-const cargando = <p className="page-loading container">Cargando…</p>
+const cargando = <p className="page-loading container" role="status"><span className="spinner" aria-hidden="true" /> Cargando…</p>
 
 export default function App() {
   return (

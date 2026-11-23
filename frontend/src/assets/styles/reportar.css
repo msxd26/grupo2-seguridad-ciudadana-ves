@@ -44,7 +44,7 @@
 
 .chips-tipo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
 .chip-tipo {
-  display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 0.75rem; border-radius: 12px; cursor: pointer;
+  display: flex; align-items: center; gap: 0.5rem; min-height: 44px; padding: 0.75rem 0.75rem; border-radius: 12px; cursor: pointer;
   border: 2px solid #E2E8F0; background: #fff; color: var(--ink-900); font-weight: 600; font-size: 0.9rem; text-align: left;
 }
 .chip-tipo svg { color: var(--color-tipo); flex-shrink: 0; }
@@ -154,3 +154,55 @@
   .modo__icono { width: 52px; height: 52px; }
   .guiado__paso h1 { font-size: 1.7rem; }
 }
+
+/* --- Spec UX/UI: confianza, anonimato y transparencia de la IA --- */
+
+/* Aviso de anonimato: lo primero que se lee en /reportar (green-700 sobre green-50: 7.1:1) */
+.aviso-anonimo {
+  display: flex; gap: 0.75rem; align-items: center; max-width: 760px; margin-bottom: 1.25rem; padding: 0.85rem 1rem;
+  border-radius: 14px; background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #16A34A; color: #15803D;
+}
+.aviso-anonimo__icono { font-size: 1.6rem; line-height: 1; }
+.aviso-anonimo div { display: grid; gap: 0.15rem; }
+.aviso-anonimo strong { font-size: 1.05rem; }
+.aviso-anonimo span { font-size: 0.92rem; color: #166534; }
+
+/* El paso a paso (recomendado) se distingue con borde y etiqueta, no solo con color */
+.modo--verde { border-color: #4ADE80; }
+.modo--verde:hover { border-color: #15803D; box-shadow: 0 10px 24px rgba(21, 128, 61, 0.14); }
+.modo__etiqueta { font-size: 0.82rem; }
+
+/* Detección de la IA con barra de confianza */
+.deteccion__confianza { display: grid; gap: 0.3rem; padding-top: 0.2rem; }
+.deteccion__confianza-fila { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.88rem; }
+.deteccion__confianza-fila span { min-width: 0; }
+.confianza { height: 10px; border-radius: 999px; background: #E2E8F0; overflow: hidden; }
+.confianza span { display: block; height: 100%; border-radius: 999px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.confianza--alta span { background: #16A34A; }
+.confianza--media span { background: #EAB308; }
+.confianza--baja span { background: #DC2626; }
+.deteccion__nivel--alta { color: #15803D; }
+.deteccion__nivel--media { color: #A16207; }
+.deteccion__nivel--baja { color: #B91C1C; }
+.deteccion__nota { margin: 0.2rem 0 0; font-size: 0.85rem; color: var(--text-2); }
+
+/* "La IA está pensando": pasos visibles en lugar de puntos */
+.pensando { display: flex; gap: 0.6rem; align-items: center; color: var(--text-2); font-size: 0.95rem; }
+.pensando .spinner { width: 18px; height: 18px; border-width: 3px; }
+.pensando__texto { animation: aparecer 0.3s ease-out; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.chat__acciones .btn-chat { min-height: 48px; font-size: 1rem; }
+.chat__enviado { margin-left: 2.6rem; }
+.chat__enviado .exito { margin: 0; }
+
+/* Pantalla de éxito con resumen de lo que se guardó */
+.exito__resumen { display: grid; gap: 0.5rem; margin: 1rem auto 0; max-width: 380px; text-align: left; }
+.exito__resumen li { display: flex; gap: 0.6rem; align-items: center; padding: 0.6rem 0.85rem; border-radius: 12px; background: #F8FAFC; border: 1px solid var(--border); font-size: 1rem; }
+.exito__resumen li strong { display: inline-flex; gap: 0.4rem; align-items: center; }
+.exito__acciones .btn { min-height: 56px; display: inline-flex; align-items: center; justify-content: center; padding-inline: 1.4rem; font-size: 1.05rem; }
+
+/* Wizard: transición suave entre pasos */
+.guiado__paso { animation: entrar-paso 0.22s ease-out; }
+@keyframes entrar-paso { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .guiado__paso, .pensando__texto, .confianza span { animation: none; transition: none; } }

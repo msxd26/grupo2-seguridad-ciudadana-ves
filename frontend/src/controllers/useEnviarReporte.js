@@ -14,7 +14,7 @@ export function useEnviarReporte() {
   const [error, setError] = useState(null)
   const [errores, setErrores] = useState({})
 
-  const enviar = useCallback(async ({ tipo, modo, descripcion, referencia, ubicacion, fecha }) => {
+  const enviar = useCallback(async ({ tipo, modo, descripcion, referencia, ubicacion, fecha, iaConfianza, iaCorregido }) => {
     setEnviando(true)
     setError(null)
     setErrores({})
@@ -22,6 +22,8 @@ export function useEnviarReporte() {
       const reporte = await crearReporte({
         tipo,
         modo,
+        iaConfianza,
+        iaCorregido,
         descripcion: descripcion ?? '',
         referencia: referencia ?? '',
         lat: ubicacion?.lat,

@@ -3,14 +3,15 @@ import {
 } from './iconos'
 
 // Tipos de incidente de Tu Vecino (plan HackODS UA 2026): semáforo rojo / naranja / amarillo…
+// `color` es para puntos y fondos; `texto` es la variante con contraste ≥ 4.5:1 sobre blanco (WCAG AA).
 export const TIPOS = [
-  { id: 'robo', label: 'Robo', guiado: 'Me robaron algo', color: '#DC2626', nivel: 'peligro', Icono: IconoRobo },
-  { id: 'intento_robo', label: 'Intento de robo', guiado: 'Intentaron robarme', color: '#F97316', nivel: 'atencion', Icono: IconoIntento },
-  { id: 'acoso', label: 'Acoso', guiado: 'Me acosaron', color: '#CA8A04', nivel: 'peligro', Icono: IconoAcoso },
-  { id: 'actividad_sospechosa', label: 'Actividad sospechosa', guiado: 'Vi algo sospechoso', color: '#334155', nivel: 'atencion', Icono: IconoSospecha },
-  { id: 'zona_oscura', label: 'Zona oscura', guiado: 'Hay una zona muy oscura', color: '#0EA5E9', nivel: 'info', Icono: IconoOscura },
-  { id: 'espacio_abandonado', label: 'Espacio abandonado', guiado: 'Hay un espacio abandonado', color: '#92400E', nivel: 'info', Icono: IconoAbandonado },
-  { id: 'otro', label: 'Otro', guiado: 'Otra cosa', color: '#64748B', nivel: 'info', Icono: IconoOtro },
+  { id: 'robo', label: 'Robo', guiado: 'Me robaron algo', color: '#DC2626', texto: '#DC2626', nivel: 'peligro', Icono: IconoRobo },
+  { id: 'intento_robo', label: 'Intento de robo', guiado: 'Intentaron robarme', color: '#F97316', texto: '#C2410C', nivel: 'atencion', Icono: IconoIntento },
+  { id: 'acoso', label: 'Acoso', guiado: 'Me acosaron', color: '#CA8A04', texto: '#A16207', nivel: 'peligro', Icono: IconoAcoso },
+  { id: 'actividad_sospechosa', label: 'Actividad sospechosa', guiado: 'Vi algo sospechoso', color: '#334155', texto: '#334155', nivel: 'atencion', Icono: IconoSospecha },
+  { id: 'zona_oscura', label: 'Zona oscura', guiado: 'Hay una zona muy oscura', color: '#0EA5E9', texto: '#0369A1', nivel: 'info', Icono: IconoOscura },
+  { id: 'espacio_abandonado', label: 'Espacio abandonado', guiado: 'Hay un espacio abandonado', color: '#92400E', texto: '#92400E', nivel: 'info', Icono: IconoAbandonado },
+  { id: 'otro', label: 'Otro', guiado: 'Otra cosa', color: '#64748B', texto: '#475569', nivel: 'info', Icono: IconoOtro },
 ]
 
 const porId = new Map(TIPOS.map((t) => [t.id, t]))

@@ -21,3 +21,6 @@ export { default as IconoUbicacion } from 'lucide-react/dist/esm/icons/locate-fi
 export { default as IconoBandera } from 'lucide-react/dist/esm/icons/flag.js'
 export { default as IconoInicio } from 'lucide-react/dist/esm/icons/house.js'
 export { default as IconoPanel } from 'lucide-react/dist/esm/icons/layout-dashboard.js'
+export { default as IconoPeligro } from 'lucide-react/dist/esm/icons/octagon-alert.js'
+export { default as IconoAtencion } from 'lucide-react/dist/esm/icons/circle-alert.js'
+export { default as IconoInfo } from 'lucide-react/dist/esm/icons/info.js'

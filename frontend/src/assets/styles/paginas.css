@@ -44,7 +44,7 @@
 
 /* Alertas */
 .segmented--claro { margin-bottom: 1.25rem; display: inline-flex; border: 1px solid #c8d0da; border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
-.segmented--claro button { padding: 0.45rem 0.9rem; border: 0; background: #fff; cursor: pointer; font-size: 0.875rem; }
+.segmented--claro button { min-height: 40px; padding: 0.45rem 0.9rem; border: 0; background: #fff; cursor: pointer; font-size: 0.875rem; }
 .segmented--claro button + button { border-left: 1px solid #c8d0da; }
 .segmented--claro button.activo { background: var(--primary); color: #fff; }
 
@@ -57,7 +57,7 @@
 .alerta--media { border-left-color: #e07b00; }
 .alerta--informativa { border-left-color: var(--blue); }
 .alerta__meta { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-size: 0.75rem; }
-.alerta__nivel { font-weight: 700; padding: 0.1rem 0.5rem; border-radius: 999px; }
+.alerta__nivel { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 999px; }
 .alerta__nivel--alta { background: #fde7e9; color: var(--malo); }
 .alerta__nivel--media { background: #fff1db; color: #a35c00; }
 .alerta__nivel--informativa { background: #deecf9; color: #0b4a8b; }

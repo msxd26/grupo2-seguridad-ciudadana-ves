@@ -97,7 +97,7 @@ export function CapaReportes({ reportes, nuevos, onOculto, abrirId }) {
         pathOptions={{ color: '#fff', weight: 2, fillColor: tipo.color, fillOpacity: 0.95, className: esNuevo ? 'marcador-nuevo' : '' }}
       >
         <Popup>
-          <strong style={{ color: tipo.color }}>{tipo.label}</strong>
+          <strong style={{ color: tipo.texto }}>{tipo.label}</strong>
           {r.esDemo ? <span className="badge-demo">DEMO</span> : null}
           {esNuevo ? <span className="badge-nuevo">NUEVO</span> : null}
           <br />

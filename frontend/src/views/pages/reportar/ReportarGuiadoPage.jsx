@@ -43,8 +43,8 @@ export default function ReportarGuiadoPage() {
       <Link to="/reportar" className="volver">← Cambiar forma de reportar</Link>
 
       <div className="guiado__progreso">
-        <span>Paso {paso + 1} de {PASOS.length}: <strong>{PASOS[paso]}</strong></span>
-        <div className="barra" role="progressbar" aria-valuenow={progreso} aria-valuemin={0} aria-valuemax={100}>
+        <span aria-hidden="true">Paso {paso + 1} de {PASOS.length}: <strong>{PASOS[paso]}</strong></span>
+        <div className="barra" role="progressbar" aria-valuenow={paso + 1} aria-valuemin={1} aria-valuemax={PASOS.length} aria-valuetext={`Paso ${paso + 1} de ${PASOS.length}: ${PASOS[paso]}`} aria-label="Progreso del reporte">
           <span style={{ width: `${progreso}%` }} />
         </div>
       </div>
@@ -68,8 +68,8 @@ export default function ReportarGuiadoPage() {
           <p className="guiado__ayuda">Toca el botón azul para usar tu ubicación, o toca el lugar en el mapa.</p>
           <UbicacionSelector limite={limite} valor={ubicacion} onCambiar={setUbicacion} grande altura={320} />
           <div className="guiado__nav">
-            <button type="button" className="boton-grande boton-grande--secundario" onClick={() => setPaso(0)}>← Atrás</button>
-            <button type="button" className="boton-grande boton-grande--primario" disabled={!ubicacion} onClick={() => setPaso(2)}>Siguiente →</button>
+            <button type="button" className="boton-grande boton-grande--secundario" aria-label="Atrás: volver al paso anterior" onClick={() => setPaso(0)}><span aria-hidden="true">←</span> Atrás</button>
+            <button type="button" className="boton-grande boton-grande--primario" disabled={!ubicacion} onClick={() => setPaso(2)}>Siguiente <span aria-hidden="true">→</span></button>
           </div>
         </div>
       ) : null}
@@ -85,7 +85,7 @@ export default function ReportarGuiadoPage() {
             ))}
           </div>
           <div className="guiado__nav">
-            <button type="button" className="boton-grande boton-grande--secundario" onClick={() => setPaso(1)}>← Atrás</button>
+            <button type="button" className="boton-grande boton-grande--secundario" aria-label="Atrás: volver al paso anterior" onClick={() => setPaso(1)}><span aria-hidden="true">←</span> Atrás</button>
           </div>
         </div>
       ) : null}
@@ -94,7 +94,7 @@ export default function ReportarGuiadoPage() {
         <div className="guiado__paso">
           <h1>¿Está todo bien?</h1>
           <ul className="resumen-guiado">
-            <li><span>Qué pasó</span><strong style={{ color: elegido.color }}>{elegido.guiado}</strong></li>
+            <li><span>Qué pasó</span><strong style={{ color: elegido.texto }}><elegido.Icono size={22} aria-hidden="true" style={{ verticalAlign: '-4px', marginRight: 6 }} />{elegido.guiado}</strong></li>
             <li><span>Dónde</span><strong>Lugar marcado en el mapa ✓</strong></li>
             <li><span>Cuándo</span><strong>{CUANDO.find((c) => c.id === cuando)?.label}</strong></li>
           </ul>
@@ -107,7 +107,7 @@ export default function ReportarGuiadoPage() {
           >
             {envio.enviando ? 'Enviando…' : 'Enviar reporte'}
           </button>
-          <button type="button" className="boton-grande boton-grande--secundario" onClick={() => setPaso(2)}>← Atrás</button>
+          <button type="button" className="boton-grande boton-grande--secundario" aria-label="Atrás: volver al paso anterior" onClick={() => setPaso(2)}><span aria-hidden="true">←</span> Atrás</button>
         </div>
       ) : null}
     </section>

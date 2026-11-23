@@ -50,6 +50,8 @@ export default function PanelCiudadano({ pestanas }) {
   useEffect(() => suscribir((evento) => ['reporte', 'reporte-moderado', 'reporte-oculto'].includes(evento) && recargar()), [suscribir, recargar])
 
   const k = data?.kpis
+  // Proporción de cada zona sobre el total del periodo (el funcionario entiende el peso relativo).
+  const pct = (n) => (k?.total ? Math.round((n / k.total) * 100) : 0)
   const delta = k?.variacion !== null && k?.variacion !== undefined
     ? { sube: k.variacion > 0, malo: k.variacion > 0, texto: `${formatVariacion(k.variacion)} vs. ${dias} días anteriores` }
     : null
@@ -83,12 +85,18 @@ export default function PanelCiudadano({ pestanas }) {
         {data ? (
           <>
             {data.hayDemo ? <p className="pbi__demo">Incluye reportes de demostración para la presentación.</p> : null}
-            <div className="pbi__kpis pbi__kpis--5">
+            <div className="pbi__kpis pbi__kpis--5 pbi__kpis--6">
               <KpiCard label="Reportes vecinales" value={formatNumero(k.total)} delta={delta} detail={`Periodo anterior: ${formatNumero(k.totalPrevio)}`} />
               <KpiCard label="Zonas críticas" value={k.zonasCriticas} detail="3 o más reportes en ~330 m" />
               <KpiCard label="Tipo más frecuente" value={k.tipoPrincipal ? `${k.tipoPrincipal.porcentaje}%` : '—'} detail={k.tipoPrincipal?.label ?? 'Sin reportes'} />
               <KpiCard label="Hora más crítica" value={k.horaPico ? `${String(k.horaPico.hora).padStart(2, '0')}:00` : '—'} detail="Franja con más incidentes" />
               <KpiCard label="Inclusión digital (ODS 10)" value={k.total ? `${Math.round((k.accesibles / k.total) * 100)}%` : '—'} detail="Reportes por chat IA o paso a paso" />
+              {/* "Pensar con IA": la comunidad calibra a la IA corrigiendo sus clasificaciones. */}
+              <KpiCard
+                label="IA calibrada por vecinos"
+                value={k.iaReportes ? `${Math.round((k.iaCorregidos / k.iaReportes) * 100)}%` : '—'}
+                detail={k.iaReportes ? `${k.iaCorregidos} de ${k.iaReportes} reportes del chat corregidos · confianza media ${k.iaConfianzaPromedio}%` : 'Aún sin reportes por chat'}
+              />
             </div>
 
             <div className="pbi__grid">
@@ -139,7 +147,7 @@ export default function PanelCiudadano({ pestanas }) {
                   <div className="priority">
                     <table>
                       <thead>
-                        <tr><th scope="col">Zona</th><th scope="col" className="num">Reportes</th><th scope="col">Tipo dominante</th><th scope="col">Acción sugerida</th></tr>
+                        <tr><th scope="col">Zona</th><th scope="col" className="num">Reportes</th><th scope="col">% del total</th><th scope="col">Tipo dominante</th><th scope="col">Acción sugerida</th></tr>
                       </thead>
                       <tbody>
                         {data.topZonas.map((z) => (
@@ -150,6 +158,12 @@ export default function PanelCiudadano({ pestanas }) {
                               </Link>
                             </th>
                             <td className="num">{z.cantidad}</td>
+                            <td>
+                              <span className="porcentaje-zona">
+                                <span className="porcentaje-zona__barra" aria-hidden="true"><span style={{ width: `${pct(z.cantidad)}%` }} /></span>
+                                {pct(z.cantidad)}%
+                              </span>
+                            </td>
                             <td>{z.tipoDominanteLabel}</td>
                             <td>{z.accion}</td>
                           </tr>

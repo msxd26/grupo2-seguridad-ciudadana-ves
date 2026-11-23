@@ -2,7 +2,7 @@
 // (más denuncias = malo), para colorear con icono + texto y no solo con color.
 export default function KpiCard({ label, value, detail, delta }) {
   return (
-    <div className="kpi">
+    <div className="kpi" role="group" aria-label={label}>
       <span className="kpi__label">{label}</span>
       <span className="kpi__value">{value}</span>
       {delta ? (

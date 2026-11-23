@@ -14,7 +14,7 @@
   --malo: #c1272d;
   --bueno: #1e7b34;
   --medio: #a35c00;
-  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   background: var(--canvas);
   color: var(--ink);
   min-height: calc(100vh - 71px);
@@ -125,7 +125,7 @@
 }
 .tile__action:hover, .tile__action[aria-pressed='true'] { border-color: var(--s1); color: var(--s1); }
 .tile__body { flex: 1; min-width: 0; }
-.tile__nota { margin: 0.35rem 0 0; font-size: 0.75rem; color: var(--ink-3); }
+.tile__nota { margin: 0.35rem 0 0; font-size: 0.875rem; color: var(--ink-3); }
 
 .pbi__fuente { margin: 1rem 0 0; font-size: 0.78rem; color: var(--ink-3); line-height: 1.5; }
 .pbi__fuente a { color: var(--s1); text-decoration: underline; }
@@ -274,3 +274,14 @@ button.hbars__row:hover { background: #f3f2f1; }
 .punto-tipo { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.35rem; vertical-align: middle; }
 @media (max-width: 1200px) { .pbi__kpis--5 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .pbi__kpis--5 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* KPI de 6 tarjetas (panel ciudadano con la métrica de IA calibrada) */
+.pbi__kpis--6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 1200px) { .pbi__kpis--6 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .pbi__kpis--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kpi__detail { overflow-wrap: anywhere; line-height: 1.35; }
+
+/* Top zonas: porcentaje del total junto al conteo */
+.porcentaje-zona { display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.porcentaje-zona__barra { display: inline-block; width: 56px; height: 8px; border-radius: 999px; background: #E2E8F0; overflow: hidden; }
+.porcentaje-zona__barra span { display: block; height: 100%; background: var(--primary); }

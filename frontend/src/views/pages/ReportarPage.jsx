@@ -2,28 +2,29 @@ import { Link } from 'react-router-dom'
 import { IconoChat, IconoFormulario, IconoGuiado } from '../../models/iconos'
 import '../../assets/styles/reportar.css'
 
+// El paso a paso va primero y recomendado: es el que nadie deja fuera (adultos mayores, ODS 10).
 const MODOS = [
-  {
-    to: '/reportar/chat',
-    Icono: IconoChat,
-    titulo: 'Cuéntame qué pasó',
-    texto: 'Escribe o dicta en tus palabras. La IA te ayuda a completar el reporte.',
-    etiqueta: 'Recomendado',
-    color: 'azul',
-  },
   {
     to: '/reportar/guiado',
     Icono: IconoGuiado,
     titulo: 'Paso a paso',
-    texto: 'Te hago preguntas sencillas. Solo toca botones grandes.',
-    etiqueta: 'Más fácil',
+    texto: 'Te hago preguntas sencillas. Solo toca botones grandes, sin escribir.',
+    etiqueta: '⭐ Recomendado',
     color: 'verde',
+  },
+  {
+    to: '/reportar/chat',
+    Icono: IconoChat,
+    titulo: 'Cuéntame qué pasó',
+    texto: 'Escribe o dicta en tus palabras. La IA te dice qué entendió y tú la corriges si hace falta.',
+    etiqueta: 'Con IA',
+    color: 'azul',
   },
   {
     to: '/reportar/formulario',
     Icono: IconoFormulario,
     titulo: 'Formulario completo',
-    texto: 'Para usuarios avanzados: llena todos los campos tú mismo.',
+    texto: 'Si ya sabes qué ocurrió: llena todos los campos tú mismo.',
     color: 'gris',
   },
 ]
@@ -32,9 +33,18 @@ const MODOS = [
 export default function ReportarPage() {
   return (
     <section className="reportar container">
+      {/* La confianza va primero: es lo que decide si una víctima de acoso reporta (ODS 5). */}
+      <div className="aviso-anonimo" role="note">
+        <span className="aviso-anonimo__icono" aria-hidden="true">🔒</span>
+        <div>
+          <strong>Sin registro · Sin DNI · Anónimo</strong>
+          <span>Tu nombre nunca aparece en el mapa ni lo ven otros vecinos.</span>
+        </div>
+      </div>
+
       <header className="reportar__header">
         <h1>¿Cómo quieres reportar?</h1>
-        <p>Elige la forma que te resulte más cómoda. En todas puedes reportar <strong>sin registrarte</strong>.</p>
+        <p>Elige la forma que te resulte más cómoda. Toma menos de un minuto.</p>
       </header>
 
       <div className="aviso-emergencia" role="note">

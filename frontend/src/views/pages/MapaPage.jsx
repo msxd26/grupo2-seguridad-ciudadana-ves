@@ -6,11 +6,12 @@ import { useEventos } from '../../context/EventosContext'
 import { fetchMapa } from '../../services/seguridadService'
 import { NIVELES_ZONA, PERIODOS } from '../../models/mapa'
 import { TIPOS } from '../../models/tipos'
-import { IconoCalor, IconoPin } from '../../models/iconos'
+import { IconoCalor, IconoPin, IconoUbicacion } from '../../models/iconos'
 import MapaBase from '../components/mapa/MapaBase'
 import CapaCalor from '../components/mapa/CapaCalor'
 import { CapaComisarias, CapaReportes, CapaZonas } from '../components/mapa/capas'
 import PanelEnVivo from '../components/mapa/PanelEnVivo'
+import LeyendaMapa from '../components/mapa/LeyendaMapa'
 import '../../assets/styles/mapa.css'
 
 const CAPAS = [
@@ -36,6 +37,9 @@ export default function MapaPage() {
   const [votos, setVotos] = useState(() => new Map()) // id -> { confirmaciones, marcas } en vivo
   const [seguir, setSeguir] = useState(true)
   const [seleccionado, setSeleccionado] = useState(null)
+  const [miPosicion, setMiPosicion] = useState(null)
+  const [ubicando, setUbicando] = useState(false)
+  const [errorUbicacion, setErrorUbicacion] = useState(null)
   const seguirRef = useRef(seguir)
   seguirRef.current = seguir
 
@@ -81,6 +85,26 @@ export default function MapaPage() {
   const nuevos = useMemo(() => new Set(enVivo.map((r) => r.id)), [enVivo])
   const puntos = useMemo(() => reportes.map((r) => [r.lat, r.lng]), [reportes])
 
+  // "Mi ubicación": referencia espacial para quien no conoce el mapa (adultos mayores).
+  const irAMiUbicacion = () => {
+    if (!navigator.geolocation) return setErrorUbicacion('Tu navegador no permite obtener la ubicación.')
+    setUbicando(true)
+    setErrorUbicacion(null)
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const punto = { lat: coords.latitude, lng: coords.longitude }
+        setMiPosicion(punto)
+        setDestino({ ...punto, zoom: 16 })
+        setUbicando(false)
+      },
+      () => {
+        setErrorUbicacion('No pudimos obtener tu ubicación. Activa el permiso de ubicación.')
+        setUbicando(false)
+      },
+      { enableHighAccuracy: true, timeout: 10_000 },
+    )
+  }
+
   const toggleCapa = (id) => setVisibles((v) => ({ ...v, [id]: !v[id] }))
   const ocultar = (id) => setOcultos((s) => new Set(s).add(id))
   const zonasDestacadas = data?.zonas.filter((z) => z.nivel !== 'bajo').slice(0, 5) ?? []
@@ -122,16 +146,6 @@ export default function MapaPage() {
           ))}
         </fieldset>
 
-        <div className="mapa-panel__grupo">
-          <span className="mapa-panel__label">Leyenda</span>
-          <ul className="leyenda">
-            {TIPOS.map((t) => (
-              <li key={t.id}><i className="leyenda__punto" style={{ background: t.color }} />{t.label}</li>
-            ))}
-            <li><i className="leyenda__seguro" />Punto seguro (comisaría)</li>
-          </ul>
-        </div>
-
         {data ? (
           <div className="mapa-panel__grupo">
             <span className="mapa-panel__label">Resumen</span>
@@ -165,8 +179,15 @@ export default function MapaPage() {
 
       <div className="mapa-contenedor">
         {error ? <div className="mapa-error" role="alert">No se pudo cargar el mapa: {error}</div> : null}
-        {cargando ? <div className="mapa-cargando">Actualizando…</div> : null}
-        <button type="button" className={visibles.calor ? 'boton-calor boton-calor--activo' : 'boton-calor'} onClick={() => toggleCapa('calor')} aria-pressed={visibles.calor}>
+        {cargando && !data ? (
+          <div className="mapa-carga-inicial" role="status">
+            <span className="spinner" aria-hidden="true" />
+            <p>Cargando mapa…</p>
+          </div>
+        ) : null}
+        {cargando && data ? <div className="mapa-cargando" role="status">Actualizando…</div> : null}
+        {errorUbicacion ? <div className="mapa-error mapa-error--ubicacion" role="alert">{errorUbicacion}</div> : null}
+        <button type="button" className={visibles.calor ? 'boton-calor boton-calor--activo' : 'boton-calor'} onClick={() => toggleCapa('calor')} aria-pressed={visibles.calor} title="Mostrar u ocultar el mapa de calor">
           <IconoCalor size={18} aria-hidden="true" /> Calor
         </button>
         <MapaBase limite={data?.limite} destino={destino} className="mapa">
@@ -174,8 +195,13 @@ export default function MapaPage() {
           {data && visibles.zonas ? <CapaZonas zonas={data.zonas} /> : null}
           {visibles.reportes ? <CapaReportes reportes={reportes} nuevos={nuevos} onOculto={ocultar} abrirId={seleccionado} /> : null}
           {data && visibles.comisarias ? <CapaComisarias comisarias={data.comisarias} /> : null}
+          {miPosicion ? <CircleMarker center={[miPosicion.lat, miPosicion.lng]} radius={8} pathOptions={{ color: '#fff', weight: 3, fillColor: '#1D4ED8', fillOpacity: 1 }} /> : null}
           {destino ? <CircleMarker center={[destino.lat, destino.lng]} radius={22} pathOptions={{ color: '#1E3A8A', weight: 2, fill: false, dashArray: '4 4' }} /> : null}
         </MapaBase>
+        <button type="button" className="boton-ubicacion" onClick={irAMiUbicacion} disabled={ubicando} aria-label="Centrar el mapa en mi ubicación" title="Mi ubicación">
+          {ubicando ? <span className="spinner" aria-hidden="true" /> : <IconoUbicacion size={22} aria-hidden="true" />}
+        </button>
+        <LeyendaMapa />
         <PanelEnVivo
           reportes={reportes}
           nuevos={nuevos}
