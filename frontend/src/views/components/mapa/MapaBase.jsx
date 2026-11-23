@@ -12,6 +12,7 @@ function Volar({ destino }) {
     if (!destino) return
     if (destino.limites) {
       const [s, o, n, e] = destino.limites
+      map.closePopup() // al encuadrar varios reportes no queda abierta la ficha de uno solo
       map.flyToBounds([[s, o], [n, e]], { duration: 0.8, maxZoom: 17, padding: [24, 24] })
     } else {
       map.flyTo([destino.lat, destino.lng], destino.zoom ?? 17, { duration: 0.8 })
