@@ -35,7 +35,7 @@ incidentes no se denuncia) y la registrada oficialmente, y la cruza con las **de
 | --- | --- |
 | **3 modos de reporte** — chat con IA (escribir o dictar por voz), paso a paso (botones grandes, letra ≥ 18 px) y formulario | `/reportar` |
 | **Mapa en tiempo real** con mapa de calor, incidentes por tipo, zonas críticas y puntos seguros (comisarías PNP) | `/mapa` |
-| **Tiempo real**: cada reporte nuevo aparece al instante en el mapa, las alertas y el panel, con aviso en pantalla (Server-Sent Events) | todo el sitio |
+| **Tiempo real con WebSocket**: reportes, confirmaciones, marcas, moderación y vecinos conectados llegan al instante a todas las pantallas; el autor recibe un aviso privado cuando moderan su reporte | todo el sitio |
 | **Alertas comunitarias**: feed de reportes de 24 h, filtros *Mi zona* (geolocalización) y *Peligro alto* | `/alertas` |
 | **Moderación comunitaria**: "Marcar como falso"; con 3 marcas de personas distintas el reporte se oculta hasta revisión | popup del mapa |
 | **Panel municipal** de reportes vecinales: KPIs, calor, tipos, línea de tiempo, horas críticas, canal de reporte y top 5 zonas con acción sugerida + panel de **denuncias oficiales SIDPOL** estilo Power BI | `/dashboard` |
@@ -98,7 +98,7 @@ Las denuncias oficiales vienen **agregadas** (sin direcciones ni coordenadas); p
 | Frontend      | React 19 + Vite, React Router, Leaflet + leaflet.heat, Lucide (íconos), fuente Inter |
 | IA conversacional | Groq API — `llama-3.1-8b-instant` (opcional; sin clave usa un clasificador local) |
 | Voz           | Web Speech API (dictado en `es-PE`) |
-| Tiempo real   | Server-Sent Events desde Express |
+| Tiempo real   | WebSocket (`ws`) en el mismo puerto de la API, ruta `/api/ws` |
 | Arquitectura  | MVC (backend y frontend) |
 | Repositorio   | Monorepo               |
 
@@ -172,7 +172,7 @@ docker compose up -d --build
 | --- | --- |
 | `seguridad-ves-mysql` | Base de datos (volumen `mysql_data`) |
 | `seguridad-ves-backend` | API Express: al iniciar espera a MySQL, migra, carga los datos oficiales si faltan y crea el administrador |
-| `seguridad-ves-frontend` | Nginx: sirve la app compilada, redirige `/api` (incluido el tiempo real SSE) y publica los puertos **80** y **443** |
+| `seguridad-ves-frontend` | Nginx: sirve la app compilada, redirige `/api` (incluido el WebSocket `/api/ws`) y publica los puertos **80** y **443** |
 | `seguridad-ves-adminer` | Administración de la BD, solo desde esta PC (`http://localhost:8080`) |
 
 Desde la red: **`http://<IP-de-la-PC>`** o **`https://<IP-de-la-PC>`**. Para saber la IP: `ipconfig` (Windows) o `ip a` (Linux).
@@ -257,7 +257,7 @@ El frontend redirige `/api` al backend automáticamente (proxy de Vite).
 | POST | `/api/reportes/chat` | Asistente de reporte: `{ mensajes: [{ role, content }] }` → `{ tipo, descripcion, zona, cuando, mensaje }` |
 | POST | `/api/reportes/:id/marcar` | Marca comunitaria "esto es falso" (una por persona) |
 | GET | `/api/panel-ciudadano?dias=30` | Panel municipal de reportes vecinales |
-| GET | `/api/eventos` | Canal de tiempo real (Server-Sent Events): eventos `reporte` y `reporte-oculto` |
+| WS | `/api/ws` | WebSocket de tiempo real. El servidor envía `{ tipo, datos }`: `bienvenida`, `presencia`, `reporte`, `reporte-actualizado`, `reporte-oculto`, `reporte-moderado`, `simulacion` y, solo al autor, `mi-reporte` |
 | POST | `/api/auth/registro` · `/api/auth/login` · `/api/auth/logout` | Crear cuenta, ingresar y salir |
 | GET | `/api/auth/me` | Usuario de la sesión actual (o `null`) |
 | GET | `/api/admin/resumen` | 🛡️ Indicadores de reportes, usuarios y alertas |

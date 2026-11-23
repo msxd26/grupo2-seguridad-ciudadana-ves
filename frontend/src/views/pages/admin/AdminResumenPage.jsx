@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useEventos } from '../../../context/EventosContext'
 import { Link } from 'react-router-dom'
 import { useAsync } from '../../../controllers/useAsync'
 import { fetchAdminResumen } from '../../../services/cuentaService'
@@ -30,7 +31,9 @@ function ultimos14(porDia) {
 
 export default function AdminResumenPage() {
   const [demo, setDemo] = useState(false)
-  const { data, error, cargando } = useAsync((signal) => fetchAdminResumen({ demo }, signal), [demo])
+  const { data, error, cargando, recargar } = useAsync((signal) => fetchAdminResumen({ demo }, signal), [demo])
+  const { suscribir } = useEventos()
+  useEffect(() => suscribir((tipo) => ['reporte', 'reporte-oculto', 'reporte-moderado'].includes(tipo) && recargar()), [suscribir, recargar])
 
   if (error) return <div className="adm-error" role="alert">{error}</div>
   if (!data) return <p className="adm-cargando">Cargando resumen…</p>

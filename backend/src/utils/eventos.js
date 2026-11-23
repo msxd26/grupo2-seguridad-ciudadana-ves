@@ -1,39 +1,16 @@
 import { EventEmitter } from 'node:events'
 
-// Bus de eventos en memoria: los cambios se envían a todos los navegadores conectados
-// por Server-Sent Events (equivalente a Supabase Realtime del plan).
+// Bus de eventos en memoria. Los servicios publican aquí y el servidor WebSocket
+// (utils/tiempoReal.js) los reparte a los navegadores conectados.
 export const bus = new EventEmitter()
-bus.setMaxListeners(1000)
+bus.setMaxListeners(100)
 
-let conectados = 0
-export const totalConectados = () => conectados
-
+// Evento público: llega a todos los vecinos conectados.
 export function emitir(tipo, datos) {
   bus.emit('evento', { tipo, datos })
 }
 
-// Maneja una conexión SSE: mantiene el canal abierto, envía cada evento y la presencia.
-export function suscribirSse(req, res) {
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache, no-transform',
-    Connection: 'keep-alive',
-    'X-Accel-Buffering': 'no',
-  })
-  res.flushHeaders()
-  res.write('retry: 5000\n\n')
-
-  const enviar = ({ tipo, datos }) => res.write(`event: ${tipo}\ndata: ${JSON.stringify(datos)}\n\n`)
-  const latido = setInterval(() => res.write(': latido\n\n'), 25_000) // evita cortes por inactividad
-
-  bus.on('evento', enviar)
-  conectados++
-  emitir('presencia', { conectados }) // también llega a esta conexión
-
-  req.on('close', () => {
-    clearInterval(latido)
-    bus.off('evento', enviar)
-    conectados--
-    emitir('presencia', { conectados })
-  })
+// Evento privado: llega solo a las conexiones de un usuario (ej. "tu reporte fue verificado").
+export function emitirAUsuario(usuarioId, tipo, datos) {
+  if (usuarioId) bus.emit('privado', { usuarioId, tipo, datos })
 }

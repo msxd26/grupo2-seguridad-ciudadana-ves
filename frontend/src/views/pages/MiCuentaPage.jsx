@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useEventos } from '../../context/EventosContext'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useAsync } from '../../controllers/useAsync'
@@ -64,6 +65,9 @@ export default function MiCuentaPage() {
   const { usuario } = useAuth()
   const reportes = useAsync((signal) => fetchMisReportes(signal), [])
   const alertas = useAsync((signal) => fetchAlertas(signal), [])
+  const { suscribir } = useEventos()
+  // Cuando un moderador revisa uno de mis reportes, la lista se actualiza sola.
+  useEffect(() => suscribir((tipo) => tipo === 'mi-reporte' && reportes.recargar()), [suscribir, reportes.recargar]) // eslint-disable-line react-hooks/exhaustive-deps
   const [consejo, setConsejo] = useState(() => Math.floor(Math.random() * CONSEJOS.length))
 
   const lista = reportes.data ?? []

@@ -103,3 +103,22 @@ button { font: inherit; }
   .layout { padding-bottom: 64px; }
   .aviso-vivo { bottom: 5rem; }
 }
+
+/* Aviso privado: moderaron mi reporte */
+.aviso-mio {
+  position: fixed; right: 1.25rem; top: 5.5rem; z-index: 1500; display: grid; grid-template-columns: auto 1fr auto auto;
+  gap: 0.7rem; align-items: center; width: min(440px, calc(100% - 1.5rem)); padding: 0.8rem 0.9rem; border-radius: 14px;
+  background: #fff; color: var(--ink-900); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.25); border-left: 5px solid var(--primary);
+  animation: entrar-derecha 0.35s ease-out;
+}
+.aviso-mio--verificado { border-left-color: var(--success); }
+.aviso-mio--descartado { border-left-color: #78716C; }
+@keyframes entrar-derecha { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .aviso-mio { animation: none; } }
+.aviso-mio__icono { font-size: 1.5rem; }
+.aviso-mio div { display: grid; gap: 0.15rem; min-width: 0; }
+.aviso-mio strong { font-size: 0.9rem; }
+.aviso-mio div span { font-size: 0.82rem; color: var(--text-2); }
+.aviso-mio a { color: var(--primary); font-weight: 700; font-size: 0.88rem; }
+.aviso-mio button { background: none; border: 0; font-size: 1.3rem; color: #94A3B8; cursor: pointer; }
+@media (max-width: 760px) { .aviso-mio { top: auto; bottom: 9.5rem; right: 0.75rem; } }

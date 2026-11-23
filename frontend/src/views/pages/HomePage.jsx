@@ -29,7 +29,7 @@ export default function HomePage() {
   // Las cifras y alertas se actualizan cuando llega un reporte nuevo.
   useEffect(
     () => suscribir((evento) => {
-      if (evento !== 'reporte') return
+      if (!['reporte', 'reporte-moderado', 'reporte-oculto'].includes(evento)) return
       panel.recargar()
       alertas.recargar()
     }),

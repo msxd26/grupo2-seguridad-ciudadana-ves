@@ -114,3 +114,27 @@ export async function conversar(body) {
 }
 
 export const tiposIncidente = () => TIPOS_INCIDENTE
+
+// Texto libre con Groq a partir de un prompt. Devuelve null si no hay clave o si falla (el llamador usa su respaldo local).
+export async function generarTextoGroq(prompt, { maxTokens = 300, temperature = 0.4 } = {}) {
+  if (!env.ia.groqApiKey) return null
+  try {
+    const res = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.ia.groqApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: env.ia.modelo,
+        temperature,
+        max_tokens: maxTokens,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!res.ok) throw new Error(`Groq respondió ${res.status}`)
+    const body = await res.json()
+    return String(body.choices?.[0]?.message?.content ?? '').trim() || null
+  } catch (err) {
+    console.warn(`IA: Groq no disponible (${err.message}); se usa el redactor local`)
+    return null
+  }
+}

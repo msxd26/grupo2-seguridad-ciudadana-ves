@@ -3,6 +3,7 @@ import { UsuarioModel } from '../models/UsuarioModel.js'
 import { TIPOS_REPORTE } from '../config/fuente.js'
 import { ErrorValidacion } from '../utils/texto.js'
 import { obtenerAlertas } from './alertasService.js'
+import { emitir, emitirAUsuario } from '../utils/eventos.js'
 
 const ESTADOS = ['pendiente', 'verificado', 'descartado']
 const ROLES = ['ciudadano', 'admin']
@@ -51,6 +52,13 @@ export async function moderarReporte(id, body, admin) {
     estado, comentario: comentario || null, revisorId: admin.id,
   })
   if (!reporte) throw Object.assign(new Error('Reporte no encontrado'), { status: 404 })
+
+  // Todos los mapas se actualizan (un descartado desaparece; un verificado muestra su sello)…
+  emitir('reporte-moderado', { id: reporte.id, estado: reporte.estado, oculto: reporte.oculto })
+  // …y el autor recibe el aviso al instante, esté en la página que esté.
+  emitirAUsuario(reporte.autor?.id, 'mi-reporte', {
+    id: reporte.id, tipo: reporte.tipo, estado: reporte.estado, comentarioAdmin: reporte.comentarioAdmin,
+  })
   return reporte
 }
 

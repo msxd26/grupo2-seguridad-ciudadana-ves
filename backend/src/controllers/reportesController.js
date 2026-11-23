@@ -1,7 +1,7 @@
 import { confirmarReporte, crearReporte, listarReportes, marcarFalso, misReportes, tiposReporte } from '../services/reportesService.js'
 import { conversar } from '../services/iaService.js'
 import { obtenerPanelCiudadano } from '../services/ciudadanoService.js'
-import { suscribirSse, totalConectados } from '../utils/eventos.js'
+import { totalConectados } from '../utils/tiempoReal.js'
 import { apiView } from '../views/apiView.js'
 
 export const reportesController = {
@@ -43,10 +43,5 @@ export const reportesController = {
 
   async panelCiudadano(req, res) {
     res.json(apiView.ok(await obtenerPanelCiudadano(req.query)))
-  },
-
-  // Canal de eventos en tiempo real (Server-Sent Events).
-  eventos(req, res) {
-    suscribirSse(req, res)
   },
 }

@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useEventos } from '../context/EventosContext'
 import { useSearchParams } from 'react-router-dom'
 import { fetchAdminReportes, moderarReporte } from '../services/cuentaService'
 import { useAsync } from './useAsync'
@@ -17,6 +18,13 @@ export function useAdminReportes() {
   const clave = params.toString()
   const { data, error, cargando, recargar } = useAsync((signal) => fetchAdminReportes(filtros, signal), [clave])
   const [seleccionado, setSeleccionado] = useState(null)
+  const { suscribir } = useEventos()
+
+  // Nuevos reportes, marcas y moderaciones de otros administradores aparecen sin recargar.
+  useEffect(
+    () => suscribir((tipo) => ['reporte', 'reporte-actualizado', 'reporte-oculto', 'reporte-moderado'].includes(tipo) && recargar()),
+    [suscribir, recargar],
+  )
 
   const setFiltro = useCallback(
     (campo, valor) => {

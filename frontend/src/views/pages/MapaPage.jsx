@@ -57,7 +57,15 @@ export default function MapaPage() {
             setSeleccionado(datos.id)
           }
         }
-        if (evento === 'reporte-actualizado') setVotos((m) => new Map(m).set(datos.id, datos))
+        if (evento === 'reporte-actualizado') setVotos((m) => new Map(m).set(datos.id, { ...m.get(datos.id), ...datos }))
+        // Moderación en vivo: un descartado desaparece de todos los mapas; un verificado muestra su sello.
+        if (evento === 'reporte-moderado') {
+          if (datos.estado === 'descartado' || datos.oculto) setOcultos((s) => new Set(s).add(datos.id))
+          else {
+            setOcultos((s) => { if (!s.has(datos.id)) return s; const n = new Set(s); n.delete(datos.id); return n })
+            setVotos((m) => new Map(m).set(datos.id, { ...m.get(datos.id), estado: datos.estado }))
+          }
+        }
         if (evento === 'reporte-oculto') setOcultos((s) => new Set(s).add(datos.id))
       }),
     [suscribir, tipo],

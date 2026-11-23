@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    // Redirige /api al backend Express durante el desarrollo.
-    proxy: { '/api': 'http://localhost:3000' },
+    // Redirige /api (REST y WebSocket /api/ws) al backend Express durante el desarrollo.
+    proxy: { '/api': { target: 'http://localhost:3000', ws: true } },
   },
 })

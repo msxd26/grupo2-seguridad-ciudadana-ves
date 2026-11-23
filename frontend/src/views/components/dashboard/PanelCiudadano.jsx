@@ -47,7 +47,7 @@ export default function PanelCiudadano({ pestanas }) {
   const { data, error, cargando, recargar } = useAsync((signal) => fetchPanelCiudadano({ dias }, signal), [dias])
   const { suscribir } = useEventos()
 
-  useEffect(() => suscribir((evento) => evento === 'reporte' && recargar()), [suscribir, recargar])
+  useEffect(() => suscribir((evento) => ['reporte', 'reporte-moderado', 'reporte-oculto'].includes(evento) && recargar()), [suscribir, recargar])
 
   const k = data?.kpis
   const delta = k?.variacion !== null && k?.variacion !== undefined

@@ -5,6 +5,7 @@ import Footer from '../components/Footer'
 import AvisoTiempoReal from '../components/AvisoTiempoReal'
 import BottomNav from '../components/BottomNav'
 import AvisosCercanos from '../components/AvisosCercanos'
+import AvisoMiReporte from '../components/AvisoMiReporte'
 
 const cargando = <p className="page-loading container">Cargando…</p>
 
@@ -28,6 +29,7 @@ export default function MainLayout() {
       <AvisoTiempoReal />
       <BottomNav />
       <AvisosCercanos />
+      <AvisoMiReporte />
     </div>
   )
 }

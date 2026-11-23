@@ -90,7 +90,7 @@ npm run dev
 
 > **Adaptación al stack del equipo:** el plan se aplicó sobre el monorepo existente
 > (Express + MySQL + React con MVC) en lugar de Next.js + Supabase. Equivalencias:
-> Supabase → MySQL 8.4 en Docker · Supabase Realtime → Server-Sent Events (`/api/eventos`) ·
+> Supabase → MySQL 8.4 en Docker · Supabase Realtime → WebSocket (`/api/ws`) ·
 > Supabase Auth → JWT en cookie httpOnly · Recharts → gráficos SVG propios · Groq → `POST /api/reportes/chat`.
 
 | # | Subtarea | Estado |

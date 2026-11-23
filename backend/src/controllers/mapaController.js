@@ -1,5 +1,6 @@
 import { listarComisarias, obtenerMapa } from '../services/mapaService.js'
 import { obtenerAlertas } from '../services/alertasService.js'
+import { obtenerRecomendacion } from '../services/recomendacionService.js'
 import { LIMITE_VES } from '../utils/geo.js'
 import { apiView } from '../views/apiView.js'
 
@@ -19,5 +20,10 @@ export const mapaController = {
 
   async alertas(_req, res) {
     res.json(apiView.ok(await obtenerAlertas()))
+  },
+
+  // Recomendación de seguridad personalizada para la ubicación del vecino.
+  async recomendacion(req, res) {
+    res.json(apiView.ok(await obtenerRecomendacion(req.query)))
   },
 }

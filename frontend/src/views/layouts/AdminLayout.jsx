@@ -2,6 +2,7 @@ import { Suspense, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { iniciales } from '../components/UserMenu'
+import AvisoTiempoReal from '../components/AvisoTiempoReal'
 import '../../assets/styles/admin.css'
 
 const MENU = [
@@ -70,6 +71,7 @@ export default function AdminLayout() {
           </Suspense>
         </main>
       </div>
+      <AvisoTiempoReal />
       {abierto ? <button type="button" className="adm-velo" aria-label="Cerrar menú" onClick={() => setAbierto(false)} /> : null}
     </div>
   )

@@ -8,6 +8,7 @@ import AlertaCard from '../components/AlertaCard'
 import '../../assets/styles/paginas.css'
 
 const RADIO_MI_ZONA = 1500 // metros
+const EVENTOS_RECARGA = new Set(['reporte', 'reporte-moderado', 'reporte-oculto'])
 
 const FILTROS = [
   { id: 'todas', label: 'Todas' },
@@ -24,7 +25,7 @@ export default function AlertasPage() {
   const { suscribir } = useEventos()
 
   // Un nuevo reporte genera una nueva alerta: se recarga el feed.
-  useEffect(() => suscribir((evento) => evento === 'reporte' && recargar()), [suscribir, recargar])
+  useEffect(() => suscribir((evento) => EVENTOS_RECARGA.has(evento) && recargar()), [suscribir, recargar])
 
   const elegir = (id) => {
     setFiltro(id)

@@ -30,6 +30,8 @@ routes.get('/mapa', mapaController.mapa)
 routes.get('/mapa/limite', mapaController.limite)
 routes.get('/comisarias', mapaController.comisarias)
 routes.get('/alertas', mapaController.alertas)
+const limiteRecomendacion = rateLimit({ max: 30, ventanaMs: 10 * 60_000, mensaje: 'Pediste muchas recomendaciones. Espera unos minutos.' })
+routes.get('/recomendacion', limiteRecomendacion, mapaController.recomendacion)
 
 // Reportes ciudadanos
 const limiteReportes = rateLimit({ max: 5, ventanaMs: 10 * 60_000, mensaje: 'Demasiados reportes en poco tiempo. Intenta nuevamente en unos minutos.' })
@@ -45,8 +47,7 @@ routes.post('/reportes/:id/confirmar', limiteMarcas, reportesController.confirma
 routes.get('/presencia', reportesController.presencia)
 routes.get('/panel-ciudadano', reportesController.panelCiudadano)
 
-// Tiempo real: nuevos reportes llegan a todos los navegadores conectados
-routes.get('/eventos', reportesController.eventos)
+// Tiempo real: WebSocket en /api/ws (ver utils/tiempoReal.js)
 
 // Administración (solo rol admin)
 const admin = Router()
