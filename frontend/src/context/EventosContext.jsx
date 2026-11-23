@@ -1,12 +1,16 @@
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const EventosContext = createContext(null)
+const EVENTOS = ['reporte', 'reporte-oculto', 'reporte-actualizado', 'simulacion']
 
-// Conexión única de Server-Sent Events con el backend: nuevos reportes en tiempo real.
-// Los componentes se suscriben con `suscribir(fn)`; el último reporte alimenta el aviso global.
+// Conexión única de Server-Sent Events con el backend.
+// - `ultimo`: último reporte recibido (alimenta el aviso global)
+// - `conectados`: vecinos con la app abierta en este momento
+// - `suscribir(fn)`: recibe (tipo, datos) de cada evento
 export function EventosProvider({ children }) {
   const [ultimo, setUltimo] = useState(null)
   const [conectado, setConectado] = useState(false)
+  const [conectados, setConectados] = useState(0)
   const oyentes = useRef(new Set())
 
   useEffect(() => {
@@ -16,12 +20,14 @@ export function EventosProvider({ children }) {
 
     fuente.onopen = () => setConectado(true)
     fuente.onerror = () => setConectado(false) // EventSource reintenta solo
-    fuente.addEventListener('reporte', (e) => {
-      const reporte = JSON.parse(e.data)
-      setUltimo(reporte)
-      avisar('reporte', reporte)
-    })
-    fuente.addEventListener('reporte-oculto', (e) => avisar('reporte-oculto', JSON.parse(e.data)))
+    fuente.addEventListener('presencia', (e) => setConectados(JSON.parse(e.data).conectados))
+    for (const tipo of EVENTOS) {
+      fuente.addEventListener(tipo, (e) => {
+        const datos = JSON.parse(e.data)
+        if (tipo === 'reporte') setUltimo(datos)
+        avisar(tipo, datos)
+      })
+    }
     return () => fuente.close()
   }, [])
 
@@ -32,7 +38,10 @@ export function EventosProvider({ children }) {
 
   const descartar = useCallback(() => setUltimo(null), [])
 
-  const valor = useMemo(() => ({ ultimo, conectado, suscribir, descartar }), [ultimo, conectado, suscribir, descartar])
+  const valor = useMemo(
+    () => ({ ultimo, conectado, conectados, suscribir, descartar }),
+    [ultimo, conectado, conectados, suscribir, descartar],
+  )
   return <EventosContext value={valor}>{children}</EventosContext>
 }
 

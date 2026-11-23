@@ -77,7 +77,20 @@ export async function marcarFalso(id, req) {
   const actualizado = await ReporteModel.marcar(reporte.id, huellaDe(req))
   if (!actualizado) throw new ErrorValidacion('Ya marcaste este reporte. ¡Gracias por avisar!')
   if (actualizado.oculto) emitir('reporte-oculto', { id: actualizado.id })
+  else emitir('reporte-actualizado', resumenVotos(actualizado))
   return { id: actualizado.id, marcas: actualizado.marcas, oculto: actualizado.oculto }
+}
+
+const resumenVotos = (r) => ({ id: r.id, confirmaciones: r.confirmaciones, marcas: r.marcas })
+
+// "Yo también lo vi": da credibilidad al reporte y se actualiza en vivo para todos.
+export async function confirmarReporte(id, req) {
+  const reporte = await ReporteModel.buscarPorId(Number(id))
+  if (!reporte || reporte.estado === 'descartado' || reporte.oculto) throw Object.assign(new Error('Reporte no encontrado'), { status: 404 })
+  const actualizado = await ReporteModel.confirmar(reporte.id, huellaDe(req))
+  if (!actualizado) throw new ErrorValidacion('Ya confirmaste este reporte. ¡Gracias!')
+  emitir('reporte-actualizado', resumenVotos(actualizado))
+  return resumenVotos(actualizado)
 }
 
 export const listarReportes = (query) =>

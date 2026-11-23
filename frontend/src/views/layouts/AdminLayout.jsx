@@ -10,8 +10,8 @@ const MENU = [
   { to: '/admin/usuarios', label: 'Usuarios', icono: '◉' },
 ]
 const ENLACES = [
-  { to: '/dashboard', label: 'Panel de decisión' },
-  { to: '/mapa', label: 'Mapa de riesgo' },
+  { to: '/dashboard', label: 'Panel municipal' },
+  { to: '/mapa', label: 'Mapa en vivo' },
   { to: '/alertas', label: 'Alertas públicas' },
 ]
 
@@ -33,7 +33,7 @@ export default function AdminLayout() {
       <aside className={abierto ? 'adm-sidebar adm-sidebar--abierto' : 'adm-sidebar'}>
         <Link to="/admin" className="adm-marca" onClick={() => setAbierto(false)}>
           <span className="adm-marca__escudo" aria-hidden="true">◆</span>
-          <span>Alerta VES <small>Administración</small></span>
+          <span>Tu Vecino <small>Administración</small></span>
         </Link>
 
         <nav className="adm-nav" aria-label="Administración">

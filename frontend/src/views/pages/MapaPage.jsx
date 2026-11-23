@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CircleMarker } from 'react-leaflet'
 import { useAsync } from '../../controllers/useAsync'
@@ -10,6 +10,7 @@ import { IconoCalor, IconoPin } from '../../models/iconos'
 import MapaBase from '../components/mapa/MapaBase'
 import CapaCalor from '../components/mapa/CapaCalor'
 import { CapaComisarias, CapaReportes, CapaZonas } from '../components/mapa/capas'
+import PanelEnVivo from '../components/mapa/PanelEnVivo'
 import '../../assets/styles/mapa.css'
 
 const CAPAS = [
@@ -32,6 +33,11 @@ export default function MapaPage() {
   })
   const [enVivo, setEnVivo] = useState([]) // reportes llegados por tiempo real
   const [ocultos, setOcultos] = useState(() => new Set())
+  const [votos, setVotos] = useState(() => new Map()) // id -> { confirmaciones, marcas } en vivo
+  const [seguir, setSeguir] = useState(true)
+  const [seleccionado, setSeleccionado] = useState(null)
+  const seguirRef = useRef(seguir)
+  seguirRef.current = seguir
 
   const tipos = useMemo(() => (tipo ? [tipo] : []), [tipo])
   const { data, error, cargando } = useAsync((signal) => fetchMapa({ dias, tipos }, signal), [dias, tipo])
@@ -43,7 +49,15 @@ export default function MapaPage() {
   useEffect(
     () =>
       suscribir((evento, datos) => {
-        if (evento === 'reporte' && (!tipo || datos.tipo === tipo)) setEnVivo((v) => [datos, ...v])
+        if (evento === 'reporte' && (!tipo || datos.tipo === tipo)) {
+          setEnVivo((v) => [datos, ...v])
+          // "Seguir en vivo": el mapa vuela al reporte nuevo y abre su ficha.
+          if (seguirRef.current) {
+            setDestino({ lat: datos.lat, lng: datos.lng, zoom: 16 })
+            setSeleccionado(datos.id)
+          }
+        }
+        if (evento === 'reporte-actualizado') setVotos((m) => new Map(m).set(datos.id, datos))
         if (evento === 'reporte-oculto') setOcultos((s) => new Set(s).add(datos.id))
       }),
     [suscribir, tipo],
@@ -52,8 +66,10 @@ export default function MapaPage() {
   const reportes = useMemo(() => {
     const base = data?.reportes ?? []
     const ids = new Set(base.map((r) => r.id))
-    return [...enVivo.filter((r) => !ids.has(r.id)), ...base].filter((r) => !ocultos.has(r.id))
-  }, [data, enVivo, ocultos])
+    return [...enVivo.filter((r) => !ids.has(r.id)), ...base]
+      .filter((r) => !ocultos.has(r.id))
+      .map((r) => (votos.has(r.id) ? { ...r, ...votos.get(r.id) } : r))
+  }, [data, enVivo, ocultos, votos])
   const nuevos = useMemo(() => new Set(enVivo.map((r) => r.id)), [enVivo])
   const puntos = useMemo(() => reportes.map((r) => [r.lat, r.lng]), [reportes])
 
@@ -148,10 +164,18 @@ export default function MapaPage() {
         <MapaBase limite={data?.limite} destino={destino} className="mapa">
           {visibles.calor ? <CapaCalor puntos={puntos} /> : null}
           {data && visibles.zonas ? <CapaZonas zonas={data.zonas} /> : null}
-          {visibles.reportes ? <CapaReportes reportes={reportes} nuevos={nuevos} onOculto={ocultar} /> : null}
+          {visibles.reportes ? <CapaReportes reportes={reportes} nuevos={nuevos} onOculto={ocultar} abrirId={seleccionado} /> : null}
           {data && visibles.comisarias ? <CapaComisarias comisarias={data.comisarias} /> : null}
           {destino ? <CircleMarker center={[destino.lat, destino.lng]} radius={22} pathOptions={{ color: '#1E3A8A', weight: 2, fill: false, dashArray: '4 4' }} /> : null}
         </MapaBase>
+        <PanelEnVivo
+          reportes={reportes}
+          nuevos={nuevos}
+          seguir={seguir}
+          onSeguir={setSeguir}
+          seleccionado={seleccionado}
+          onElegir={(r) => { setDestino({ lat: r.lat, lng: r.lng, zoom: 17 }); setSeleccionado(r.id) }}
+        />
         <Link to="/reportar" className="fab-reportar" aria-label="Reportar un incidente">
           <IconoPin size={22} aria-hidden="true" /> <span>Reportar</span>
         </Link>

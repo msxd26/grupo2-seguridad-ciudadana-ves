@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
-import { CircleMarker, Marker, Popup, Rectangle, Tooltip } from 'react-leaflet'
+import { CircleMarker, Marker, Popup, Rectangle, Tooltip, useMap } from 'react-leaflet'
 import { NIVELES_ZONA, enlaceOsm } from '../../../models/mapa'
 import { MODOS, etiquetaTipo, haceCuanto, tipoDe } from '../../../models/tipos'
-import { marcarFalso } from '../../../services/seguridadService'
+import { confirmarReporte, marcarFalso } from '../../../services/seguridadService'
 
 // Ícono de punto seguro / comisaría (SVG en línea; evita las imágenes por defecto de Leaflet).
 const ICONO_COMISARIA = L.divIcon({
@@ -49,13 +49,49 @@ function MarcarFalso({ id, onOculto }) {
   )
 }
 
-export function CapaReportes({ reportes, nuevos, onOculto }) {
+// "Yo también lo vi": confirma el reporte; el conteo se actualiza en vivo para todos.
+function Confirmar({ id, total }) {
+  const [estado, setEstado] = useState(null)
+  const confirmar = async () => {
+    setEstado('enviando')
+    try {
+      await confirmarReporte(id)
+      setEstado('ok')
+    } catch (err) {
+      setEstado(err.message)
+    }
+  }
+  return (
+    <div className="popup-confirmar">
+      <button type="button" onClick={confirmar} disabled={estado === 'enviando' || estado === 'ok'}>
+        👀 {estado === 'ok' ? '¡Gracias!' : 'Yo también lo vi'}
+      </button>
+      <span>{total} vecino{total === 1 ? '' : 's'} lo confirman</span>
+      {estado && estado !== 'ok' && estado !== 'enviando' ? <p className="popup-nota">{estado}</p> : null}
+    </div>
+  )
+}
+
+export function CapaReportes({ reportes, nuevos, onOculto, abrirId }) {
+  const refs = useRef(new Map())
+  const map = useMap()
+
+  // Abre la ficha del reporte elegido (lista "En vivo" o reporte nuevo) cuando el mapa termina de moverse.
+  useEffect(() => {
+    if (!abrirId) return undefined
+    const abrir = () => refs.current.get(abrirId)?.openPopup()
+    abrir()
+    map.once('moveend', abrir)
+    return () => map.off('moveend', abrir)
+  }, [abrirId, map])
+
   return reportes.map((r) => {
     const tipo = tipoDe(r.tipo)
     const esNuevo = nuevos?.has(r.id)
     return (
       <CircleMarker
         key={r.id}
+        ref={(capa) => (capa ? refs.current.set(r.id, capa) : refs.current.delete(r.id))}
         center={[r.lat, r.lng]}
         radius={esNuevo ? 10 : 7}
         pathOptions={{ color: '#fff', weight: 2, fillColor: tipo.color, fillOpacity: 0.95, className: esNuevo ? 'marcador-nuevo' : '' }}
@@ -69,6 +105,7 @@ export function CapaReportes({ reportes, nuevos, onOculto }) {
           <br />
           <span className="popup-desc">{r.descripcion}</span>
           {r.referencia ? <><br /><em>Ref.: {r.referencia}</em></> : null}
+          <Confirmar id={r.id} total={r.confirmaciones ?? 0} />
           {r.estado !== 'verificado' ? <MarcarFalso id={r.id} onOculto={onOculto} /> : null}
         </Popup>
       </CircleMarker>

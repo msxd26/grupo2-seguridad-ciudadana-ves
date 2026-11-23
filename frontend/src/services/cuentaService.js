@@ -15,3 +15,5 @@ export const fetchAdminReportes = (filtros, signal) => getJson(`/admin/reportes$
 export const moderarReporte = (id, datos) => patchJson(`/admin/reportes/${id}`, datos)
 export const fetchAdminUsuarios = ({ q }, signal) => getJson(`/admin/usuarios${toQuery({ q })}`, signal)
 export const actualizarUsuario = (id, datos) => patchJson(`/admin/usuarios/${id}`, datos)
+export const fetchSimulacion = (signal) => getJson('/admin/simulacion', signal)
+export const cambiarSimulacion = (datos) => postJson('/admin/simulacion', datos)

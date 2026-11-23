@@ -14,6 +14,7 @@ const mapear = (r) => ({
   esDemo: Boolean(r.es_demo),
   creadoEn: r.creado_en,
   marcas: Number(r.marcas ?? 0),
+  confirmaciones: Number(r.confirmaciones ?? 0),
   oculto: Boolean(r.oculto),
   comentarioAdmin: r.comentario_admin ?? null,
   revisadoEn: r.revisado_en ?? null,
@@ -96,6 +97,24 @@ export const ReporteModel = {
       conn.release()
     }
     return this.buscarPorId(reporteId)
+  },
+
+  // "Yo también lo vi". Devuelve null si esa persona ya lo había confirmado.
+  async confirmar(reporteId, huella) {
+    const [ins] = await pool.query('INSERT IGNORE INTO reporte_confirmaciones (reporte_id, huella) VALUES (?, ?)', [reporteId, huella])
+    if (!ins.affectedRows) return null
+    await pool.query('UPDATE reportes SET confirmaciones = confirmaciones + 1 WHERE id = ?', [reporteId])
+    return this.buscarPorId(reporteId)
+  },
+
+  // Reporte de demostración (simulación en vivo): siempre con es_demo = 1.
+  async crearDemo({ tipo, modo, descripcion, referencia, lat, lng, fechaHecho }) {
+    const [result] = await pool.query(
+      `INSERT INTO reportes (tipo, modo, descripcion, referencia, lat, lng, fecha_hecho, es_demo)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+      [tipo, modo, descripcion, referencia, lat, lng, fechaHecho],
+    )
+    return this.buscarPorId(result.insertId)
   },
 
   async listarPorUsuario(usuarioId) {

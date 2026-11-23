@@ -1,15 +1,18 @@
 import { EventEmitter } from 'node:events'
 
-// Bus de eventos en memoria: cuando se crea un reporte se avisa a todos los navegadores
-// conectados por Server-Sent Events (equivalente a Supabase Realtime del plan).
+// Bus de eventos en memoria: los cambios se envían a todos los navegadores conectados
+// por Server-Sent Events (equivalente a Supabase Realtime del plan).
 export const bus = new EventEmitter()
-bus.setMaxListeners(500)
+bus.setMaxListeners(1000)
+
+let conectados = 0
+export const totalConectados = () => conectados
 
 export function emitir(tipo, datos) {
   bus.emit('evento', { tipo, datos })
 }
 
-// Maneja una conexión SSE: mantiene el canal abierto y envía cada evento.
+// Maneja una conexión SSE: mantiene el canal abierto, envía cada evento y la presencia.
 export function suscribirSse(req, res) {
   res.set({
     'Content-Type': 'text/event-stream',
@@ -24,8 +27,13 @@ export function suscribirSse(req, res) {
   const latido = setInterval(() => res.write(': latido\n\n'), 25_000) // evita cortes por inactividad
 
   bus.on('evento', enviar)
+  conectados++
+  emitir('presencia', { conectados }) // también llega a esta conexión
+
   req.on('close', () => {
     clearInterval(latido)
     bus.off('evento', enviar)
+    conectados--
+    emitir('presencia', { conectados })
   })
 }
