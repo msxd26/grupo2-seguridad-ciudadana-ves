@@ -1,7 +1,11 @@
+import { Link, NavLink } from 'react-router-dom'
 import { NAV_LINKS } from '../../models/navigation'
 import { useMenuToggle } from '../../controllers/useMenuToggle'
 import Logo from './Logo'
+import UserMenu from './UserMenu'
 import '../../assets/styles/header.css'
+
+const navClass = ({ isActive }) => (isActive ? 'header__link header__link--active' : 'header__link')
 
 export default function Header() {
   const { isOpen, toggle, close } = useMenuToggle()
@@ -30,15 +34,16 @@ export default function Header() {
           <ul className="header__links">
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
-                <a href={link.href} onClick={close}>
+                <NavLink to={link.to} end={link.to === '/'} className={navClass} onClick={close}>
                   {link.label}
-                </a>
+                </NavLink>
               </li>
             ))}
           </ul>
-          <a className="btn btn--alert" href="#reportar" onClick={close}>
-            Reportar ahora
-          </a>
+          <Link className="btn btn--alert" to="/reportar" onClick={close}>
+            Reportar
+          </Link>
+          <UserMenu onNavegar={close} />
         </nav>
       </div>
     </header>

@@ -2,22 +2,22 @@
 // Se definen a nivel de módulo para no recrearlos en cada render.
 
 export const NAV_LINKS = [
-  { id: 'inicio', label: 'Inicio', href: '#inicio' },
-  { id: 'estadisticas', label: 'Estadísticas', href: '#estadisticas' },
-  { id: 'reportar', label: 'Reportar incidente', href: '#reportar' },
-  { id: 'mapa', label: 'Mapa de riesgo', href: '#mapa' },
-  { id: 'alertas', label: 'Alertas', href: '#alertas' },
-  { id: 'contacto', label: 'Contacto', href: '#contacto' },
+  { id: 'inicio', label: 'Inicio', to: '/' },
+  { id: 'dashboard', label: 'Panel de decisión', to: '/dashboard' },
+  { id: 'mapa', label: 'Mapa de riesgo', to: '/mapa' },
+  { id: 'alertas', label: 'Alertas', to: '/alertas' },
+  { id: 'contacto', label: 'Contacto', to: '/contacto' },
 ]
 
 export const EMERGENCY_NUMBERS = [
   { id: 'policia', label: 'Policía Nacional', number: '105' },
   { id: 'bomberos', label: 'Bomberos', number: '116' },
   { id: 'samu', label: 'SAMU', number: '106' },
+  { id: 'linea100', label: 'Línea 100 (violencia familiar)', number: '100' },
 ]
 
-export const FOOTER_LINKS = [
-  { id: 'acerca', label: 'Acerca del proyecto', href: '#acerca' },
-  { id: 'privacidad', label: 'Política de privacidad', href: '#privacidad' },
-  { id: 'terminos', label: 'Términos de uso', href: '#terminos' },
+export const FUENTES = [
+  { id: 'sidpol', label: 'Denuncias policiales – MININTER', href: 'https://www.datosabiertos.gob.pe/dataset/denuncias-policiales-registradas-nivel-nacional-mininter' },
+  { id: 'comisarias', label: 'Comisarías PNP – MININTER', href: 'https://www.datosabiertos.gob.pe/dataset/comisar%C3%ADas-b%C3%A1sicas-de-la-polic%C3%ADa-nacional-del-per%C3%BA-mininter' },
+  { id: 'osm', label: 'Límite distrital – OpenStreetMap', href: 'https://www.openstreetmap.org/relation/1944858' },
 ]

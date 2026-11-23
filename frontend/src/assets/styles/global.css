@@ -5,11 +5,16 @@
   --amber: #f5b301;
   --alert: #e5383b;
   --alert-dark: #c1272d;
+  --blue: #2a78d6;
   --text: #1c2430;
+  --text-2: #4a5668;
   --text-muted: #9fb0c6;
   --bg: #f4f6f9;
+  --border: #e3e7ec;
   --radius: 10px;
   --max-width: 1200px;
+  --malo: #c1272d;
+  --bueno: #1e7b34;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -18,7 +23,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; }
 a { color: inherit; text-decoration: none; }
-ul { list-style: none; margin: 0; padding: 0; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+button { font: inherit; }
 
 .container {
   width: 100%;
@@ -29,6 +35,14 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 .layout { min-height: 100vh; display: flex; flex-direction: column; }
 .layout__main { flex: 1; }
+.page-loading { padding-block: 3rem; color: var(--text-2); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
 .logo { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--amber); }
 .logo__text { color: #fff; font-size: 1.25rem; letter-spacing: 0.02em; }
@@ -39,11 +53,26 @@ ul { list-style: none; margin: 0; padding: 0; }
   padding: 0.6rem 1.1rem;
   border-radius: var(--radius);
   font-weight: 600;
-  transition: background-color 0.2s;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  text-align: center;
 }
+.btn:disabled { opacity: 0.6; cursor: progress; }
 .btn--alert { background: var(--alert); color: #fff; }
 .btn--alert:hover { background: var(--alert-dark); }
+.btn--primario { background: var(--navy-900); color: #fff; }
+.btn--primario:hover { background: var(--navy-700); }
+.btn--secundario { background: #fff; color: var(--navy-900); border-color: #c8d0da; }
+.btn--secundario:hover { border-color: var(--navy-900); }
+.btn--claro { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.6); }
+.btn--claro:hover { background: rgba(255, 255, 255, 0.1); }
 
-.hero { padding-block: 5rem; text-align: center; }
-.hero h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); margin: 0 0 1rem; color: var(--navy-900); }
-.hero p { font-size: 1.125rem; color: #4a5668; margin: 0; }
+.var--malo { color: var(--malo); }
+.var--bueno { color: var(--bueno); }
+
+.badge-demo {
+  display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.4rem; border-radius: 4px;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; background: #ede9fe; color: #4c1d95;
+  vertical-align: middle;
+}

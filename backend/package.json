@@ -8,14 +8,19 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "db:migrate": "node database/migrate.js",
-    "db:seed": "node database/seeders/seed-denuncias.js",
-    "db:setup": "npm run db:migrate && npm run db:seed",
-    "datos:actualizar": "node database/seeders/importar-datos-abiertos.js"
+    "db:seed": "node database/seeders/seed-denuncias.js && node database/seeders/seed-comisarias.js",
+    "db:setup": "npm run db:migrate && npm run db:seed && npm run db:admin",
+    "db:demo": "node database/seeders/seed-demo-reportes.js",
+    "db:demo:limpiar": "node database/seeders/seed-demo-reportes.js --limpiar",
+    "datos:actualizar": "node database/seeders/importar-datos-abiertos.js",
+    "db:admin": "node database/seeders/crear-admin.js"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1"
   }
 }

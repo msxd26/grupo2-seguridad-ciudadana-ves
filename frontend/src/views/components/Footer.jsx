@@ -1,4 +1,5 @@
-import { EMERGENCY_NUMBERS, FOOTER_LINKS, NAV_LINKS } from '../../models/navigation'
+import { Link } from 'react-router-dom'
+import { EMERGENCY_NUMBERS, FUENTES, NAV_LINKS } from '../../models/navigation'
 import Logo from './Logo'
 import '../../assets/styles/footer.css'
 
@@ -7,14 +8,13 @@ const CURRENT_YEAR = new Date().getFullYear()
 
 export default function Footer() {
   return (
-    <footer className="footer" id="contacto">
+    <footer className="footer">
       <div className="footer__grid container">
         <section className="footer__brand">
           <Logo />
           <p>
-            Sistema digital de alertas ciudadanas y monitoreo de la delincuencia
-            en Villa El Salvador. Reporta, informa y ayuda a construir un distrito
-            más seguro.
+            Sistema digital de alertas ciudadanas y monitoreo de la delincuencia en Villa El Salvador.
+            Datos oficiales para decidir mejor y reportes ciudadanos para actuar a tiempo.
           </p>
         </section>
 
@@ -23,9 +23,12 @@ export default function Footer() {
           <ul className="footer__list">
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
-                <a href={link.href}>{link.label}</a>
+                <Link to={link.to}>{link.label}</Link>
               </li>
             ))}
+            <li>
+              <Link to="/reportar">Reportar incidente</Link>
+            </li>
           </ul>
         </section>
 
@@ -44,11 +47,13 @@ export default function Footer() {
         </section>
 
         <section>
-          <h2 className="footer__title">Información</h2>
+          <h2 className="footer__title">Fuentes de datos</h2>
           <ul className="footer__list">
-            {FOOTER_LINKS.map((link) => (
-              <li key={link.id}>
-                <a href={link.href}>{link.label}</a>
+            {FUENTES.map((f) => (
+              <li key={f.id}>
+                <a href={f.href} target="_blank" rel="noreferrer">
+                  {f.label}
+                </a>
               </li>
             ))}
           </ul>
@@ -57,13 +62,8 @@ export default function Footer() {
 
       <div className="footer__bottom">
         <div className="container">
-          © {CURRENT_YEAR} Alerta VES · Grupo 2 — Seguridad Ciudadana Villa El Salvador
-          <br />
-          Datos: MININTER – SIDPOL, vía la{' '}
-          <a href="https://www.datosabiertos.gob.pe" target="_blank" rel="noreferrer">
-            Plataforma Nacional de Datos Abiertos
-          </a>
-          .
+          © {CURRENT_YEAR} Alerta VES · Grupo 2 — Seguridad Ciudadana Villa El Salvador · Datos abiertos del
+          Estado peruano
         </div>
       </div>
     </footer>

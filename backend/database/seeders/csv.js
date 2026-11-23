@@ -1,5 +1,5 @@
-// Lectura mínima del CSV de denuncias (sin comillas ni comas internas).
-export function parseDenunciasCsv(text) {
+// Lectura mínima de CSV (los archivos oficiales usados no tienen comillas ni comas internas).
+export function parseCsv(text) {
   const [header, ...lines] = text.trim().split(/\r?\n/)
   const columns = header.split(',')
   return lines.map((line) => {

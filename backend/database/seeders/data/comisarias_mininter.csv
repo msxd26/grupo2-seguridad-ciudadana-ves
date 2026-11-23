@@ -1,0 +1,22 @@
+codigo_cpnp,nombre,distrito,tipo,divpol,lat,lng
+2205,Comisaría Surco,Santiago De Surco,A,DIVPOL SUR 1,-12.14522885,-77.00294502
+2212,Comisaría Sagitario,Santiago De Surco,B,DIVPOL SUR 1,-12.16500053,-76.99694235
+2225,Comisaría Barranco,Barranco,A,DIVPOL SUR 2,-12.14658635,-77.02231204
+2230,Comisaría Chorrillos,Chorrillos,A,DIVPOL SUR 2,-12.17025615,-77.02320216
+2235,Comisaría Villa,Chorrillos,B,DIVPOL SUR 2,-12.18580597,-77.00795844
+2240,Comisaría Mateo Pumacahua,Chorrillos,B,DIVPOL SUR 2,-12.19189428,-76.98013832
+2245,Comisaría Laderas de Villa,San Juan De Miraflores,B,DIVPOL SUR 2,-12.19056274,-76.95763854
+2250,Comisaría San Juan de Miraflores,San Juan De Miraflores,A,DIVPOL SUR 2,-12.15802944,-76.9751705
+2255,Comisaría Pamplona I,San Juan De Miraflores,B,DIVPOL SUR 2,-12.14795514,-76.96599107
+2260,Comisaría Pamplona II,San Juan De Miraflores,B,DIVPOL SUR 2,-12.13108023,-76.95801514
+2265,Comisaría San Genaro,Chorrillos,B,DIVPOL SUR 2,-12.19443849,-77.02054826
+2270,Comisaría Villa El Salvador,Villa El Salvador,A,DIVPOL SUR 2,-12.213058,-76.937857
+2275,Comisaría Urb. Pachacámac,Villa El Salvador,B,DIVPOL SUR 2,-12.23017502,-76.92321897
+2280,Comisaría Villa María del Triunfo,Villa Maria Del Triunfo,A,DIVPOL SUR 3,-12.1660876,-76.94759
+2285,Comisaría J.C. Mariátegui,Villa Maria Del Triunfo,B,DIVPOL SUR 3,-12.14965388,-76.95038032
+2290,Comisaría José Gálvez,Villa Maria Del Triunfo,B,DIVPOL SUR 3,-12.20766232,-76.90644853
+2295,Comisaría Nueva Esperanza,Villa Maria Del Triunfo,B,DIVPOL SUR 3,-12.16651904,-76.92062676
+2300,Comisaría S.F. Tablada de Lurín,Villa Maria Del Triunfo,B,DIVPOL SUR 3,-12.20000096,-76.92815728
+2302,Comisaría Distrito Pachacámac,Pachacamac,B,DIVPOL SUR 3,-12.22788531,-76.85840222
+2304,Comisaría Lurín,Lurin,A,DIVPOL SUR 3,-12.27352953,-76.86920704
+2309,Comisaría Villa Alejandro,Villa Maria Del Triunfo,B,DIVPOL SUR 3,-12.23393049,-76.9075196

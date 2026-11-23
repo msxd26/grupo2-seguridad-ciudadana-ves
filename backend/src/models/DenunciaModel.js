@@ -1,47 +1,58 @@
 import { pool } from '../config/db.js'
-import { FUENTE_DENUNCIAS } from '../config/fuente.js'
 
-const UBIGEO = FUENTE_DENUNCIAS.ubigeo
+// Fragmento SQL opcional para filtrar por modalidades.
+function filtroModalidad(modalidades) {
+  return modalidades.length ? { sql: ' AND modalidad IN (?)', params: [modalidades] } : { sql: '', params: [] }
+}
 
-// Modelo: consultas a la tabla denuncias_policiales (solo Villa El Salvador).
+// Modelo: consultas a denuncias_policiales (Lima Metropolitana, SIDPOL).
 export const DenunciaModel = {
-  async totalPorAnio() {
+  // Años disponibles y último mes publicado de cada uno.
+  async periodos() {
     const [rows] = await pool.query(
-      `SELECT anio, SUM(cantidad) AS total, MAX(mes) AS ultimo_mes
-         FROM denuncias_policiales WHERE ubigeo = ?
-        GROUP BY anio ORDER BY anio`,
-      [UBIGEO],
+      'SELECT anio, MAX(mes) AS ultimo_mes FROM denuncias_policiales GROUP BY anio ORDER BY anio',
     )
     return rows
   },
 
-  async totalPorModalidad(anio) {
+  async modalidades() {
     const [rows] = await pool.query(
-      `SELECT modalidad, SUM(cantidad) AS total
-         FROM denuncias_policiales WHERE ubigeo = ? AND anio = ?
-        GROUP BY modalidad ORDER BY total DESC`,
-      [UBIGEO, anio],
+      'SELECT modalidad, SUM(cantidad) AS total FROM denuncias_policiales GROUP BY modalidad ORDER BY total DESC',
+    )
+    return rows.map((r) => r.modalidad)
+  },
+
+  async distritos() {
+    const [rows] = await pool.query(
+      'SELECT ubigeo, distrito FROM denuncias_policiales GROUP BY ubigeo, distrito ORDER BY distrito',
     )
     return rows
   },
 
-  async totalPorMes(anio) {
+  // Detalle de un distrito por año, mes y modalidad.
+  async detalleDistrito({ ubigeo, desde, hasta, modalidades }) {
+    const f = filtroModalidad(modalidades)
     const [rows] = await pool.query(
-      `SELECT mes, SUM(cantidad) AS total
-         FROM denuncias_policiales WHERE ubigeo = ? AND anio = ?
-        GROUP BY mes ORDER BY mes`,
-      [UBIGEO, anio],
+      `SELECT anio, mes, modalidad, SUM(cantidad) AS total
+         FROM denuncias_policiales
+        WHERE ubigeo = ? AND anio BETWEEN ? AND ?${f.sql}
+        GROUP BY anio, mes, modalidad`,
+      [ubigeo, desde, hasta, ...f.params],
     )
-    return rows
+    return rows.map((r) => ({ anio: r.anio, mes: r.mes, modalidad: r.modalidad, total: Number(r.total) }))
   },
 
-  // Total de un año hasta un mes dado (para comparar periodos equivalentes).
-  async totalHastaMes(anio, mes) {
-    const [[row]] = await pool.query(
-      `SELECT COALESCE(SUM(cantidad), 0) AS total
-         FROM denuncias_policiales WHERE ubigeo = ? AND anio = ? AND mes <= ?`,
-      [UBIGEO, anio, mes],
+  // Totales por distrito en un periodo (el último año se corta en `ultimoMes`).
+  async rankingDistritos({ desde, hasta, ultimoMes, modalidades }) {
+    const f = filtroModalidad(modalidades)
+    const [rows] = await pool.query(
+      `SELECT ubigeo, distrito, SUM(cantidad) AS total
+         FROM denuncias_policiales
+        WHERE anio BETWEEN ? AND ? AND (anio < ? OR mes <= ?)${f.sql}
+        GROUP BY ubigeo, distrito
+        ORDER BY total DESC`,
+      [desde, hasta, hasta, ultimoMes, ...f.params],
     )
-    return Number(row.total)
+    return rows.map((r) => ({ ubigeo: r.ubigeo, distrito: r.distrito, total: Number(r.total) }))
   },
 }
