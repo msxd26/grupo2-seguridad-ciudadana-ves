@@ -55,7 +55,7 @@
 .adm-contenido { padding: 1.5rem; }
 .adm-cargando { color: var(--adm-ink-2); }
 
-.adm-pagina { display: grid; gap: 1.25rem; transition: opacity 0.2s; }
+.adm-pagina { display: grid; gap: 1.25rem; align-content: start; transition: opacity 0.2s; }
 .adm-pagina--cargando { opacity: 0.6; }
 .adm-encabezado { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1rem; }
 .adm-encabezado h1 { margin: 0; font-size: 1.5rem; }
@@ -198,3 +198,55 @@
 .adm-rafaga__controles { display: flex; gap: 0.6rem; align-items: center; }
 .adm-rafaga .adm-label { display: inline-flex; gap: 0.4rem; align-items: center; }
 .adm-rafaga__boton { padding: 0.6rem 1rem; font-size: 0.9rem; }
+
+/* ---------- Orden y ubicación del panel de administración ---------- */
+/* Indicadores en dos grupos que llenan su fila (sin tarjetas huérfanas). */
+.adm-kpis-grupo { display: grid; gap: 0.5rem; }
+.adm-kpis-grupo__titulo { margin: 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--adm-ink-2); }
+.adm-kpis--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.adm-kpis--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.adm-kpi { align-content: start; min-height: 104px; }
+
+/* Gráficos del resumen a la misma altura */
+.adm-grid { align-items: stretch; }
+.adm-grid > .adm-tarjeta { display: flex; flex-direction: column; }
+
+/* Filtros de moderación en dos filas */
+.adm-filtros { display: grid; gap: 0.6rem; } /* grilla: una columna flex con wrap inflaba la altura de cada fila */
+.adm-filtros__fila { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; }
+.adm-filtros__buscar { flex: 1 1 260px; min-width: 240px; max-width: 420px; min-height: 38px; }
+.adm-encabezado .adm-filtros__buscar { flex: 0 1 320px; }
+.adm-tabs { max-width: 100%; overflow-x: auto; }
+.adm-tabs button { white-space: nowrap; min-height: 34px; }
+
+/* Tablas: botón de acción alineado a la derecha */
+.adm-tabla__accion { text-align: right; }
+
+/* Barra lateral: el nombre del administrador se lee completo (hasta 2 líneas) */
+.adm-usuario strong { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; }
+
+@media (max-width: 1100px) {
+  .adm-kpis--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Celular: las tablas se convierten en tarjetas (cada dato con su etiqueta) */
+@media (max-width: 760px) {
+  .adm-kpis--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .adm-kpis--3 .adm-kpi:last-child { grid-column: 1 / -1; }
+  .adm-filtros__buscar, .adm-encabezado .adm-filtros__buscar { flex-basis: 100%; max-width: none; min-width: 0; }
+  .adm-filtros__fila > select { flex: 1 1 100%; }
+  .adm-encabezado { align-items: stretch; }
+
+  .adm-tabla-wrap { overflow: visible; background: transparent; border: 0; }
+  .adm-tabla thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .adm-tabla, .adm-tabla tbody { display: block; }
+  .adm-tabla tbody { display: grid; gap: 0.6rem; }
+  .adm-tabla tr { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem 0.75rem; padding: 0.8rem 0.9rem; background: #fff; border: 1px solid var(--adm-border); border-radius: 10px; }
+  .adm-tabla tbody tr:hover { background: #fff; }
+  .adm-tabla td { display: grid; gap: 0.1rem; padding: 0; border: 0; text-align: left !important; min-width: 0; }
+  .adm-tabla td[data-label]::before { content: attr(data-label); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--adm-ink-3); }
+  .adm-tabla .adm-tabla__desc, .adm-tabla .adm-tabla__titulo { grid-column: 1 / -1; white-space: normal; max-width: none; }
+  .adm-tabla .adm-tabla__accion { grid-column: 1 / -1; }
+  .adm-tabla .adm-tabla__accion .adm-boton { width: 100%; min-height: 40px; }
+  .adm-tabla .adm-nowrap { white-space: normal; }
+}

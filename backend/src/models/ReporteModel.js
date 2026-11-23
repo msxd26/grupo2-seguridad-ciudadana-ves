@@ -50,6 +50,25 @@ export const ReporteModel = {
     return rows.map(mapear)
   },
 
+  // Sincronización entre backends: último id y reportes/moderaciones guardados desde entonces.
+  async ultimoId() {
+    const [[row]] = await pool.query('SELECT COALESCE(MAX(id), 0) AS id FROM reportes')
+    return Number(row.id)
+  },
+
+  async listarDesdeId(id, limite = 100) {
+    const [rows] = await pool.query(`SELECT * FROM reportes WHERE id > ? AND ${VISIBLE} ORDER BY id LIMIT ?`, [id, limite])
+    return rows.map(mapear)
+  },
+
+  async moderadosDesde(fecha) {
+    const [rows] = await pool.query(
+      'SELECT id, estado, oculto, revisado_en FROM reportes WHERE revisado_en IS NOT NULL AND revisado_en >= ? ORDER BY revisado_en LIMIT 100',
+      [fecha],
+    )
+    return rows.map((r) => ({ id: r.id, estado: r.estado, oculto: Boolean(r.oculto), revisadoEn: r.revisado_en }))
+  },
+
   // Para la predicción: solo lo necesario para agregar por zona (sin descripción ni autor, ODS 5).
   async listarParaPrediccion({ dias }) {
     const [rows] = await pool.query(
