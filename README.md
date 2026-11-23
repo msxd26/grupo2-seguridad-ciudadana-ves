@@ -13,6 +13,23 @@ Sistema digital de **alertas ciudadanas y monitoreo de la delincuencia en Villa 
 
 ---
 
+## 📊 Fuente de datos oficial
+
+Las estadísticas provienen del dataset **[Denuncias policiales registradas a nivel nacional](https://www.datosabiertos.gob.pe/dataset/denuncias-policiales-registradas-nivel-nacional-mininter)**, publicado por el **Ministerio del Interior (MININTER)** en la **Plataforma Nacional de Datos Abiertos del Perú**.
+
+| Campo | Detalle |
+| --- | --- |
+| Sistema de origen | SIDPOL – Sistema de Denuncias Policiales (PNP) |
+| Cobertura | 2018 – 2026 (el año en curso es parcial) |
+| Filtro aplicado | Villa El Salvador, ubigeo **150142** (distrito donde ocurrió el hecho) |
+| Nivel de detalle | Año, mes y modalidad delictiva (cantidad de denuncias) |
+| Modalidades | Violencia contra la mujer e integrantes del grupo familiar, robo, hurto, estafa, extorsión, secuestro y otros |
+| Archivo local | `backend/database/seeders/data/denuncias_ves_mininter.csv` |
+
+Para descargar la versión más reciente del portal: `npm run datos:actualizar` (en `backend/`) y luego `npm run db:seed`.
+
+---
+
 ## 🧰 Stack tecnológico
 
 | Capa          | Tecnología             |
@@ -61,6 +78,7 @@ grupo2-seguridad-ciudadana-ves/
 │   └── tests/                # Pruebas del frontend
 │
 ├── docs/                     # Documentación del proyecto
+├── docker-compose.yml        # MySQL + Adminer para desarrollo
 └── README.md
 ```
 
@@ -81,23 +99,75 @@ grupo2-seguridad-ciudadana-ves/
 
 ## 🚀 Instalación
 
-> ⚠️ El proyecto está en fase inicial: por ahora solo existe la estructura de directorios. Los pasos siguientes se completarán a medida que se configure cada módulo.
-
 ```bash
 # Clonar el repositorio
 git clone <url-del-repositorio>
 cd grupo2-seguridad-ciudadana-ves
+```
 
-# Backend
+### Base de datos (Docker)
+
+Requiere [Docker Desktop](https://www.docker.com/products/docker-desktop/). Desde la raíz del proyecto:
+
+```bash
+docker compose up -d      # MySQL 8.4 en el puerto 3307 + Adminer en http://localhost:8080
+```
+
+| Servicio | Acceso | Credenciales (solo desarrollo) |
+| --- | --- | --- |
+| MySQL | `127.0.0.1:3307` | usuario `ves_app` / `ves_app_2026`, BD `seguridad_ves` |
+| MySQL (root) | `127.0.0.1:3307` | `root` / `ves_root_2026` |
+| Adminer | http://localhost:8080 | servidor `mysql` + credenciales de arriba |
+
+Se usa el puerto **3307** para no chocar con un MySQL instalado localmente. Las credenciales se pueden cambiar con un `.env` en la raíz (`MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `MYSQL_PORT`).
+
+```bash
+docker compose down       # detener (los datos se conservan en el volumen)
+docker compose down -v    # detener y borrar los datos
+```
+
+### Backend (API)
+
+```bash
 cd backend
 npm install
-npm run dev
+cp .env.example .env      # ya apunta al MySQL de Docker
+npm run db:setup          # crea la tabla y carga los datos oficiales
+npm run dev               # http://localhost:3000/api
+```
 
-# Frontend (en otra terminal)
+### Frontend (React)
+
+```bash
 cd frontend
 npm install
-npm run dev
+npm run dev               # http://localhost:5173
 ```
+
+El frontend redirige `/api` al backend automáticamente (proxy de Vite).
+
+---
+
+## 🔌 Endpoints de la API
+
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| GET | `/api/health` | Estado del servidor |
+| GET | `/api/estadisticas/por-anio` | Total de denuncias por año |
+| GET | `/api/estadisticas/resumen?anio=2025` | Total, promedio mensual, variación y modalidad principal |
+| GET | `/api/estadisticas/por-modalidad?anio=2025` | Denuncias por modalidad delictiva |
+| GET | `/api/estadisticas/por-mes?anio=2025` | Denuncias por mes |
+
+Todas las respuestas incluyen el objeto `fuente` con la referencia al dataset oficial.
+
+### Scripts del backend
+
+| Script | Acción |
+| --- | --- |
+| `npm run db:migrate` | Crea la base de datos y ejecuta las migraciones |
+| `npm run db:seed` | Carga el CSV oficial en MySQL |
+| `npm run db:setup` | Migración + carga |
+| `npm run datos:actualizar` | Descarga los CSV del portal y regenera el archivo de Villa El Salvador |
 
 ---
 

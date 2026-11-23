@@ -3,6 +3,7 @@
 
 export const NAV_LINKS = [
   { id: 'inicio', label: 'Inicio', href: '#inicio' },
+  { id: 'estadisticas', label: 'Estadísticas', href: '#estadisticas' },
   { id: 'reportar', label: 'Reportar incidente', href: '#reportar' },
   { id: 'mapa', label: 'Mapa de riesgo', href: '#mapa' },
   { id: 'alertas', label: 'Alertas', href: '#alertas' },

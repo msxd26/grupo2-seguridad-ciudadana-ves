@@ -58,6 +58,12 @@ export default function Footer() {
       <div className="footer__bottom">
         <div className="container">
           © {CURRENT_YEAR} Alerta VES · Grupo 2 — Seguridad Ciudadana Villa El Salvador
+          <br />
+          Datos: MININTER – SIDPOL, vía la{' '}
+          <a href="https://www.datosabiertos.gob.pe" target="_blank" rel="noreferrer">
+            Plataforma Nacional de Datos Abiertos
+          </a>
+          .
         </div>
       </div>
     </footer>
